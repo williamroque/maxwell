@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            background: #171414;
+            display: flex;
+            justify-content: center;
+        }
+
+        body {
+            -webkit-app-region: drag;
+        }
+
+        body:active {
+            cursor: move;
+        }
+
+        #gesture-canvas {
+            background: #171414;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="python-canvas" width="600" height="500"></canvas>
+    <script src="../rjs/index.js"></script>
+</body>
+</html>

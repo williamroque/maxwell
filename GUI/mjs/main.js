@@ -1,0 +1,43 @@
+const { app, ipcMain } = require('electron');
+const net = require('net');
+
+const Window = require('./window');
+
+const fixPath = require('fix-path');
+fixPath();
+
+let mainWindow;
+
+app.on('ready', () => {
+    mainWindow = new Window({
+        icon: '../assets/icon.png',
+        frame: false,
+        width: 600,
+        height: 500,
+        minWidth: 300,
+        minHeight: 300,
+        resizable: true,
+        fullscreen: false,
+        backgroundColor: '#171414',
+    }, 'index.html');
+    
+    mainWindow.createWindow();
+});
+
+app.on('window-all-closed', () => {
+    app.exit(0);
+});
+
+const server = net.createServer();
+
+server.on('connection', socket => {
+    socket.on('data', data => {
+        data.toString().split('\n').forEach(message => {
+            if (message) {
+                mainWindow.dispatchWebEvent('parse-message', JSON.parse(message));
+            }
+        });
+    });
+});
+
+server.listen(1337, '127.0.0.1');

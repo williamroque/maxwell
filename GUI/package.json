@@ -1,0 +1,30 @@
+{
+    "name": "mframe",
+    "productName": "mframe",
+    "version": "1.0.0",
+    "description": "A modern python canvas",
+    "build": {
+        "appId": "com.quantum.mframe",
+        "mac": {
+            "target": "mas",
+            "icon": "assets/icon.icns",
+            "darkModeSupport": true
+        }
+    },
+    "scripts": {
+        "start": "electron .",
+        "dist-mac": "electron-builder -m",
+        "rebuild": "npm rebuild --runtime=electron --target=5.0.13 --disturl=https://atom.io/download/atom-shell --abi=70"
+    },
+    "main": "mjs/main.js",
+    "author": "William Roque",
+    "email": "William Roque <william.aroque@gmail.com>",
+    "license": "ISC",
+    "devDependencies": {
+        "electron-builder": "^22.8.1"
+    },
+    "dependencies": {
+        "electron": "^11.1.1",
+        "fix-path": "^2.1.0"
+    }
+}
