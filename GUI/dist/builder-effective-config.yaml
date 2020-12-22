@@ -1,9 +1,0 @@
-directories:
-  output: dist
-  buildResources: build
-appId: com.quantum.wave
-mac:
-  target: mas
-  icon: assets/icon.icns
-  darkModeSupport: true
-electronVersion: 5.0.13
