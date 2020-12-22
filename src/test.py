@@ -1,6 +1,6 @@
 from time import sleep
 
-from core.util import clear
+from core.util import clear, await_event
 from core.scene import Scene
 from core.frame import Frame
 
@@ -12,7 +12,13 @@ client = Client()
 
 scene = Scene('Fantastic scene')
 
-rect = Rect(client, 10, 10, 100, 100, 'orange', 'transparent')
+rect = Rect(
+    client,
+    await_event(client, 'click', ['clientX'])[0], 10,
+    100, 100,
+    'orange', 'transparent'
+)
+
 scene.add_shape(rect, 'orange-rect')
 
 rect.v = [0, 0]

@@ -31,12 +31,22 @@ app.on('window-all-closed', () => {
 const server = net.createServer();
 
 server.on('connection', socket => {
+    ipcMain.on('send-event-results', (event, data) => {
+        socket.write(JSON.stringify(data));
+
+        event.returnValue = '';
+    });
+
     socket.on('data', data => {
         data.toString().split('\n').forEach(message => {
             if (message) {
                 mainWindow.dispatchWebEvent('parse-message', JSON.parse(message));
             }
         });
+    });
+
+    socket.on('close', () => {
+        ipcMain.removeAllListeners('send-event-results');
     });
 });
 

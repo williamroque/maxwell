@@ -20,7 +20,6 @@ function drawRect(args) {
     ctx.strokeRect(x, y, cx, cy);
 }
 
-
 ipcRenderer.on('parse-message', (_, data) => {
     if (data.command === 'draw') {
         if (data.args.type === 'rect') {
@@ -33,5 +32,13 @@ ipcRenderer.on('parse-message', (_, data) => {
         } else {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
+    } else if (data.command === 'awaitEvent') {
+        function temporaryEventListener(e) {
+            canvas.removeEventListener(data.args.type, temporaryEventListener);
+
+            ipcRenderer.sendSync('send-event-results', data.args.dataKeys.map(k => e[k]));
+        }
+
+        canvas.addEventListener(data.args.type, temporaryEventListener);
     }
 });
