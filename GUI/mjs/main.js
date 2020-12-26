@@ -31,7 +31,7 @@ app.on('window-all-closed', () => {
 const server = net.createServer();
 
 server.on('connection', socket => {
-    ipcMain.on('send-event-results', (event, data) => {
+    ipcMain.on('send-results', (event, data) => {
         socket.write(JSON.stringify(data));
 
         event.returnValue = '';
@@ -46,7 +46,7 @@ server.on('connection', socket => {
     });
 
     socket.on('close', () => {
-        ipcMain.removeAllListeners('send-event-results');
+        ipcMain.removeAllListeners('send-results');
     });
 });
 

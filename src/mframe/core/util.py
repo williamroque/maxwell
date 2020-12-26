@@ -27,3 +27,25 @@ def await_event(client, event, keys):
     client.send_message(message)
 
     return json.loads(client.receive_message())
+
+def await_properties(client, keys):
+    message = {
+        'command': 'awaitProperties',
+        'args': {
+            'keys': keys
+        }
+    }
+
+    client.send_message(message)
+
+    return json.loads(client.receive_message())
+
+def download_canvas(client, fileName):
+    message = {
+        'command': 'downloadCanvas',
+        'args': {
+            'fileName': fileName
+        }
+    }
+
+    client.send_message(message)

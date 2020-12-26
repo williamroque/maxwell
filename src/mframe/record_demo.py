@@ -1,6 +1,4 @@
-from time import sleep
-
-from core.util import clear, await_event
+from core.util import clear, download_canvas, await_event
 from core.scene import Scene
 from core.frame import Frame
 
@@ -10,19 +8,23 @@ from shapes.rect import Rect
 
 client = Client()
 
-scene = Scene('Fantastic scene')
+clear(client)
+
+await_event(client, 'click', [])
+
+scene = Scene('Falling square')
 
 rect = Rect(
     client,
-    await_event(client, 'click', ['clientX'])[0], 10,
+    50, 10,
     100, 100,
-    'orange', 'transparent'
+    '#ccc', 'transparent'
 )
 
 scene.add_shape(rect, 'orange-rect')
 
 rect.v = [0, 0]
-rect.a = [0, 1]
+rect.a = [0, 1.5]
 
 
 class MoveFrame(Frame):
@@ -46,13 +48,6 @@ for _ in range(28):
     frame = MoveFrame()
     scene.add_frame(frame)
 
-for _ in scene.frames:
-    clear(client, True)
-    scene.render()
-    scene.next_frame(.05)
-
-sleep(5)
-
-clear(client)
+scene.play(client, save_path='/users/jetblack/Desktop/images', weak_clear=True)
 
 client.close()
