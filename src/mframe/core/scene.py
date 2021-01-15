@@ -1,15 +1,15 @@
 from time import sleep
 import os
 
-from core.util import clear, download_canvas
+from mframe.core.util import clear, download_canvas
 
 
 class Scene():
-    def __init__(self, name):
-        self.name = name
-
+    def __init__(self, properties={}):
         self.frames = []
         self.current_frame = -1
+
+        self.properties = properties
 
         self.shapes = {}
 
@@ -23,12 +23,12 @@ class Scene():
         self.current_frame += 1
         sleep(timeout)
 
-    def play(self, client, weak_clear=False, frame_duration=.05, from_start=True, save_path=None, framerate=40, fps=40):
+    def play(self, client, clear_opacity=1, frame_duration=.05, from_start=True, save_path=None, framerate=40, fps=40):
         if from_start:
             self.current_frame = 0
 
         for i in range(len(self.frames)):
-            clear(client, weak_clear)
+            clear(client, clear_opacity)
             self.render()
 
             if save_path != None:
@@ -39,19 +39,20 @@ class Scene():
 
             self.next_frame(frame_duration)
 
-        os.system(
-            'ffmpeg -y -r {framerate} -i {save_path}/image_%010d.png -c:v libx264 -vf fps={fps} -pix_fmt yuv420p {save_path}/out.mp4'.format(
-                framerate=framerate,
-                save_path=save_path,
-                fps=fps,
+        if save_path != None:
+            os.system(
+                'ffmpeg -y -r {framerate} -i {save_path}/image_%010d.png -c:v libx264 -vf fps={fps} -pix_fmt yuv420p {save_path}/out.mp4'.format(
+                    framerate=framerate,
+                    save_path=save_path,
+                    fps=fps,
+                )
             )
-        )
 
     def add_shape(self, shape, shape_id):
         self.shapes[shape_id] = shape
 
     def render(self):
         if self.current_frame > -1:
-            self.frames[self.current_frame].apply_frame()
+            self.frames[self.current_frame].apply_frame(self.properties)
             for shape in self.shapes.values():
                 shape.render()

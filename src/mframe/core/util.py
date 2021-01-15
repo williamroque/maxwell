@@ -2,11 +2,11 @@ import os
 import json
 
 
-def clear(client, weak=False):
+def clear(client, opacity=1):
     message = {
         'command': 'clear',
         'args': {
-            'weak': weak
+            'opacity': opacity
         }
     }
 

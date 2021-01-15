@@ -5,5 +5,5 @@ class Frame():
     def set_scene(self, scene):
         self.scene = scene
 
-    def apply_frame(self):
+    def apply_frame(self, properties):
         pass

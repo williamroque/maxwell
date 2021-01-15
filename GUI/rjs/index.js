@@ -1,5 +1,6 @@
 const { ipcRenderer } = require('electron');
 const fs = require('fs');
+const { spawn } = require('child_process');
 
 const canvas = document.querySelector('#python-canvas');
 const ctx = canvas.getContext('2d');
@@ -55,13 +56,17 @@ function drawArc(args) {
 }
 
 function drawImage(args) {
-    const { src, x, y, width, height } = args;
+    const { src, x, y, width, height, isTemporary } = args;
 
     const image = new Image();
     image.src = src;
 
     image.onload = () => {
         ctx.drawImage(image, x, y, width, height);
+
+        if (isTemporary) {
+            spawn('rm', [src]);
+        }
     };
 }
 
@@ -93,13 +98,8 @@ ipcRenderer.on('parse-message', (_, data) => {
             drawImage(data.args);
         } 
     } else if (data.command === 'clear') {
-        if (data.args.weak) {
-            ctx.fillStyle = '#17141433';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        } else {
-            ctx.fillStyle = '#171414';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
+        ctx.fillStyle = `#171414${((data.args.opacity * 255) | 0).toString(16)}`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     } else if (data.command === 'awaitEvent') {
         function temporaryEventListener(e) {
             canvas.removeEventListener(data.args.type, temporaryEventListener);

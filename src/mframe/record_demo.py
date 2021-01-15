@@ -12,7 +12,7 @@ clear(client)
 
 await_event(client, 'click', [])
 
-scene = Scene('Falling square')
+scene = Scene()
 
 rect = Rect(
     client,
@@ -31,7 +31,7 @@ class MoveFrame(Frame):
     def __init__(self):
         super().__init__()
 
-    def apply_frame(self):
+    def apply_frame(self, properties):
         rect = self.scene.shapes['orange-rect']
 
         if rect.x <= 350:
@@ -48,6 +48,6 @@ for _ in range(28):
     frame = MoveFrame()
     scene.add_frame(frame)
 
-scene.play(client, save_path='/users/jetblack/Desktop/images', weak_clear=True)
+scene.play(client, save_path='/users/jetblack/Desktop/animation', clear_opacity=.1)
 
 client.close()
