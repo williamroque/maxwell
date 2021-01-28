@@ -1,7 +1,13 @@
 from time import sleep
 import os
+from json import dumps, JSONEncoder
 
 from mframe.core.util import clear, download_canvas
+
+
+class PropertiesDecoder(JSONEncoder):
+    def default(self, obj):
+        return obj.properties
 
 
 class Scene():
@@ -50,6 +56,22 @@ class Scene():
 
     def add_shape(self, shape, shape_id):
         self.shapes[shape_id] = shape
+
+    def prerender_play(self, client, frame_duration=.05):
+        rendered_frames = [dumps(self.shapes, cls=PropertiesDecoder)]
+        for frame in self.frames:
+            frame.apply_frame(self.properties)
+            rendered_frames.append(dumps(self.shapes, cls=PropertiesDecoder))
+
+        message = {
+            'command': 'renderScene',
+            'args': {
+                'frames': rendered_frames,
+                'frameDuration': frame_duration
+            }
+        }
+
+        client.send_message(message)
 
     def render(self):
         if self.current_frame > -1:

@@ -37,11 +37,21 @@ server.on('connection', socket => {
         event.returnValue = '';
     });
 
+    let accumulated = '';
+
     socket.on('data', data => {
-        data.toString().split('\n').forEach(message => {
-            if (message) {
-                mainWindow.dispatchWebEvent('parse-message', JSON.parse(message));
-            }
+        data = data.toString().split('\n');
+
+        let last = data.pop();
+        if (last !== '') {
+            accumulated += last;
+        } else if (accumulated) {
+            data[0] = accumulated + data[0];
+            accumulated = '';
+        }
+
+        data.forEach(message => {
+            mainWindow.dispatchWebEvent('parse-message', JSON.parse(message));
         });
     });
 

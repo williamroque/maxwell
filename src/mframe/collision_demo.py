@@ -18,10 +18,10 @@ scene = Scene()
 
 point = np.array([width / 2, height / 2 - 150])
 
-rect = Rect(client, *point, 50, 50, '#ccc', 'transparent')
+rect = Rect(client, *point, 50, 50, 'transparent', '#ccc')
 rect.render()
 
-line_points = [(50, 50), (50, height - 50)]
+line_points = [(100, 50), (50, height - 50)]
 
 line = LineSet(client, line_points, color='orange', width=1)
 line.render()
@@ -30,20 +30,20 @@ scene.add_shape(rect, 'rect')
 scene.add_shape(line, 'line')
 
 v = -2
-a = -.8
+a = 0
 class MotionFrame(Frame):
     def __init__(self):
         super().__init__()
 
     def apply_frame(self, properties):
         global v, a
-        if not LineSet.collide(line_points, point, 5):
+        if not LineSet.collide(line_points, point, 1):
             point[0] += v
-            self.scene.shapes['rect'].x += v
+            self.scene.shapes['rect'].properties['x'] += v
 
             v += a
         
-for i in range(25):
+for i in range(110):
     scene.add_frame(MotionFrame())
 
-scene.play(client, frame_duration=.05, clear_opacity=.3)
+scene.prerender_play(client, frame_duration=.001)

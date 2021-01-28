@@ -1,6 +1,8 @@
 import os
 import json
 
+from mframe.client.client import Client
+
 
 def clear(client, opacity=1):
     message = {

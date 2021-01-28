@@ -21,31 +21,31 @@ rect = Rect(
 
 scene.add_shape(rect, 'orange-rect')
 
-rect.v = [0, 0]
-rect.a = [0, 1]
+rect.v = [0, 1]
+rect.a = [0, 0]
 
 
 class MoveFrame(Frame):
     def __init__(self):
         super().__init__()
 
-    def apply_frame(self):
+    def apply_frame(self, properties):
         rect = self.scene.shapes['orange-rect']
 
-        if rect.x <= 350:
-            rect.x += rect.v[0]
+        if rect.properties['x'] <= 350:
+            rect.properties['x'] += rect.v[0]
 
-        if rect.y <= 350:
-            rect.y += rect.v[1]
+        if rect.properties['y'] <= 350:
+            rect.properties['y'] += rect.v[1]
 
         rect.v[0] += rect.a[0]
         rect.v[1] += rect.a[1]
 
 
-for _ in range(28):
+for _ in range(350):
     frame = MoveFrame()
     scene.add_frame(frame)
 
-scene.play(client, True)
+scene.prerender_play(client, frame_duration=.01)
 
 client.close()

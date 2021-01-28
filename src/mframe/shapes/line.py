@@ -5,10 +5,12 @@ class LineSet():
     def __init__(self, client, points, color='#fff', width=3):
         self.client = client
 
-        self.points = points
-
-        self.color = color
-        self.width = width
+        self.properties = {
+            'type': 'lineset',
+            'points': points,
+            'color': color,
+            'width': width
+        }
 
     @staticmethod
     def rotate(origin, point, theta, degrees=False):
@@ -30,7 +32,7 @@ class LineSet():
         return point
 
     def translate_all(self, dx=0, dy=0):
-        for point in self.points:
+        for point in self.properties['points']:
             point[0] += dx
             point[1] += dy
 
@@ -65,10 +67,7 @@ class LineSet():
         message = {
             'command': 'draw',
             'args': {
-                'type': 'lineset',
-                'points': self.points,
-                'color': self.color,
-                'width': self.width,
+                **self.properties
             }
         }
 

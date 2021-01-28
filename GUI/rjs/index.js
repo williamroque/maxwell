@@ -86,20 +86,28 @@ class Properties {
     }
 }
 
+function draw(args) {
+    if (args.type === 'rect') {
+        drawRect(args);
+    } else if (args.type === 'lineset') {
+        drawLineSet(args);
+    } else if (args.type === 'arc') {
+        drawArc(args);
+    } else if (args.type === 'image') {
+        drawImage(args);
+    } 
+}
+
+function clearCanvas(opacity) {
+    ctx.fillStyle = `#171414${((opacity * 255) | 0).toString(16)}`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
 ipcRenderer.on('parse-message', (_, data) => {
     if (data.command === 'draw') {
-        if (data.args.type === 'rect') {
-            drawRect(data.args);
-        } else if (data.args.type === 'lineset') {
-            drawLineSet(data.args);
-        } else if (data.args.type === 'arc') {
-            drawArc(data.args);
-        } else if (data.args.type === 'image') {
-            drawImage(data.args);
-        } 
+        draw(data.args);
     } else if (data.command === 'clear') {
-        ctx.fillStyle = `#171414${((data.args.opacity * 255) | 0).toString(16)}`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        clearCanvas(data.args.opacity);
     } else if (data.command === 'awaitEvent') {
         function temporaryEventListener(e) {
             canvas.removeEventListener(data.args.type, temporaryEventListener);
@@ -115,5 +123,19 @@ ipcRenderer.on('parse-message', (_, data) => {
         );
     } else if (data.command === 'downloadCanvas') {
         downloadCanvas(data.args.fileName);
+    } else if (data.command === 'renderScene') {
+        function renderFrame(frames) {
+            if (frames.length < 1) return;
+
+            const frame = JSON.parse(frames.shift());
+
+            clearCanvas(1);
+            Object.values(frame).forEach(shape => {
+                draw(shape);
+            });
+
+            setTimeout(renderFrame, data.args.frameDuration * 1000, frames);
+        }
+        renderFrame(data.args.frames);
     }
 });

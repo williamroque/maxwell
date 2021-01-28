@@ -6,24 +6,32 @@ class Latex():
     def __init__(self, client, text, path=None, x=0, y=0, scale=100, color='#fff'):
         self.client = client
 
-        self.text = text
-        self.x = x
-        self.y = y
-        self.scale = scale
-        self.color = color
-
         if path == None:
-            self.path = f'/tmp/{datetime.datetime.now()}.png'
-            self.is_temporary = True
+            path = f'/tmp/{datetime.datetime.now()}.png'
+            is_temporary = True
         else:
-            self.path = path
-            self.is_temporary = False
+            path = path
+            is_temporary = False
 
+        width = 6.5
+        height = 5
+
+        self.properties = {
+            'type': 'image',
+            'src': path,
+            'x': x,
+            'y': y,
+            'width': width * scale,
+            'height': height * scale,
+            'color': color,
+            'text': text,
+            'isTemporary': is_temporary
+        }
 
     def render(self):
         plt.rcParams['text.usetex'] = True
 
-        plt.text(0, 1, self.text, fontsize='14', color=self.color)
+        plt.text(0, 1, self.properties['text'], fontsize='14', color=self.properties['color'])
 
         ax = plt.gca()
 
@@ -33,21 +41,12 @@ class Latex():
         ax.axes.get_xaxis().set_visible(False)
         ax.axes.get_yaxis().set_visible(False)
 
-        plt.savefig(self.path, transparent=True, dpi=300)
-
-        width = 6.5
-        height = 5
+        plt.savefig(self.properties['src'], transparent=True, dpi=300)
 
         message = {
             'command': 'draw',
             'args': {
-                'type': 'image',
-                'src': self.path,
-                'x': self.x,
-                'y': self.y,
-                'width': width * self.scale,
-                'height': height * self.scale,
-                'isTemporary': self.is_temporary
+                **self.properties
             }
         }
 
