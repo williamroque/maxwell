@@ -11,13 +11,15 @@ class PropertiesDecoder(JSONEncoder):
 
 
 class Scene():
-    def __init__(self, properties={}):
+    def __init__(self, client, properties={}):
         self.frames = []
         self.current_frame = -1
 
         self.properties = properties
 
         self.shapes = {}
+
+        self.client = client
 
     def add_frame(self, frame):
         self.current_frame = 0
@@ -29,17 +31,17 @@ class Scene():
         self.current_frame += 1
         sleep(timeout)
 
-    def play(self, client, clear_opacity=1, frame_duration=.05, from_start=True, save_path=None, framerate=40, fps=40):
+    def play(self, clear_opacity=1, frame_duration=.05, from_start=True, save_path=None, framerate=40, fps=40):
         if from_start:
             self.current_frame = 0
 
         for i in range(len(self.frames)):
-            clear(client, clear_opacity)
+            clear(self.client, clear_opacity)
             self.render()
 
             if save_path != None:
                 download_canvas(
-                    client,
+                    self.client,
                     save_path + '/image_{0:0>10}.png'.format(i)
                 )
 
@@ -57,7 +59,7 @@ class Scene():
     def add_shape(self, shape, shape_id):
         self.shapes[shape_id] = shape
 
-    def prerender_play(self, client, frame_duration=.05):
+    def prerender_play(self, frame_duration=.05):
         rendered_frames = [dumps(self.shapes, cls=PropertiesDecoder)]
         for frame in self.frames:
             frame.apply_frame(self.properties)
@@ -71,7 +73,7 @@ class Scene():
             }
         }
 
-        client.send_message(message)
+        self.client.send_message(message)
 
     def render(self):
         if self.current_frame > -1:

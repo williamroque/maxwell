@@ -14,7 +14,7 @@ clear(client)
 
 width, height = await_properties(client, ['width', 'height'])
 
-scene = Scene()
+scene = Scene(client)
 
 point = np.array([width / 2, height / 2 - 150])
 
@@ -46,4 +46,4 @@ class MotionFrame(Frame):
 for i in range(110):
     scene.add_frame(MotionFrame())
 
-scene.prerender_play(client, frame_duration=.001)
+scene.prerender_play(frame_duration=.001)

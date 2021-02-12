@@ -47,7 +47,7 @@ curve.render()
 a = -np.pi
 b = np.pi
 
-scene = Scene({'n': 1})
+scene = Scene(client, {'n': 1})
 scene.add_shape(x_axis, 'x-axis')
 scene.add_shape(y_axis, 'y-axis')
 scene.add_shape(curve, 'curve')
@@ -73,4 +73,4 @@ for i in range(30):
     scene.add_frame(ApproximationFrame())
 
 await_event(client, 'click', [])
-scene.prerender_play(client, frame_duration=.7)
+scene.prerender_play(frame_duration=.7)

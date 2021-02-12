@@ -3,6 +3,19 @@ from mframe.shapes.line import LineSet
 
 class Polygon():
     def __init__(self, client, origin, n_sides, triangle_side_length, color='#fff', width=3):
+        """
+        A class for polygons.
+
+        Arguments:
+        * client               -- Target client.
+        * origin               -- The starting point for the polygon.
+        * n_sides              -- The number of sides of the polygon.
+        * triangle_side_length -- The length of the sides if the polygon
+        were a triangle.
+        * color                -- The color of the lines.
+        * width                -- The stroke width.
+        """
+
         self.client = client
 
         self.properties = {

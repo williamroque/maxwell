@@ -3,6 +3,17 @@ import numpy as np
 
 class LineSet():
     def __init__(self, client, points, color='#fff', width=3):
+        """
+        A class for lines.
+
+        Arguments:
+        * client -- Target client.
+        * points -- The points connecting the lines as 2-tuples or
+        2-item lists
+        * color  -- The color of the lines.
+        * width  -- The stroke width of the lines.
+        """
+
         self.client = client
 
         self.properties = {
@@ -14,6 +25,17 @@ class LineSet():
 
     @staticmethod
     def rotate(origin, point, theta, degrees=False):
+        """
+        Rotate a point about an arbitrary origin.
+
+        Arguments:
+        * origin -- The origin.
+        * point -- The point to be rotated.
+        * theta -- The angle of rotation.
+        * degrees -- Whether the angle should be in degrees
+        (radians by default).
+        """
+
         if degrees:
             theta = theta * np.pi / 180
 
@@ -32,12 +54,32 @@ class LineSet():
         return point
 
     def translate_all(self, dx=0, dy=0):
+        """
+        Translate all endpoints with respect to x and y components.
+
+        Arguments:
+        * dx -- The amount by which the x-component should change.
+        * dy -- The amount by which the y-component should change.
+        """
+
         for point in self.properties['points']:
             point[0] += dx
             point[1] += dy
 
     @staticmethod
     def collide(line, point, threshold=0):
+        """
+        Determine whether a point coincides with line within a certain
+        threshold. This is done by converting to polar coordinates.
+
+        Arguments:
+        * line      -- The 2-tuple of 2-tuples (or lists) representing
+        the line.
+        * point     -- The point.
+        * threshold -- The maximum distance between the line and the
+        point before they are considered to have collided.
+        """
+
         if point[0] == line[0][0] and point[1] == line[0][1] or\
            point[0] == line[1][0] and point[1] == line[1][1]:
             return True
@@ -52,6 +94,24 @@ class LineSet():
 
     @staticmethod
     def get_angle(p_1, p_2):
+        """
+        The angular distance between two points, taken as follows:
+
+        │  │
+        │  o
+        │ ╱│
+        │╱ │
+        o  │
+        │  │
+
+        Arguments:
+        * line      -- The 2-tuple of 2-tuples (or lists) representing
+        the line.
+        * point     -- The point.
+        * threshold -- The maximum distance between the line and the
+        point before they are considered to have collided.
+        """
+
         dx = p_2[0] - p_1[0]
         dy = p_2[1] - p_1[1]
         r = np.sqrt(dx**2 + dy**2)

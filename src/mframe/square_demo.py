@@ -1,8 +1,8 @@
 from time import sleep
 
-from core.util import clear, await_event
-from core.scene import Scene
-from core.frame import Frame
+from mframe.core.util import clear, await_event
+from mframe.core.scene import Scene
+from mframe.core.frame import Frame
 
 from client.client import Client
 from shapes.rect import Rect
@@ -10,7 +10,9 @@ from shapes.rect import Rect
 
 client = Client()
 
-scene = Scene('Falling square')
+clear(client)
+
+scene = Scene(client)
 
 rect = Rect(
     client,
@@ -46,6 +48,6 @@ for _ in range(350):
     frame = MoveFrame()
     scene.add_frame(frame)
 
-scene.prerender_play(client, frame_duration=.01)
+scene.prerender_play(frame_duration=.01)
 
 client.close()

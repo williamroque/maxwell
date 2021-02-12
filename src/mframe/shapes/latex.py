@@ -4,6 +4,19 @@ import datetime
 
 class Latex():
     def __init__(self, client, text, path=None, x=0, y=0, scale=100, color='#fff'):
+        """
+        A class for latex.
+
+        Arguments:
+        * client -- Target client.
+        * text   -- The latex to be rendered.
+        * path   -- The where the rendered latex should be saved. Temporary for None-values.
+        * x      -- The display x-coordinate.
+        * y      -- The display y-coordinate.
+        * scale  -- The effective size of display.
+        * color  -- The font color.
+        """
+
         self.client = client
 
         if path == None:

@@ -1,6 +1,6 @@
-from core.util import clear, download_canvas, await_event
-from core.scene import Scene
-from core.frame import Frame
+from mframe.core.util import clear, await_event
+from mframe.core.scene import Scene
+from mframe.core.frame import Frame
 
 from client.client import Client
 from shapes.rect import Rect
@@ -12,7 +12,7 @@ clear(client)
 
 await_event(client, 'click', [])
 
-scene = Scene()
+scene = Scene(client)
 
 rect = Rect(
     client,
@@ -48,6 +48,6 @@ for _ in range(28):
     frame = MoveFrame()
     scene.add_frame(frame)
 
-scene.play(client, save_path='/users/jetblack/Desktop/animation', clear_opacity=.1)
+scene.play(save_path='/users/jetblack/Desktop/animation', clear_opacity=.1)
 
 client.close()
