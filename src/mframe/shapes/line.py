@@ -2,16 +2,23 @@ import numpy as np
 
 
 class LineSet():
-    def __init__(self, client, points, color='#fff', width=3):
+    def __init__(self, client, points, color='#fff', width=3, arrows=0, arrow_size=6):
         """
         A class for lines.
 
         Arguments:
-        * client -- Target client.
-        * points -- The points connecting the lines as 2-tuples or
+        * client     -- Target client.
+        * points     -- The points connecting the lines as 2-tuples or
         2-item lists
-        * color  -- The color of the lines.
-        * width  -- The stroke width of the lines.
+        * color      -- The color of the lines.
+        * width      -- The stroke width of the lines.
+        * arrows     -- Which arrows to display if only single line:
+        0 = none
+        1 = ending point
+        2 = starting point
+        3 = both
+        * arrow_size -- The radius of the circle in which the arrow head
+        is inscribed.
         """
 
         self.client = client
@@ -20,7 +27,9 @@ class LineSet():
             'type': 'lineset',
             'points': points,
             'color': color,
-            'width': width
+            'width': width,
+            'arrows': arrows,
+            'arrowSize': arrow_size
         }
 
     @staticmethod

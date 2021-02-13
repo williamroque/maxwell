@@ -22,23 +22,66 @@ function drawRect(args) {
     ctx.strokeRect(x, y, cx, cy);
 }
 
-function drawLineSet(args) {
-    const { points, color, width } = args;
+function drawArrowHead(r, theta, origin) {
+    const alpha = 2*Math.PI/3;
 
-    if (points.length < 1) return;
+    let points = [];
 
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
+    for (let i = 0; i < 3; i++) {
+        points.push([
+            r * Math.cos(theta + i * alpha) + origin[0],
+            r * Math.sin(theta + i * alpha) + origin[1]
+        ]);
+    }
 
     ctx.beginPath();
 
-    ctx.moveTo(...points.shift());
+    let firstPoint = points.pop();
+    points.push(firstPoint);
+
+    ctx.moveTo(...firstPoint);
 
     points.forEach(point => {
         ctx.lineTo(...point);
     });
 
+    ctx.closePath();
     ctx.stroke();
+    ctx.fill();
+}
+
+function drawLineSet(args) {
+    const { points, color, width, arrows, arrowSize } = args;
+
+    if (points.length < 1) return;
+
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = width;
+
+    ctx.beginPath();
+
+    ctx.moveTo(...points[0]);
+
+    points.slice(1).forEach(point => {
+        ctx.lineTo(...point);
+    });
+
+    ctx.stroke();
+
+    if (points.length === 2 && arrows > 0) {
+        const dx = points[1][0] - points[0][0];
+        const dy = points[1][1] - points[0][1];
+        const theta = Math.atan2(dy, dx);
+
+        if (arrows & 1) {
+            drawArrowHead(arrowSize, theta, points[1]);
+        }
+
+        if (arrows & 2) {
+            drawArrowHead(-arrowSize, theta, points[0]);
+        }
+    }
 }
 
 function drawArc(args) {
@@ -103,6 +146,8 @@ function clearCanvas(opacity) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
+let isPlaying = false;
+
 ipcRenderer.on('parse-message', (_, data) => {
     if (data.command === 'draw') {
         draw(data.args);
@@ -124,6 +169,8 @@ ipcRenderer.on('parse-message', (_, data) => {
     } else if (data.command === 'downloadCanvas') {
         downloadCanvas(data.args.fileName);
     } else if (data.command === 'renderScene') {
+        isPlaying = true;
+
         function renderFrame(frames) {
             if (frames.length < 1) return;
 
@@ -134,8 +181,16 @@ ipcRenderer.on('parse-message', (_, data) => {
                 draw(shape);
             });
 
-            setTimeout(renderFrame, data.args.frameDuration * 1000, frames);
+            if (isPlaying) {
+                setTimeout(renderFrame, data.args.frameDuration * 1000, frames);
+            }
         }
         renderFrame(data.args.frames);
     }
 });
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'c' && e.ctrlKey) {
+        isPlaying = false;
+    }
+}, false)

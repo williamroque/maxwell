@@ -40,6 +40,7 @@ def partial(func, *partial_args, **partial_kwargs):
 clear = partial(util.clear, client)
 await_event = partial(util.await_event, client)
 await_properties = partial(util.await_properties, client)
+center_origin = partial(util.center_origin, client, system)
 
 Arc = partial(arc.Arc, client)
 Image = partial(img.Image, client)
@@ -52,3 +53,4 @@ Scene = partial(scene.Scene, client)
 
 create_axes = partial(shapes.create_axes, client, width, height)
 create_rect = partial(shapes.create_rect, client, system)
+

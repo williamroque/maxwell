@@ -3,6 +3,10 @@ import sys
 
 import json
 
+import numpy as np
+
+from mframe.core.util import await_properties
+
 
 class Client():
     def __init__(self, ip='127.0.0.1', port=1337):
@@ -23,6 +27,9 @@ class Client():
 
     def receive_message(self):
         return self.socket.recv(1024)
+
+    def get_shape(self):
+        return np.array(await_properties(self, ['width', 'height']))
 
     def close(self):
         self.socket.close()

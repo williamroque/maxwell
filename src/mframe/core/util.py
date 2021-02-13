@@ -1,8 +1,6 @@
 import os
 import json
 
-from mframe.client.client import Client
-
 
 def clear(client, opacity=1):
     message = {
@@ -41,6 +39,9 @@ def await_properties(client, keys):
     client.send_message(message)
 
     return json.loads(client.receive_message())
+
+def center_origin(client, system):
+    system.set_origin(client.get_shape() / 2)
 
 def download_canvas(client, fileName):
     message = {
