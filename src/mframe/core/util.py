@@ -15,7 +15,7 @@ def clear(client, opacity=1):
 def run_server():
     os.system('/Users/jetblack/mframe/GUI/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron /Users/jetblack/mframe/GUI/ &')
 
-def await_event(client, event, keys):
+def await_event(client, event, keys=[]):
     message = {
         'command': 'awaitEvent',
         'args': {
