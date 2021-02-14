@@ -1,12 +1,15 @@
 from time import sleep
 import os
 from json import dumps, JSONEncoder
+from mframe.shapes.polygon import Polygon
 
 from mframe.core.util import clear, download_canvas
 
 
-class PropertiesDecoder(JSONEncoder):
+class PropertiesEncoder(JSONEncoder):
     def default(self, obj):
+        if isinstance(obj, Polygon):
+            return obj.lineset.properties
         return obj.properties
 
 
@@ -31,45 +34,24 @@ class Scene():
         self.current_frame += 1
         sleep(timeout)
 
-    def play(self, clear_opacity=1, frame_duration=.05, from_start=True, save_path=None, framerate=40, fps=40):
-        if from_start:
-            self.current_frame = 0
-
-        for i in range(len(self.frames)):
-            clear(self.client, clear_opacity)
-            self.render()
-
-            if save_path != None:
-                download_canvas(
-                    self.client,
-                    save_path + '/image_{0:0>10}.png'.format(i)
-                )
-
-            self.next_frame(frame_duration)
-
-        if save_path != None:
-            os.system(
-                'ffmpeg -y -r {framerate} -i {save_path}/image_%010d.png -c:v libx264 -vf fps={fps} -pix_fmt yuv420p {save_path}/out.mp4'.format(
-                    framerate=framerate,
-                    save_path=save_path,
-                    fps=fps,
-                )
-            )
-
     def add_shape(self, shape, shape_id):
         self.shapes[shape_id] = shape
 
-    def prerender_play(self, frame_duration=.05):
-        rendered_frames = [dumps(self.shapes, cls=PropertiesDecoder)]
+    def play(self, frame_duration=.05, save_path='none', framerate=40, fps=40, clear_opacity=1):
+        rendered_frames = [dumps(self.shapes, cls=PropertiesEncoder)]
         for frame in self.frames:
             frame.apply_frame(self.properties)
-            rendered_frames.append(dumps(self.shapes, cls=PropertiesDecoder))
+            rendered_frames.append(dumps(self.shapes, cls=PropertiesEncoder))
 
         message = {
             'command': 'renderScene',
             'args': {
                 'frames': rendered_frames,
-                'frameDuration': frame_duration
+                'frameDuration': frame_duration,
+                'savePath': save_path,
+                'framerate': framerate,
+                'fps': fps,
+                'clearOpacity': clear_opacity
             }
         }
 

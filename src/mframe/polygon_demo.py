@@ -37,6 +37,6 @@ for i in range(30):
     frame = IncreaseNFrame(i)
     scene.add_frame(frame)
 
-scene.play(frame_duration=.01, clear_opacity=1, save_path='/Users/jetblack/Desktop/animation/', fps=1, framerate=1)
+scene.play(frame_duration=1)
 
 client.close()

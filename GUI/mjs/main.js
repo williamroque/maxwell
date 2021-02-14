@@ -51,7 +51,21 @@ server.on('connection', socket => {
         }
 
         data.forEach(message => {
-            mainWindow.dispatchWebEvent('parse-message', JSON.parse(message));
+            try {
+                let parsedMessage = JSON.parse(message);
+
+                if (parsedMessage.command === 'resizeWindow') {
+                    mainWindow.window.setBounds({
+                        width: parsedMessage.args.width,
+                        height: parsedMessage.args.height
+                    });
+                    mainWindow.dispatchWebEvent('resize-window');
+                } else {
+                    mainWindow.dispatchWebEvent('parse-message', parsedMessage);
+                }
+            } catch(e) {
+                console.log(e, message);
+            }
         });
     });
 

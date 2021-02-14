@@ -73,4 +73,4 @@ for i in range(30):
     scene.add_frame(ApproximationFrame())
 
 await_event(client, 'click', [])
-scene.prerender_play(frame_duration=.7)
+scene.play(frame_duration=.7)

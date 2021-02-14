@@ -3,7 +3,7 @@ import numpy as np
 from mframe.shapes.line import LineSet
 from mframe.shapes.rect import Rect
 from mframe.client.client import Client
-from mframe.core.util import clear, await_properties
+from mframe.core.util import clear, await_properties, await_event
 from mframe.shapes.latex import Latex
 from mframe.core.scene import Scene
 from mframe.core.frame import Frame
@@ -29,7 +29,9 @@ line.render()
 scene.add_shape(rect, 'rect')
 scene.add_shape(line, 'line')
 
-v = -2
+dt = .01
+
+v = -300
 a = 0
 class MotionFrame(Frame):
     def __init__(self):
@@ -38,12 +40,14 @@ class MotionFrame(Frame):
     def apply_frame(self, properties):
         global v, a
         if not LineSet.collide(line_points, point, 1):
-            point[0] += v
-            self.scene.shapes['rect'].properties['x'] += v
+            point[0] += v * dt
+            self.scene.shapes['rect'].properties['x'] += v * dt
 
-            v += a
+            v += a * dt
         
 for i in range(110):
     scene.add_frame(MotionFrame())
 
-scene.prerender_play(frame_duration=.001)
+await_event(client, 'click')
+
+scene.play(frame_duration=dt)

@@ -6,11 +6,30 @@ const canvas = document.querySelector('#python-canvas');
 const ctx = canvas.getContext('2d');
 
 
-window.addEventListener('resize', () => {
+function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-}, false);
+}
 
+window.addEventListener('resize', resizeCanvas, false);
+ipcRenderer.on('resize-window', resizeCanvas);
+
+let isLightMode = false;
+
+function toggleBackground() {
+    document.body.classList.toggle('light-body');
+    isLightMode = !isLightMode;
+}
+
+function setLightMode() {
+    document.body.classList.add('light-body');
+    isLightMode = true;
+}
+
+function setDarkMode() {
+    document.body.classList.remove('light-body');
+    isLightMode = false;
+}
 
 function drawRect(args) {
     const { x, y, cx, cy, fillColor, borderColor } = args;
@@ -117,8 +136,10 @@ function downloadCanvas(filePath) {
     const url = canvas.toDataURL('image/png', 0.8);
 
     const base64Data = url.replace(/^data:image\/png;base64,/, '');
+
     fs.writeFile(filePath, base64Data, 'base64', () => {});
 }
+
 class Properties {
     static get width() {
         return canvas.width;
@@ -142,7 +163,7 @@ function draw(args) {
 }
 
 function clearCanvas(opacity) {
-    ctx.fillStyle = `#171414${((opacity * 255) | 0).toString(16)}`;
+    ctx.fillStyle = `${isLightMode ? '#fff0d1' : '#171414'}${((opacity * 255) | 0).toString(16)}`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -155,12 +176,12 @@ ipcRenderer.on('parse-message', (_, data) => {
         clearCanvas(data.args.opacity);
     } else if (data.command === 'awaitEvent') {
         function temporaryEventListener(e) {
-            canvas.removeEventListener(data.args.type, temporaryEventListener);
+            document.removeEventListener(data.args.type, temporaryEventListener);
 
             ipcRenderer.sendSync('send-results', data.args.dataKeys.map(k => e[k]));
         }
 
-        canvas.addEventListener(data.args.type, temporaryEventListener);
+        document.addEventListener(data.args.type, temporaryEventListener);
     } else if (data.command === 'awaitProperties') {
         ipcRenderer.sendSync(
             'send-results',
@@ -171,21 +192,37 @@ ipcRenderer.on('parse-message', (_, data) => {
     } else if (data.command === 'renderScene') {
         isPlaying = true;
 
+        const frameCount = data.args.frames.length;
+
         function renderFrame(frames) {
-            if (frames.length < 1) return;
+            if (frames.length < 1) {
+                if (data.args.savePath !== 'none') {
+                    spawn('ffmpeg', `-y -r ${data.args.framerate} -i ${data.args.savePath}/image_%010d.png -c:v libx264 -vf fps=${data.args.fps} -pix_fmt yuv420p ${data.args.savePath}/out.mp4`.split(' '))
+                }
+            } else {
+                const frame = JSON.parse(frames.shift());
 
-            const frame = JSON.parse(frames.shift());
+                clearCanvas(data.args.clearOpacity);
+                Object.values(frame).forEach(shape => {
+                    draw(shape);
+                });
 
-            clearCanvas(1);
-            Object.values(frame).forEach(shape => {
-                draw(shape);
-            });
+                if (data.args.savePath !== 'none') {
+                    downloadCanvas(`${data.args.savePath}/image_${(frameCount - frames.length).toString().padStart(10, '0')}.png`);
+                }
 
-            if (isPlaying) {
-                setTimeout(renderFrame, data.args.frameDuration * 1000, frames);
+                if (isPlaying) {
+                    setTimeout(renderFrame, data.args.frameDuration * 1000, frames);
+                }
             }
         }
         renderFrame(data.args.frames);
+    } else if (data.command === 'toggleBackground') {
+        toggleBackground();
+    } else if (data.command === 'setLightMode') {
+        setLightMode();
+    } else if (data.command === 'setDarkMode') {
+        setDarkMode();
     }
 });
 

@@ -48,6 +48,6 @@ for _ in range(350):
     frame = MoveFrame()
     scene.add_frame(frame)
 
-scene.prerender_play(frame_duration=.01)
+scene.play(frame_duration=.01)
 
 client.close()

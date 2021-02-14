@@ -52,3 +52,29 @@ def download_canvas(client, fileName):
     }
 
     client.send_message(message)
+
+def toggle_background(client):
+    message = {'command': 'toggleBackground'}
+
+    client.send_message(message)
+
+def set_light_mode(client):
+    message = {'command': 'setLightMode'}
+
+    client.send_message(message)
+
+def set_dark_mode(client):
+    message = {'command': 'setDarkMode'}
+
+    client.send_message(message)
+
+def resize_window(client, width, height):
+    message = {
+        'command': 'resizeWindow',
+        'args': {
+            'width': width,
+            'height': height
+        }
+    }
+
+    client.send_message(message)

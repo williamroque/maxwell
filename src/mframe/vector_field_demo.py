@@ -1,9 +1,11 @@
 from mframe.int import *
 
 ## Setup
-clear()
+set_light_mode()
+resize_window(800, 800)
+center_origin()
 
-create_axes().render()
+clear()
 
 ## Scene
 scene = Scene({'points': []})
@@ -65,7 +67,7 @@ for i in range(p_n):
 
         scene.properties['points'].append([x, y])
 
-        particle = Arc(*system.normalize(np.array([x, y])), 3)
+        particle = Arc(*system.normalize(np.array([x, y])), 3, fill_color='#000', border_color='#000')
 
         particles.append(particle)
         scene.add_shape(particle, 'particle-{}'.format(p_n * i + j))
@@ -89,10 +91,14 @@ for particle in particles:
     particle.render()
 
 ## Event
-await_event('click')
+while await_event('keydown', ['key'])[0] != ' ':
+    pass
 
 ## Animation
-for _ in range(500):
+for _ in range(250):
     scene.add_frame(ParticleFrame())
 
-scene.prerender_play(frame_duration=dt)
+scene.play(frame_duration=dt)
+
+## Closing
+client.close()
