@@ -20,15 +20,15 @@ class Polygon(Shape):
         self.client = client
 
         self.origin = origin
-        self.triangle_side_length = triangle_side_length,
+        self.triangle_side_length = triangle_side_length
         self.color = color
         self.width = width
         self.points = []
 
-        self.change_side_number(n_sides)
-
         self.lineset = LineSet(self.client, self.points, self.color, self.width)
         self.properties = self.lineset.properties
+
+        self.change_side_number(n_sides)
 
     def change_side_number(self, n):
         self.n_sides = n
@@ -37,6 +37,8 @@ class Polygon(Shape):
         del self.points[:]
 
         self.construct_points()
+
+        self.lineset.properties.points = self.points
 
     def construct_points(self):
         self.points.append(self.origin)

@@ -4,6 +4,38 @@ from mframe.shapes.shape import Shape
 from mframe.core.properties import Properties
 
 
+class LineSetProperties(Properties):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        self._x, self._y = self.points[0] if len(self.points) > 0 else None, None
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, value):
+        self._x = value
+
+        dx = value - self.points[0][0]
+        for point in self.points:
+            point[0] += dx
+
+    @property
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, value):
+        self._y = value
+
+        dy = value - self.points[0][1]
+        for point in self.points:
+            point[1] += dy
+
+
 class LineSet(Shape):
     def __init__(self, client, points, color='#fff', width=3, arrows=0, arrow_size=6):
         """
@@ -26,9 +58,9 @@ class LineSet(Shape):
 
         self.client = client
 
-        self.properties = Properties(
+        self.properties = LineSetProperties(
             type = 'lineset',
-            points = points,
+            points = list(map(list, points)),
             color = color,
             width = width,
             arrows = arrows,

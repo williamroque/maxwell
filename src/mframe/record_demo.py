@@ -26,6 +26,8 @@ scene.add_shape(rect, 'orange-rect')
 rect.v = [0, 0]
 rect.a = [0, 1.5]
 
+dt = .01
+
 
 class MoveFrame(Frame):
     def __init__(self):
@@ -34,20 +36,20 @@ class MoveFrame(Frame):
     def apply_frame(self, properties):
         rect = self.scene.shapes['orange-rect']
 
-        if rect.properties['x'] <= 350:
-            rect.properties['x'] += rect.v[0]
+        if rect.properties.x <= 350:
+            rect.properties.x += rect.v[0] * dt
 
-        if rect.properties['y'] <= 350:
-            rect.properties['y'] += rect.v[1]
+        if rect.properties.y <= 350:
+            rect.properties.y += rect.v[1] * dt
 
         rect.v[0] += rect.a[0]
         rect.v[1] += rect.a[1]
 
 
-for _ in range(28):
+for _ in range(500):
     frame = MoveFrame()
     scene.add_frame(frame)
 
-scene.play(save_path='/users/jetblack/Desktop/animation', clear_opacity=.1)
+scene.play(save_path='~/Desktop/animation', frame_duration=dt)
 
 client.close()

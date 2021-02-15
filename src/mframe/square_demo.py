@@ -34,11 +34,11 @@ class MoveFrame(Frame):
     def apply_frame(self, properties):
         rect = self.scene.shapes['orange-rect']
 
-        if rect.properties['x'] <= 350:
-            rect.properties['x'] += rect.v[0]
+        if rect.properties.x <= 350:
+            rect.properties.x += rect.v[0]
 
-        if rect.properties['y'] <= 350:
-            rect.properties['y'] += rect.v[1]
+        if rect.properties.y <= 350:
+            rect.properties.y += rect.v[1]
 
         rect.v[0] += rect.a[0]
         rect.v[1] += rect.a[1]

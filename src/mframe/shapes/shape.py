@@ -3,11 +3,13 @@ import numpy as np
 from mframe.core.scene import Scene
 from mframe.core.frame import Frame
 
+from mframe.core.util import await_click
+
 import datetime
 
 
 class Shape():
-    def move_to_point(self, point, n=None, dt=.01, f=None, shapes=[]):
+    def move_to_point(self, point, n=None, dt=.01, f=None, shapes=[], n_scale=.5):
         scene = Scene(self.client, { 'i': 0 })
 
         shape_name = f'{datetime.datetime.now()}-shape'
@@ -17,8 +19,8 @@ class Shape():
             scene.add_shape(shape, f'{datetime.datetime.now()}-{i}-shape')
 
         starting_point = [
-            self.properties['x'],
-            self.properties['y']
+            self.properties.x,
+            self.properties.y
         ]
 
         cx = point[0] - starting_point[0]
@@ -26,7 +28,7 @@ class Shape():
         r = np.hypot(cx, cy)
 
         if n is None:
-            n = int(r / 2)
+            n = int(r * n_scale)
 
         if f is None:
             f = (lambda x: 0 * x + 1 / n, 0, 1)
@@ -37,13 +39,13 @@ class Shape():
 
         class MotionFrame(Frame):
             def apply_frame(self, props):
-                dx = cx * C[props['i']]
-                dy = cy * C[props['i']]
+                dx = cx * C[props.i]
+                dy = cy * C[props.i]
 
-                self.scene.shapes[shape_name].properties['x'] += dx
-                self.scene.shapes[shape_name].properties['y'] += dy
+                self.scene.shapes[shape_name].properties.x += dx
+                self.scene.shapes[shape_name].properties.y += dy
 
-                props['i'] += 1
+                props.i += 1
 
         for _ in range(n):
             scene.add_frame(MotionFrame())
@@ -52,10 +54,24 @@ class Shape():
 
     def move_to(self, other_shape, n=None, dt=.01, f=None, shapes=[]):
         ending_point = [
-            other_shape.properties['x'],
-            other_shape.properties['y']
+            other_shape.properties.x,
+            other_shape.properties.y
         ]
 
         return self.move_to_point(ending_point, n, dt, f, shapes + [other_shape])
 
+    def follow(self, animate=True, shapes=[]):
+        point = [None, None]
+
+        while not (props := await_click(self.client, 'altKey'))[2]:
+            point = props[:2]
+
+            if animate:
+                scene, dt = self.move_to_point([*props], n_scale=.2, dt=.005, f=(lambda x: np.sin(x), 0, np.pi), shapes=[])
+            else:
+                scene, dt = self.move_to_point([*props], n = 1, shapes=[])
+
+            scene.play(dt)
+
+        return point
 

@@ -41,7 +41,7 @@ class MotionFrame(Frame):
         global v, a
         if not LineSet.collide(line_points, point, 1):
             point[0] += v * dt
-            self.scene.shapes['rect'].properties['x'] += v * dt
+            self.scene.shapes['rect'].properties.x += v * dt
 
             v += a * dt
         

@@ -34,8 +34,8 @@ def await_space(client):
     while await_event(client, 'keydown', ['key'])[0] != ' ':
         pass
 
-def await_click(client):
-    return await_event(client, 'clieck', ['clientX', 'clientY'])
+def await_click(client, *props):
+    return await_event(client, 'click', ['clientX', 'clientY', *props])
 
 def await_properties(client, keys):
     message = {
