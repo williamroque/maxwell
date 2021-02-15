@@ -5,10 +5,19 @@ const { spawn } = require('child_process');
 const canvas = document.querySelector('#python-canvas');
 const ctx = canvas.getContext('2d');
 
+const backgroundCanvas = document.querySelector('#background-canvas');
+const bgCtx = backgroundCanvas.getContext('2d');
 
+
+let rerenderBackground = false;
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+
+    backgroundCanvas.width = window.innerWidth;
+    backgroundCanvas.height = window.innerHeight;
+
+    rerenderBackground = true;
 }
 
 window.addEventListener('resize', resizeCanvas, false);
@@ -31,7 +40,7 @@ function setDarkMode() {
     isLightMode = false;
 }
 
-function drawRect(args) {
+function drawRect(args, ctx) {
     const { x, y, cx, cy, fillColor, borderColor } = args;
 
     ctx.fillStyle = fillColor;
@@ -41,7 +50,7 @@ function drawRect(args) {
     ctx.strokeRect(x, y, cx, cy);
 }
 
-function drawArrowHead(r, theta, origin) {
+function drawArrowHead(r, theta, origin, ctx) {
     const alpha = 2*Math.PI/3;
 
     let points = [];
@@ -69,7 +78,7 @@ function drawArrowHead(r, theta, origin) {
     ctx.fill();
 }
 
-function drawLineSet(args) {
+function drawLineSet(args, ctx) {
     const { points, color, width, arrows, arrowSize } = args;
 
     if (points.length < 1) return;
@@ -94,16 +103,16 @@ function drawLineSet(args) {
         const theta = Math.atan2(dy, dx);
 
         if (arrows & 1) {
-            drawArrowHead(arrowSize, theta, points[1]);
+            drawArrowHead(arrowSize, theta, points[1], ctx);
         }
 
         if (arrows & 2) {
-            drawArrowHead(-arrowSize, theta, points[0]);
+            drawArrowHead(-arrowSize, theta, points[0], ctx);
         }
     }
 }
 
-function drawArc(args) {
+function drawArc(args, ctx) {
     const { x, y, radius, theta_1, theta_2, fillColor, borderColor } = args;
 
     ctx.fillStyle = fillColor;
@@ -117,7 +126,7 @@ function drawArc(args) {
     ctx.stroke();
 }
 
-function drawImage(args) {
+function drawImage(args, ctx) {
     const { src, x, y, width, height, isTemporary } = args;
 
     const image = new Image();
@@ -150,30 +159,33 @@ class Properties {
     }
 }
 
-function draw(args) {
+function draw(args, ctx) {
     if (args.type === 'rect') {
-        drawRect(args);
+        drawRect(args, ctx);
     } else if (args.type === 'lineset') {
-        drawLineSet(args);
+        drawLineSet(args, ctx);
     } else if (args.type === 'arc') {
-        drawArc(args);
+        drawArc(args, ctx);
     } else if (args.type === 'image') {
-        drawImage(args);
+        drawImage(args, ctx);
     } 
 }
 
-function clearCanvas(opacity) {
-    ctx.fillStyle = `${isLightMode ? '#fff0d1' : '#171414'}${((opacity * 255) | 0).toString(16)}`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+function clearCanvas(clearBackground) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (clearBackground) {
+        bgCtx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 }
 
 let isPlaying = false;
 
 ipcRenderer.on('parse-message', (_, data) => {
     if (data.command === 'draw') {
-        draw(data.args);
+        draw(data.args, ctx);
     } else if (data.command === 'clear') {
-        clearCanvas(data.args.opacity);
+        clearCanvas(data.args.background);
     } else if (data.command === 'awaitEvent') {
         function temporaryEventListener(e) {
             document.removeEventListener(data.args.type, temporaryEventListener);
@@ -193,21 +205,46 @@ ipcRenderer.on('parse-message', (_, data) => {
         isPlaying = true;
 
         const frameCount = data.args.frames.length;
+        const doesSave = data.args.savePath !== 'none';
+
+        if (!doesSave) {
+            Object.values(JSON.parse(data.args.background)).forEach(shape => {
+                draw(shape, bgCtx);
+            });
+        }
 
         function renderFrame(frames) {
             if (frames.length < 1) {
-                if (data.args.savePath !== 'none') {
+                if (doesSave) {
                     spawn('ffmpeg', `-y -r ${data.args.framerate} -i ${data.args.savePath}/image_%010d.png -c:v libx264 -vf fps=${data.args.fps} -pix_fmt yuv420p ${data.args.savePath}/out.mp4`.split(' '))
                 }
             } else {
                 const frame = JSON.parse(frames.shift());
 
-                clearCanvas(data.args.clearOpacity);
+                clearCanvas(false);
+
+                if (doesSave) {
+                    ctx.fillStyle = isLightMode ? '#fff0d1' : '#171414';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    Object.values(JSON.parse(data.args.background)).forEach(shape => {
+                        draw(shape, ctx);
+                    });
+                }
+
+                if (rerenderBackground) {
+                    Object.values(JSON.parse(data.args.background)).forEach(shape => {
+                        draw(shape, bgCtx);
+                    });
+
+                    rerenderBackground = false;
+                }
+
                 Object.values(frame).forEach(shape => {
-                    draw(shape);
+                    draw(shape, ctx);
                 });
 
-                if (data.args.savePath !== 'none') {
+                if (doesSave) {
                     downloadCanvas(`${data.args.savePath}/image_${(frameCount - frames.length).toString().padStart(10, '0')}.png`);
                 }
 
@@ -227,7 +264,13 @@ ipcRenderer.on('parse-message', (_, data) => {
 });
 
 document.addEventListener('keydown', e => {
-    if (e.key === 'c' && e.ctrlKey) {
-        isPlaying = false;
+    if (e.ctrlKey) {
+        if (e.key === 'c') {
+            isPlaying = false;
+        } else if (e.key === 'u') {
+            clearCanvas(true);
+        } else if (e.key === 'b') {
+            toggleBackground();
+        }
     }
 }, false)

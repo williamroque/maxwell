@@ -1,8 +1,12 @@
-import matplotlib.pyplot as plt
 import datetime
 
+import matplotlib.pyplot as plt
 
-class Latex():
+from mframe.shapes.shape import Shape
+from mframe.core.properties import Properties
+
+
+class Latex(Shape):
     def __init__(self, client, text, path=None, x=0, y=0, scale=100, color='#fff'):
         """
         A class for latex.
@@ -29,17 +33,17 @@ class Latex():
         width = 6.5
         height = 5
 
-        self.properties = {
-            'type': 'image',
-            'src': path,
-            'x': x,
-            'y': y,
-            'width': width * scale,
-            'height': height * scale,
-            'color': color,
-            'text': text,
-            'isTemporary': is_temporary
-        }
+        self.properties = Properties(
+            type = 'image',
+            src = path,
+            x = x,
+            y = y,
+            width = width * scale,
+            height = height * scale,
+            color = color,
+            text = text,
+            isTemporary = is_temporary
+        )
 
     def render(self):
         plt.rcParams['text.usetex'] = True

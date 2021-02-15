@@ -1,4 +1,8 @@
-class Image():
+from mframe.shapes.shape import Shape
+from mframe.core.properties import Properties
+
+
+class Image(Shape):
     def __init__(self, client, src, x, y, width, height):
         """
         A class for images.
@@ -14,14 +18,14 @@ class Image():
 
         self.client = client
 
-        self.properties = {
-            'type': 'image',
-            'src': src,
-            'x': x,
-            'y': y,
-            'width': width,
-            'height': height,
-        }
+        self.properties = Properties(
+            type = 'image',
+            src = src,
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+        )
 
     def render(self):
         message = {

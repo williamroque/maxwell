@@ -1,12 +1,14 @@
 import os
 import json
 
+import inspect
 
-def clear(client, opacity=1):
+
+def clear(client, background=True):
     message = {
         'command': 'clear',
         'args': {
-            'opacity': opacity
+            'background': background
         }
     }
 
@@ -27,6 +29,13 @@ def await_event(client, event, keys=[]):
     client.send_message(message)
 
     return json.loads(client.receive_message())
+
+def await_space(client):
+    while await_event(client, 'keydown', ['key'])[0] != ' ':
+        pass
+
+def await_click(client):
+    return await_event(client, 'clieck', ['clientX', 'clientY'])
 
 def await_properties(client, keys):
     message = {
@@ -78,3 +87,12 @@ def resize_window(client, width, height):
     }
 
     client.send_message(message)
+
+def partial(func, *partial_args, **partial_kwargs):
+    partial_func = lambda *args, **kwargs: func(*partial_args, *args, **partial_kwargs, **kwargs)
+    partial_func.__doc__ = func.__doc__
+
+    if inspect.isclass(func):
+        partial_func.__doc__ = func.__init__.__doc__
+
+    return partial_func

@@ -1,9 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import inspect
-
 import mframe.core.util as util
+from mframe.core.util import partial
 
 import mframe.shapes.arc as arc
 import mframe.shapes.img as img
@@ -28,18 +27,10 @@ scale = np.array([10, 10]) * 8
 origin = np.array([width / 2, height / 2])
 system = System(scale, origin)
 
-def partial(func, *partial_args, **partial_kwargs):
-    partial_func = lambda *args, **kwargs: func(*partial_args, *args, **partial_kwargs, **kwargs)
-    partial_func.__doc__ = func.__doc__
-
-    if inspect.isclass(func):
-        partial_func.__doc__ = func.__init__.__doc__
-
-    return partial_func
-
 clear = partial(util.clear, client)
 await_event = partial(util.await_event, client)
 await_properties = partial(util.await_properties, client)
+await_space = partial(util.await_space, client)
 center_origin = partial(util.center_origin, client, system)
 toggle_background = partial(util.toggle_background, client)
 set_light_mode = partial(util.set_light_mode, client)

@@ -1,7 +1,10 @@
 import numpy as np
 
+from mframe.shapes.shape import Shape
+from mframe.core.properties import Properties
 
-class LineSet():
+
+class LineSet(Shape):
     def __init__(self, client, points, color='#fff', width=3, arrows=0, arrow_size=6):
         """
         A class for lines.
@@ -23,14 +26,14 @@ class LineSet():
 
         self.client = client
 
-        self.properties = {
-            'type': 'lineset',
-            'points': points,
-            'color': color,
-            'width': width,
-            'arrows': arrows,
-            'arrowSize': arrow_size
-        }
+        self.properties = Properties(
+            type = 'lineset',
+            points = points,
+            color = color,
+            width = width,
+            arrows = arrows,
+            arrowSize = arrow_size
+        )
 
     @staticmethod
     def rotate(origin, point, theta, degrees=False):

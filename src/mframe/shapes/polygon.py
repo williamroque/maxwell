@@ -1,7 +1,8 @@
+from mframe.shapes.shape import Shape
 from mframe.shapes.line import LineSet
 
 
-class Polygon():
+class Polygon(Shape):
     def __init__(self, client, origin, n_sides, triangle_side_length, color='#fff', width=3):
         """
         A class for polygons.
@@ -18,40 +19,38 @@ class Polygon():
 
         self.client = client
 
-        self.properties = {
-            'type': 'polygon',
-            'origin': origin,
-            'triangleSideLength': triangle_side_length,
-            'color': color,
-            'width': width,
-            'points': []
-        }
+        self.origin = origin
+        self.triangle_side_length = triangle_side_length,
+        self.color = color
+        self.width = width
+        self.points = []
 
         self.change_side_number(n_sides)
 
-        self.lineset = LineSet(self.client, self.properties['points'], self.properties['color'], self.properties['width'])
+        self.lineset = LineSet(self.client, self.points, self.color, self.width)
+        self.properties = self.lineset.properties
 
     def change_side_number(self, n):
         self.n_sides = n
-        self.side_length = self.properties['triangleSideLength'] * 3 / self.n_sides
+        self.side_length = self.triangle_side_length * 3 / self.n_sides
 
-        del self.properties['points'][:]
+        del self.points[:]
 
         self.construct_points()
 
     def construct_points(self):
-        self.properties['points'].append(self.properties['origin'])
+        self.points.append(self.origin)
 
         d_theta = 180 * (self.n_sides - 2) / self.n_sides
         theta = 0
 
-        point = self.properties['origin']
+        point = self.origin
 
         for _ in range(self.n_sides):
             new_point = [point[0] + self.side_length, point[1]]
             LineSet.rotate(point, new_point, theta, True)
 
-            self.properties['points'].append(new_point)
+            self.points.append(new_point)
 
             theta += 180 - d_theta
             point = new_point

@@ -1,4 +1,7 @@
-class Rect():
+from mframe.shapes.shape import Shape
+from mframe.core.properties import Properties
+
+class Rect(Shape):
     def __init__(self, client, x, y, cx, cy, fill_color="#fff", border_color="#fff"):
         """
         A class for rectangles.
@@ -15,15 +18,15 @@ class Rect():
 
         self.client = client
 
-        self.properties = {
-            'type': 'rect',
-            'x': x,
-            'y': y,
-            'cx': cx,
-            'cy': cy,
-            'fillColor': fill_color,
-            'borderColor': border_color,
-        }
+        self.properties = Properties(
+            type = 'rect',
+            x = x,
+            y = y,
+            cx = cx,
+            cy = cy,
+            fillColor = fill_color,
+            borderColor = border_color,
+        )
 
     def render(self):
         message = {

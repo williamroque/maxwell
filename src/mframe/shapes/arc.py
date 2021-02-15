@@ -1,7 +1,10 @@
 import numpy as np
 
+from mframe.shapes.shape import Shape
+from mframe.core.properties import Properties
 
-class Arc():
+
+class Arc(Shape):
     def __init__(self, client, x, y, radius, theta_1=0, theta_2=2*np.pi, fill_color="#fff", border_color="#fff"):
         """
         A class for arcs.
@@ -19,16 +22,16 @@ class Arc():
 
         self.client = client
 
-        self.properties = {
-                'type': 'arc',
-                'x': x,
-                'y': y,
-                'radius': radius,
-                'theta_1': theta_1,
-                'theta_2': theta_2,
-                'fillColor': fill_color,
-                'borderColor': border_color,
-        }
+        self.properties = Properties(
+            type = 'arc',
+            x = x,
+            y = y,
+            radius = radius,
+            theta_1 = theta_1,
+            theta_2 = theta_2,
+            fillColor = fill_color,
+            borderColor = border_color,
+        )
 
     def render(self):
         message = {

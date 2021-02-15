@@ -51,7 +51,7 @@ lines = system.render_normalized_2d_vector_field(
 )
 
 for i, line in enumerate(lines):
-    scene.add_shape(line, f'vector_{i}')
+    scene.add_shape(line, f'vector_{i}', True)
     line.render()
 
 ## Particles
@@ -65,7 +65,7 @@ for i in range(p_n):
         x = -p_base + j * p_distance
         y = -p_base + i * p_distance
 
-        scene.properties['points'].append([x, y])
+        scene.properties.points.append([x, y])
 
         particle = Arc(*system.normalize(np.array([x, y])), 3, fill_color='#000', border_color='#000')
 
@@ -76,7 +76,7 @@ dt = .01
 
 class ParticleFrame(Frame):
     def apply_frame(self, properties):
-        for i, point in enumerate(properties['points']):
+        for i, point in enumerate(properties.points):
             v = f(*point)[0]
 
             point[0] += v[0] * dt
@@ -84,17 +84,15 @@ class ParticleFrame(Frame):
 
             particle_position = system.normalize(np.array(point))
 
-            self.scene.shapes[f'particle-{i}'].properties['x'] = particle_position[0]
-            self.scene.shapes[f'particle-{i}'].properties['y'] = particle_position[1]
+            self.scene.shapes[f'particle-{i}'].properties.x = particle_position[0]
+            self.scene.shapes[f'particle-{i}'].properties.y = particle_position[1]
 
 for particle in particles:
     particle.render()
 
-## Event
-while await_event('keydown', ['key'])[0] != ' ':
-    pass
-
 ## Animation
+await_space()
+
 for _ in range(250):
     scene.add_frame(ParticleFrame())
 
