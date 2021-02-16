@@ -59,3 +59,5 @@ class Polygon(Shape):
 
     def render(self):
         self.lineset.render()
+
+        return self

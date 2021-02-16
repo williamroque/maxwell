@@ -5,7 +5,7 @@ from mframe.core.properties import Properties
 
 
 class Arc(Shape):
-    def __init__(self, client, x, y, radius, theta_1=0, theta_2=2*np.pi, fill_color="#fff", border_color="#fff"):
+    def __init__(self, client, x=0, y=0, radius=7, theta_1=0, theta_2=2*np.pi, fill_color="#fff", border_color="#fff"):
         """
         A class for arcs.
 
@@ -42,3 +42,5 @@ class Arc(Shape):
         }
 
         self.client.send_message(message)
+
+        return self

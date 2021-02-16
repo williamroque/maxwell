@@ -2,7 +2,7 @@ from mframe.shapes.shape import Shape
 from mframe.core.properties import Properties
 
 class Rect(Shape):
-    def __init__(self, client, x, y, cx, cy, fill_color="#fff", border_color="#fff"):
+    def __init__(self, client, x=0, y=0, cx=30, cy=30, fill_color="#fff", border_color="#fff"):
         """
         A class for rectangles.
 
@@ -37,3 +37,5 @@ class Rect(Shape):
         }
 
         self.client.send_message(message)
+
+        return self

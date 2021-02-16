@@ -1,24 +1,25 @@
 import datetime
+import os
 
-import matplotlib.pyplot as plt
+from sympy import preview
 
 from mframe.shapes.shape import Shape
 from mframe.core.properties import Properties
 
 
 class Latex(Shape):
-    def __init__(self, client, text, path=None, x=0, y=0, scale=100, color='#fff'):
+    def __init__(self, client, text, font_size=12, x=0, y=0, color=(255, 255, 255), path=None):
         """
         A class for latex.
 
         Arguments:
-        * client -- Target client.
-        * text   -- The latex to be rendered.
-        * path   -- The where the rendered latex should be saved. Temporary for None-values.
-        * x      -- The display x-coordinate.
-        * y      -- The display y-coordinate.
-        * scale  -- The effective size of display.
-        * color  -- The font color.
+        * client    -- Target client.
+        * text      -- The latex to be rendered.
+        * font_size -- Font size in pt.
+        * x         -- The display x-coordinate.
+        * y         -- The display y-coordinate.
+        * color     -- The font color.
+        * path      -- The where the rendered latex should be saved. Temporary for None-values.
         """
 
         self.client = client
@@ -27,38 +28,36 @@ class Latex(Shape):
             path = f'/tmp/{datetime.datetime.now()}.png'
             is_temporary = True
         else:
-            path = path
+            path = os.path.expanduser(path)
             is_temporary = False
-
-        width = 6.5
-        height = 5
 
         self.properties = Properties(
             type = 'image',
             src = path,
             x = x,
             y = y,
-            width = width * scale,
-            height = height * scale,
+            height = (text.count('\n\n') + 1) * font_size * 4/3,
             color = color,
             text = text,
             isTemporary = is_temporary
         )
 
     def render(self):
-        plt.rcParams['text.usetex'] = True
-
-        plt.text(0, 1, self.properties['text'], fontsize='14', color=self.properties['color'])
-
-        ax = plt.gca()
-
-        for sp in 'top right left bottom'.split():
-            ax.spines[sp].set_visible(False)
-
-        ax.axes.get_xaxis().set_visible(False)
-        ax.axes.get_yaxis().set_visible(False)
-
-        plt.savefig(self.properties['src'], transparent=True, dpi=300)
+        preview(
+            self.properties.text,
+            viewer='file',
+            filename=self.properties.src,
+            euler=False,
+            dvioptions=[
+                "-T", "tight", "-z", "0", "--truecolor", "-D 600",
+                "-bg", "Transparent", "-fg",
+                'rgb {} {} {}'.format(
+                    self.properties.color[0] / 255,
+                    self.properties.color[1] / 255,
+                    self.properties.color[2] / 255,
+                )
+            ]
+        )
 
         message = {
             'command': 'draw',
@@ -68,3 +67,5 @@ class Latex(Shape):
         }
 
         self.client.send_message(message)
+
+        return self

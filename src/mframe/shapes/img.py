@@ -36,3 +36,5 @@ class Image(Shape):
         }
 
         self.client.send_message(message)
+
+        return self

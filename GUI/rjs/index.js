@@ -127,12 +127,16 @@ function drawArc(args, ctx) {
 }
 
 function drawImage(args, ctx) {
-    const { src, x, y, width, height, isTemporary } = args;
+    let { src, x, y, width, height, isTemporary } = args;
 
     const image = new Image();
     image.src = src;
 
-    image.onload = () => {
+    image.onload = function() {
+        if (typeof width === 'undefined') {
+            width = this.naturalWidth * height / this.naturalHeight;
+        }
+
         ctx.drawImage(image, x, y, width, height);
 
         if (isTemporary) {
@@ -168,8 +172,7 @@ function draw(args, ctx) {
         drawArc(args, ctx);
     } else if (args.type === 'image') {
         drawImage(args, ctx);
-    } 
-}
+    }}
 
 function clearCanvas(clearBackground) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);

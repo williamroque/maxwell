@@ -16,7 +16,7 @@ class Shape():
         scene.add_shape(self, shape_name)
 
         for i, shape in enumerate(shapes):
-            scene.add_shape(shape, f'{datetime.datetime.now()}-{i}-shape')
+            scene.add_shape(shape, f'{datetime.datetime.now()}-{i}-shape', True)
 
         starting_point = [
             self.properties.x,
@@ -67,9 +67,12 @@ class Shape():
             point = props[:2]
 
             if animate:
-                scene, dt = self.move_to_point([*props], n_scale=.2, dt=.005, f=(lambda x: np.sin(x), 0, np.pi), shapes=[])
+                scene, dt = self.move_to_point([*props], n_scale=.2, dt=.005, f=(lambda x: np.sin(x), 0, np.pi), shapes=shapes)
             else:
-                scene, dt = self.move_to_point([*props], n = 1, shapes=[])
+                scene, dt = self.move_to_point([*props], n = 1, shapes=shapes)
+
+            if shapes:
+                shapes = []
 
             scene.play(dt)
 

@@ -176,3 +176,5 @@ class LineSet(Shape):
         }
 
         self.client.send_message(message)
+
+        return self
