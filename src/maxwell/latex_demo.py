@@ -1,6 +1,6 @@
-from mframe.client.client import Client
-from mframe.shapes.latex import Latex
-from mframe.core.util import clear
+from maxwell.client.client import Client
+from maxwell.shapes.latex import Latex
+from maxwell.core.util import clear
 
 
 text = r'$$\int^b_a f(x) \> dx = F(b) - F(a)$$'

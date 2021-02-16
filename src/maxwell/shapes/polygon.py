@@ -1,5 +1,5 @@
-from mframe.shapes.shape import Shape
-from mframe.shapes.line import LineSet
+from maxwell.shapes.shape import Shape
+from maxwell.shapes.line import LineSet
 
 
 class Polygon(Shape):

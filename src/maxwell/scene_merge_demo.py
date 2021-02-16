@@ -1,4 +1,4 @@
-from mframe.int import *
+from maxwell.int import *
 
 import numpy as np
 

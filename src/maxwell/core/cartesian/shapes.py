@@ -1,7 +1,7 @@
 import numpy as np
 
-from mframe.shapes.line import LineSet
-from mframe.shapes.rect import Rect
+from maxwell.shapes.line import LineSet
+from maxwell.shapes.rect import Rect
 
 
 class Axes():

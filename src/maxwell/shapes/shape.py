@@ -1,9 +1,9 @@
 import numpy as np
 
-from mframe.core.scene import Scene
-from mframe.core.frame import Frame
+from maxwell.core.scene import Scene
+from maxwell.core.frame import Frame
 
-from mframe.core.util import await_click
+from maxwell.core.util import await_click
 
 import datetime
 

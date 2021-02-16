@@ -15,7 +15,7 @@ def clear(client, background=True):
     client.send_message(message)
 
 def run_server():
-    os.system('/Users/jetblack/mframe/GUI/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron /Users/jetblack/mframe/GUI/ &')
+    os.system('/Users/jetblack/maxwell/GUI/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron /Users/jetblack/maxwell/GUI/ &')
 
 def await_event(client, event, keys=[]):
     message = {

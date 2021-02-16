@@ -1,5 +1,5 @@
-from mframe.shapes.shape import Shape
-from mframe.core.properties import Properties
+from maxwell.shapes.shape import Shape
+from maxwell.core.properties import Properties
 
 
 class Image(Shape):

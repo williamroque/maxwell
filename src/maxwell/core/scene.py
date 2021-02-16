@@ -3,8 +3,8 @@ import os
 
 import json
 
-from mframe.core.util import clear, download_canvas
-from mframe.core.properties import PropertiesEncoder, Properties
+from maxwell.core.util import clear, download_canvas
+from maxwell.core.properties import PropertiesEncoder, Properties
 
 
 class Scene():

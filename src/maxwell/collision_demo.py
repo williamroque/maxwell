@@ -1,12 +1,12 @@
 import numpy as np
 
-from mframe.shapes.line import LineSet
-from mframe.shapes.rect import Rect
-from mframe.client.client import Client
-from mframe.core.util import clear, await_properties, await_event
-from mframe.shapes.latex import Latex
-from mframe.core.scene import Scene
-from mframe.core.frame import Frame
+from maxwell.shapes.line import LineSet
+from maxwell.shapes.rect import Rect
+from maxwell.client.client import Client
+from maxwell.core.util import clear, await_properties, await_event
+from maxwell.shapes.latex import Latex
+from maxwell.core.scene import Scene
+from maxwell.core.frame import Frame
 
 
 client = Client()

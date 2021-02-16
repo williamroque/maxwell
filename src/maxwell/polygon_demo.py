@@ -1,8 +1,8 @@
-from mframe.core.util import clear, await_properties
-from mframe.shapes.polygon import Polygon
+from maxwell.core.util import clear, await_properties
+from maxwell.shapes.polygon import Polygon
 
-from mframe.core.scene import Scene
-from mframe.core.frame import Frame
+from maxwell.core.scene import Scene
+from maxwell.core.frame import Frame
 
 from client.client import Client
 

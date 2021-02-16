@@ -5,7 +5,7 @@ import json
 
 import numpy as np
 
-from mframe.core.util import await_properties
+from maxwell.core.util import await_properties
 
 
 class Client():

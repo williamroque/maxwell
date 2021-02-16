@@ -1,8 +1,8 @@
 from time import sleep
 
-from mframe.core.util import clear, await_event
-from mframe.core.scene import Scene
-from mframe.core.frame import Frame
+from maxwell.core.util import clear, await_event
+from maxwell.core.scene import Scene
+from maxwell.core.frame import Frame
 
 from client.client import Client
 from shapes.rect import Rect

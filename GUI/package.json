@@ -1,10 +1,10 @@
 {
-    "name": "mframe",
-    "productName": "mframe",
+    "name": "maxwell",
+    "productName": "maxwell",
     "version": "1.0.0",
     "description": "A modern python canvas",
     "build": {
-        "appId": "com.quantum.mframe",
+        "appId": "com.quantum.maxwell",
         "mac": {
             "target": "mas",
             "icon": "assets/icon.icns",

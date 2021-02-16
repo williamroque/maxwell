@@ -1,5 +1,5 @@
 import numpy as np
-from mframe.shapes.line import LineSet
+from maxwell.shapes.line import LineSet
 
 import colorsys
 
@@ -67,7 +67,7 @@ class System():
             return v
         return v / norm
 
-    def render_normalized_2d_vector_field(self, client, f, X, Y, arrow_scale=1, width=3, arrow_size=6, cmap='cw'):
+    def render_normalized_2d_vector_field(self, client, f, X, Y, arrow_scale=1, width=3, arrow_size=6, cmap='cw', max_threshold=np.inf):
         xx, yy = np.meshgrid(X, Y)
         xx = xx.flatten()
         yy = yy.flatten()
@@ -90,9 +90,11 @@ class System():
             'cw': self.coolwarm,
             'gs': self.greyscale,
             'rgb': self.red_green_blue,
+            'w': lambda *_: '#fff',
+            'b': lambda *_: '#000'
         }
 
-        colormap = np.vectorize(cmap_key[cmap], excluded=[1])(magnitudes, max_magnitude)
+        colormap = np.vectorize(cmap_key[cmap], excluded=[1])(magnitudes, min(max_magnitude, max_threshold))
 
         arrows = []
         for i, vector in enumerate(vector_field):

@@ -1,23 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import mframe.core.util as util
-from mframe.core.util import partial
+import maxwell.core.util as util
+from maxwell.core.util import partial
 
-import mframe.shapes.arc as arc
-import mframe.shapes.img as img
-import mframe.shapes.latex as latex
-import mframe.shapes.line as line
-import mframe.shapes.polygon as polygon
-import mframe.shapes.rect as rect
+import maxwell.shapes.arc as arc
+import maxwell.shapes.img as img
+import maxwell.shapes.latex as latex
+import maxwell.shapes.line as line
+import maxwell.shapes.polygon as polygon
+import maxwell.shapes.rect as rect
 
-from mframe.client.client import Client
+from maxwell.client.client import Client
 
-import mframe.core.scene as scene
-from mframe.core.frame import Frame
+import maxwell.core.scene as scene
+from maxwell.core.frame import Frame
 
-import mframe.core.cartesian.shapes as shapes
-from mframe.core.cartesian.transformations import System
+import maxwell.core.cartesian.shapes as shapes
+from maxwell.core.cartesian.transformations import System
 
 client = Client()
 
