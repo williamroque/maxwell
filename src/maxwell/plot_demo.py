@@ -1,7 +1,7 @@
-from core.util import clear, await_properties
+from maxwell.core.util import clear, await_properties
 
-from client.client import Client
-from shapes.img import Image
+from maxwell.client.client import Client
+from maxwell.shapes.img import Image
 
 import matplotlib.pyplot as plt
 import datetime

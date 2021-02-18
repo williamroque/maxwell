@@ -15,7 +15,7 @@ x = np.linspace(-8, 8, 30)
 y = np.linspace(-8, 8, 30)
 
 ## Scale
-system.set_fill_scale(client, max(np.abs(x).max(), np.abs(y).max()), 100)
+system.set_fill_scale(max(np.abs(x).max(), np.abs(y).max()), 100)
 
 ## Vector field
 f = lambda x, y: np.dstack((
@@ -77,8 +77,8 @@ f = lambda x, y: np.dstack((
 #    ))[0]
 
 lines = system.render_normalized_2d_vector_field(
-    client, f, x, y,
-    arrow_scale=.2,
+    f, x, y,
+    arrow_scale=.3,
     width=1,
     arrow_size=3,
     cmap='cw',
@@ -101,7 +101,7 @@ for i in range(p_n):
 
         scene.properties.points.append([x, y])
 
-        particle = Arc(*system.normalize(np.array([x, y])), 3, fill_color='#000', border_color='#000')
+        particle = Arc(x, y, 3, fill_color='#000', border_color='#000')
 
         particles.append(particle)
         scene.add_shape(particle, 'particle-{}'.format(p_n * i + j))
@@ -116,10 +116,8 @@ class ParticleFrame(Frame):
             point[0] += v[0] * dt
             point[1] += v[1] * dt
 
-            particle_position = system.normalize(np.array(point))
-
-            self.scene.shapes[f'particle-{i}'].properties.x = particle_position[0]
-            self.scene.shapes[f'particle-{i}'].properties.y = particle_position[1]
+            self.props(f'particle-{i}').x = point[0]
+            self.props(f'particle-{i}').y = point[1]
 
 for particle in particles:
     particle.render()

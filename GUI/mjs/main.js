@@ -74,4 +74,8 @@ server.on('connection', socket => {
     });
 });
 
-server.listen(1337, '127.0.0.1');
+try {
+    server.listen(1337, '127.0.0.1');
+} catch(e) {
+    console.log(e, message);
+}

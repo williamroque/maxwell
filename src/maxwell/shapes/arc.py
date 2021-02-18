@@ -5,7 +5,7 @@ from maxwell.core.properties import Properties
 
 
 class Arc(Shape):
-    def __init__(self, client, x=0, y=0, radius=7, theta_1=0, theta_2=2*np.pi, fill_color="#fff", border_color="#fff"):
+    def __init__(self, client, x=0, y=0, radius=7, theta_1=0, theta_2=2*np.pi, fill_color="#fff", border_color="#fff", system=None):
         """
         A class for arcs.
 
@@ -18,9 +18,11 @@ class Arc(Shape):
         * theta_2      -- The ending angle.
         * fill_color   -- The fill color for the arc.
         * border_color -- The border color.
+        * system       -- The coordinate system.
         """
 
         self.client = client
+        self.system = system
 
         self.properties = Properties(
             type = 'arc',
@@ -33,12 +35,28 @@ class Arc(Shape):
             borderColor = border_color,
         )
 
+    def get_props(self):
+        adjustments = {}
+
+        if self.system is not None:
+            point = self.system.normalize(
+                np.array([
+                    self.properties.x,
+                    self.properties.y
+                ])
+            ).astype(int).tolist()
+
+            adjustments['x'] = point[0]
+            adjustments['y'] = point[1]
+
+        return {
+            **self.properties
+        } | adjustments
+
     def render(self):
         message = {
             'command': 'draw',
-            'args': {
-                **self.properties
-            }
+            'args': self.get_props()
         }
 
         self.client.send_message(message)

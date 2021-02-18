@@ -3,6 +3,8 @@ import json
 
 import inspect
 
+import numpy as np
+
 
 def clear(client, background=True):
     message = {
@@ -77,7 +79,7 @@ def set_dark_mode(client):
 
     client.send_message(message)
 
-def resize_window(client, width, height):
+def resize_window(client, width=600, height=500):
     message = {
         'command': 'resizeWindow',
         'args': {
@@ -96,3 +98,26 @@ def partial(func, *partial_args, **partial_kwargs):
         partial_func.__doc__ = func.__init__.__doc__
 
     return partial_func
+
+def rotate(points, origin, theta, degrees=False):
+    """
+    Rotate a point about an arbitrary origin.
+
+    Arguments:
+    * origin -- The origin.
+    * points -- The points to be rotated.
+    * theta -- The angle of rotation.
+    * degrees -- Whether the angle should be in degrees
+    (radians by default).
+    """
+
+    if degrees:
+        theta = theta * np.pi / 180
+
+    R = np.array([
+        [np.cos(theta), -np.sin(theta)],
+        [np.sin(theta), np.cos(theta)]
+    ])
+
+    return (points - origin).dot(R.T) + origin
+

@@ -1,6 +1,6 @@
 import numpy as np
 
-from maxwell.core.scene import Scene
+from maxwell.core.scene import Scene, TransformationScene
 from maxwell.core.frame import Frame
 
 from maxwell.core.util import await_click
@@ -9,7 +9,7 @@ import datetime
 
 
 class Shape():
-    def move_to_point(self, point, n=None, dt=.01, f=None, shapes=[], n_scale=.5):
+    def move_to_point(self, point, n=None, dt=.01, f=None, shapes=[], duration=.2):
         scene = Scene(self.client, { 'i': 0 })
 
         shape_name = f'{datetime.datetime.now()}-shape'
@@ -28,7 +28,7 @@ class Shape():
         r = np.hypot(cx, cy)
 
         if n is None:
-            n = int(r * n_scale)
+            n = int(duration / dt)
 
         if f is None:
             f = (lambda x: 0 * x + 1 / n, 0, 1)
@@ -50,7 +50,7 @@ class Shape():
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return scene, dt
+        return TransformationScene(scene, dt)
 
     def move_to(self, other_shape, n=None, dt=.01, f=None, shapes=[]):
         ending_point = [
@@ -66,15 +66,18 @@ class Shape():
         while not (props := await_click(self.client, 'altKey'))[2]:
             point = props[:2]
 
+            if hasattr(self, 'system') and self.system is not None:
+                point = self.system.from_normalized(point)
+
             if animate:
-                scene, dt = self.move_to_point([*props], n_scale=.2, dt=.005, f=(lambda x: np.sin(x), 0, np.pi), shapes=shapes)
+                scene = self.move_to_point(point, dt=.005, f=(lambda x: np.sin(x), 0, np.pi), shapes=shapes)
             else:
-                scene, dt = self.move_to_point([*props], n = 1, shapes=shapes)
+                scene = self.move_to_point(point, n = 1, shapes=shapes)
 
             if shapes:
                 shapes = []
 
-            scene.play(dt)
+            scene.play()
 
         return point
 

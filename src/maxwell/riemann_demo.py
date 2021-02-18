@@ -22,12 +22,12 @@ width, height = await_properties(client, ['width', 'height'])
 
 scale = np.array([10, 10]) * 8
 origin = np.array([width / 2, height / 2])
-system = System(scale, origin)
+system = System(client, scale, origin)
 
 ## EQUATION
 
 equation = r'$$\int_a^b f(x) \> dx = \lim_{n \to \infty} \sum^n_{i=1} f(x^*_i) \Delta x$$'
-latex = Latex(client, equation, x=-50, y=0, scale=110)
+latex = Latex(client, equation, x=30, y=30, font_size=40)
 latex.render()
 
 scene.add_shape(latex, 'equation', True)

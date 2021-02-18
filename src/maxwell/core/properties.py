@@ -1,9 +1,27 @@
 from json import dumps, JSONEncoder
+from numpy import ndarray, int64, float64
 
 
 class PropertiesEncoder(JSONEncoder):
     def default(self, obj):
-        return {k: v for k, v in obj.properties.__dict__.items() if not k.startswith('_')}
+        from maxwell.shapes.shape import Shape
+        from maxwell.core.scene import Scene
+
+        if isinstance(obj, ndarray):
+            return obj.astype(int).tolist()
+        elif issubclass(type(obj), Shape) or issubclass(type(obj), Scene):
+            out = {}
+
+            if 'get_props' in dir(obj):
+                out = obj.get_props()
+            else:
+                for k, v in obj.properties.__dict__.items():
+                    if not k.startswith('_'):
+                        out[k] = v
+
+            return out
+
+        return JSONEncoder.default(self, obj)
 
 
 class Properties:

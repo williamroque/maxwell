@@ -1,8 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 import maxwell.core.util as util
-from maxwell.core.util import partial
+from maxwell.core.util import partial, rotate
 
 import maxwell.shapes.arc as arc
 import maxwell.shapes.img as img
@@ -19,13 +19,17 @@ from maxwell.core.frame import Frame
 import maxwell.core.cartesian.shapes as shapes
 from maxwell.core.cartesian.transformations import System
 
+## Setup
+
 client = Client()
 
 width, height = util.await_properties(client, ['width', 'height'])
 
-scale = np.array([10, 10]) * 8
+scale = np.array([80, 80])
 origin = np.array([width / 2, height / 2])
-system = System(scale, origin)
+system = System(client, scale, origin)
+
+## client/system currying
 
 clear = partial(util.clear, client)
 await_event = partial(util.await_event, client)
@@ -38,15 +42,21 @@ set_light_mode = partial(util.set_light_mode, client)
 set_dark_mode = partial(util.set_dark_mode, client)
 resize_window = partial(util.resize_window, client)
 
-Arc = partial(arc.Arc, client)
+Arc = partial(arc.Arc, client, system=system)
 Image = partial(img.Image, client)
 Latex = partial(latex.Latex, client)
-LineSet = partial(line.LineSet, client)
+LineSet = partial(line.LineSet, client, system=system)
 Polygon = partial(polygon.Polygon, client)
 Rect = partial(rect.Rect, client)
 
 Scene = partial(scene.Scene, client)
 
 create_axes = partial(shapes.create_axes, client, width, height)
+create_grid = partial(shapes.create_grid, client, system, width, height)
 create_rect = partial(shapes.create_rect, client, system)
 
+## Constants
+class COLORS:
+    RED = '#DC5A5E'
+    GREEN = '#A6B860'
+    BLUE = '#7AA1C0'

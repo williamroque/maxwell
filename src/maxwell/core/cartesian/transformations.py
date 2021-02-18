@@ -5,7 +5,9 @@ import colorsys
 
 
 class System():
-    def __init__(self, scale, origin):
+    def __init__(self, client, scale, origin):
+        self.client = client
+
         self.scale = scale
         self.origin = origin
 
@@ -15,12 +17,16 @@ class System():
     def set_scale(self, scale):
         self.scale = scale
 
-    def set_fill_scale(self, client, points, margin):
-        self.scale = (client.get_shape() - margin) / 2 / np.amax(np.abs(points), axis=0)
+    def set_fill_scale(self, points, margin):
+        self.scale = (self.client.get_shape() - margin) / 2 / np.amax(np.abs(points), axis=0)
 
     def normalize(self, points):
         points = points * self.scale * np.array([1, -1]) + self.origin
-        return points.astype(int).tolist()
+        return points
+
+    def from_normalized(self, points):
+        points = (points - self.origin) / (self.scale * np.array([1, -1]))
+        return points
 
     def zip_normalize(self, X, Y):
         return self.normalize(np.dstack((X, Y))[0])
@@ -67,7 +73,7 @@ class System():
             return v
         return v / norm
 
-    def render_normalized_2d_vector_field(self, client, f, X, Y, arrow_scale=1, width=3, arrow_size=6, cmap='cw', max_threshold=np.inf):
+    def render_normalized_2d_vector_field(self, f, X, Y, arrow_scale=1, width=3, arrow_size=6, cmap='cw', max_threshold=np.inf):
         xx, yy = np.meshgrid(X, Y)
         xx = xx.flatten()
         yy = yy.flatten()
@@ -102,7 +108,7 @@ class System():
             ending_point = starting_point + vector * arrow_scale
 
             arrow = LineSet(
-                client,
+                self.client,
                 [
                     self.normalize(starting_point),
                     self.normalize(ending_point)

@@ -2,13 +2,14 @@ import datetime
 import os
 
 from sympy import preview
+import numpy as np
 
 from maxwell.shapes.shape import Shape
 from maxwell.core.properties import Properties
 
 
 class Latex(Shape):
-    def __init__(self, client, text, font_size=12, x=0, y=0, color=(255, 255, 255), path=None):
+    def __init__(self, client, text, font_size=12, x=0, y=0, color=(255, 255, 255), path=None, system=None):
         """
         A class for latex.
 
@@ -20,9 +21,11 @@ class Latex(Shape):
         * y         -- The display y-coordinate.
         * color     -- The font color.
         * path      -- The where the rendered latex should be saved. Temporary for None-values.
+        * system    -- The coordinate system.
         """
 
         self.client = client
+        self.system = system
 
         if path == None:
             path = f'/tmp/{datetime.datetime.now()}.png'
@@ -41,6 +44,24 @@ class Latex(Shape):
             text = text,
             isTemporary = is_temporary
         )
+
+    def get_props(self):
+        adjustments = {}
+
+        if self.system is not None:
+            point = self.system.normalize(
+                np.array([
+                    self.properties.x,
+                    self.properties.y
+                ])
+            ).astype(int).tolist()
+
+            adjustments['x'] = point[0]
+            adjustments['y'] = point[1]
+
+        return {
+            **self.properties
+        } | adjustments
 
     def render(self):
         preview(
@@ -61,9 +82,7 @@ class Latex(Shape):
 
         message = {
             'command': 'draw',
-            'args': {
-                **self.properties
-            }
+            'args': self.get_props()
         }
 
         self.client.send_message(message)

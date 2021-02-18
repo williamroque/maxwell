@@ -17,7 +17,9 @@ class Axes():
         self.x_axis.render()
         self.y_axis.render()
 
-def create_axes(client, width, height):
+        return self.x_axis, self.y_axis
+
+def create_axes(client, width, height, color='#333D'):
     """
     A function for creating axes. Output may be separated
     into component axes or rendered at the same time.
@@ -28,10 +30,42 @@ def create_axes(client, width, height):
     * height -- Height of axis. Usually frame height.
     """
 
-    x_axis = LineSet(client, [(0, height/2), (width, height/2)], width=1, color='#333D')
-    y_axis = LineSet(client, [(width/2, 0), (width/2, height)], width=1, color='#333D')
+    x_axis = LineSet(client, [(0, height/2), (width, height/2)], width=1, color=color)
+    y_axis = LineSet(client, [(width/2, 0), (width/2, height)], width=1, color=color)
 
     return Axes(x_axis, y_axis)
+
+class Grid():
+    def __init__(self, v_lines, h_lines):
+        self.v_lines = v_lines
+        self.h_lines = h_lines
+
+    def __iter__(self):
+        yield self.v_lines
+        yield self.h_lines
+
+    def render(self):
+        lines = self.v_lines + self.h_lines
+
+        for line in lines:
+            line.render()
+
+        return lines
+
+def create_grid(client, system, width, height, n, density, color='#333B'):
+    v_lines = []
+    h_lines = []
+
+    dx, dy = system.scale / density
+
+    for i in range(-n, n + 1):
+        x = system.origin[0] + dx * i
+        v_lines.append(LineSet(client, [(x, 0), (x, height)], width=1, color=color))
+
+        y = system.origin[1] + dy * i
+        h_lines.append(LineSet(client, [(0, y), (width, y)], width=1, color=color))
+
+    return Grid(v_lines, h_lines)
 
 def create_rect(client, system, a, b, h):
     """

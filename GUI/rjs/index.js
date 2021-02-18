@@ -57,8 +57,8 @@ function drawArrowHead(r, theta, origin, ctx) {
 
     for (let i = 0; i < 3; i++) {
         points.push([
-            r * Math.cos(theta + i * alpha) + origin[0],
-            r * Math.sin(theta + i * alpha) + origin[1]
+            r * (Math.cos(theta + i * alpha) - Math.cos(theta)) + origin[0],
+            r * (Math.sin(theta + i * alpha) - Math.sin(theta)) + origin[1]
         ]);
     }
 

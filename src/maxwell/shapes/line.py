@@ -2,6 +2,11 @@ import numpy as np
 
 from maxwell.shapes.shape import Shape
 from maxwell.core.properties import Properties
+from maxwell.core.scene import Scene, TransformationScene
+from maxwell.core.frame import Frame
+from maxwell.core.util import rotate
+
+import datetime
 
 
 class LineSetProperties(Properties):
@@ -37,7 +42,7 @@ class LineSetProperties(Properties):
 
 
 class LineSet(Shape):
-    def __init__(self, client, points, color='#fff', width=3, arrows=0, arrow_size=6):
+    def __init__(self, client, points, color='#fff', width=3, arrows=0, arrow_size=6, system=None):
         """
         A class for lines.
 
@@ -54,9 +59,11 @@ class LineSet(Shape):
         3 = both
         * arrow_size -- The radius of the circle in which the arrow head
         is inscribed.
+        * system     -- The coordinate system.
         """
 
         self.client = client
+        self.system = system
 
         self.properties = LineSetProperties(
             type = 'lineset',
@@ -67,48 +74,17 @@ class LineSet(Shape):
             arrowSize = arrow_size
         )
 
-    @staticmethod
-    def rotate(origin, point, theta, degrees=False):
-        """
-        Rotate a point about an arbitrary origin.
+    def get_props(self):
+        adjustments = {}
 
-        Arguments:
-        * origin -- The origin.
-        * point -- The point to be rotated.
-        * theta -- The angle of rotation.
-        * degrees -- Whether the angle should be in degrees
-        (radians by default).
-        """
+        if self.system is not None:
+            adjustments['points'] = self.system.normalize(
+                self.properties.points
+            ).astype(int).tolist()
 
-        if degrees:
-            theta = theta * np.pi / 180
-
-        theta = LineSet.get_angle(origin, point) + theta
-
-        dx = point[0] - origin[0]
-        dy = point[1] - origin[1]
-
-        r = np.sqrt(dx ** 2 + dy ** 2)
-        x = r * np.cos(theta)
-        y = r * np.sin(theta)
-
-        point[0] = x + origin[0]
-        point[1] = -y + origin[1]
-
-        return point
-
-    def translate_all(self, dx=0, dy=0):
-        """
-        Translate all endpoints with respect to x and y components.
-
-        Arguments:
-        * dx -- The amount by which the x-component should change.
-        * dy -- The amount by which the y-component should change.
-        """
-
-        for point in self.properties['points']:
-            point[0] += dx
-            point[1] += dy
+        return {
+            **self.properties
+        } | adjustments
 
     @staticmethod
     def collide(line, point, threshold=0):
@@ -167,14 +143,114 @@ class LineSet(Shape):
 
         return angle
 
+    def move_point(self, point_i, ending_point, n=None, dt=.01, f=None, duration=.5, shapes=[]):
+        scene = Scene(self.client, { 'i': 0 })
+
+        shape_name = f'{datetime.datetime.now()}-shape'
+        scene.add_shape(self, shape_name)
+
+        for i, shape in enumerate(shapes):
+            scene.add_shape(shape, f'{datetime.datetime.now()}-{i}-shape', True)
+
+        cx = ending_point[0] - self.properties.points[point_i][0]
+        cy = ending_point[1] - self.properties.points[point_i][1]
+        r = np.hypot(cx, cy)
+
+        if n is None:
+            n = int(duration / dt)
+
+        if f is None:
+            f = (lambda x: 0 * x + 1 / n, 0, 1)
+
+        X = np.linspace(f[1], f[2], n)
+        Y = np.abs(f[0](X))
+        C = Y / Y.sum()
+
+        class MotionFrame(Frame):
+            def apply_frame(self, props):
+                dx = cx * C[props.i]
+                dy = cy * C[props.i]
+
+                self.props(shape_name).points[point_i][0] += dx
+                self.props(shape_name).points[point_i][1] += dy
+
+                props.i += 1
+
+        for _ in range(n):
+            scene.add_frame(MotionFrame())
+
+        return TransformationScene(scene, dt)
+
+    def follow_path(self, point_i, p, n=500, dt=.01, shapes=[]):
+        scene = Scene(self.client, { 'i': 0 })
+
+        shape_name = f'{datetime.datetime.now()}-shape'
+        scene.add_shape(self, shape_name)
+
+        for i, shape in enumerate(shapes):
+            scene.add_shape(shape, f'{datetime.datetime.now()}-{i}-shape', True)
+
+        class MotionFrame(Frame):
+            def apply_frame(self, props):
+                x, y = p(props.i * dt, props.i)
+
+                self.scene.shapes[shape_name].properties.points[point_i][0] = x
+                self.scene.shapes[shape_name].properties.points[point_i][1] = y
+
+                props.i += 1
+
+        for _ in range(n):
+            scene.add_frame(MotionFrame())
+
+        return TransformationScene(scene, dt)
+
+    def rotate_about(self, origin, theta, dt=.01, n=None, n_scale=1, f=None, animate=True, shapes=[]):
+        if not animate:
+            self.properties.points = rotate(self.properties.points, origin, theta)
+
+            return self
+
+        scene = Scene(self.client, { 'i': 0 })
+
+        shape_name = f'{datetime.datetime.now()}-shape'
+        scene.add_shape(self, shape_name)
+
+        for i, shape in enumerate(shapes):
+            scene.add_shape(shape, f'{datetime.datetime.now()}-{i}-shape', True)
+
+        if n is None:
+            n = int(abs(theta) * 100 * n_scale)
+
+        if f is None:
+            f = (lambda x: 0 * x + 1 / n, 0, 1)
+
+        X = np.linspace(f[1], f[2], n)
+        Y = np.abs(f[0](X))
+        C = Y / Y.sum()
+
+        class MotionFrame(Frame):
+            def apply_frame(self, props):
+                d_theta = C[props.i]
+
+                self.props(shape_name).points = rotate(
+                    self.props(shape_name).points,
+                    origin,
+                    d_theta
+                )
+
+                props.i += 1
+
+        for _ in range(n):
+            scene.add_frame(MotionFrame())
+
+        return TransformationScene(scene, dt)
+
     def render(self):
         message = {
             'command': 'draw',
-            'args': {
-                **self.properties
-            }
+            'args': self.get_props()
         }
 
-        self.client.send_message(message)
+        self.client.send_message(message, True)
 
         return self

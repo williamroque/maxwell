@@ -49,6 +49,8 @@ class Scene():
             else:
                 self.frames.append(frames)
 
+        return self
+
     def play(self, frame_duration=.05, save_path='none', framerate=40, fps=40):
         rendered_frames = [json.dumps(self.shapes, cls=PropertiesEncoder)]
         for frames in self.frames:
@@ -75,3 +77,16 @@ class Scene():
             self.frames[self.current_frame].apply_frame(self.properties)
             for shape in self.shapes.values():
                 shape.render()
+
+
+class TransformationScene:
+    def __init__(self, scene, dt):
+        self.scene = scene
+        self.dt = dt
+
+    def __iter__(self):
+        yield self.scene
+        yield self.dt
+
+    def play(self):
+        self.scene.play(frame_duration=self.dt)
