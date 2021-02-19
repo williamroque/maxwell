@@ -15,6 +15,7 @@ from maxwell.client.client import Client
 
 import maxwell.core.scene as scene
 from maxwell.core.frame import Frame
+from maxwell.core.group import Group
 
 import maxwell.core.cartesian.shapes as shapes
 from maxwell.core.cartesian.transformations import System

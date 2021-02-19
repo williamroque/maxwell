@@ -9,14 +9,13 @@ import datetime
 
 
 class Shape():
-    def move_to_point(self, point, n=None, dt=.01, f=None, shapes=[], duration=.2):
+    def move_to_point(self, point, n=None, dt=.01, f=None, shapes=[], duration=.2, initial_clear=True):
         scene = Scene(self.client, { 'i': 0 })
 
         shape_name = f'{datetime.datetime.now()}-shape'
         scene.add_shape(self, shape_name)
 
-        for i, shape in enumerate(shapes):
-            scene.add_shape(shape, f'{datetime.datetime.now()}-{i}-shape', True)
+        scene.add_background(shapes)
 
         starting_point = [
             self.properties.x,
@@ -50,7 +49,7 @@ class Shape():
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return TransformationScene(scene, dt)
+        return TransformationScene(scene, dt, initial_clear)
 
     def move_to(self, other_shape, n=None, dt=.01, f=None, shapes=[]):
         ending_point = [
@@ -70,7 +69,7 @@ class Shape():
                 point = self.system.from_normalized(point)
 
             if animate:
-                scene = self.move_to_point(point, dt=.005, f=(lambda x: np.sin(x), 0, np.pi), shapes=shapes)
+                scene = self.move_to_point(point, dt=.005, f=(np.sin, 0, np.pi), shapes=shapes, initial_clear=bool(shapes))
             else:
                 scene = self.move_to_point(point, n = 1, shapes=shapes)
 

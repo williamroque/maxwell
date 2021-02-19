@@ -20,9 +20,15 @@ class System():
     def set_fill_scale(self, points, margin):
         self.scale = (self.client.get_shape() - margin) / 2 / np.amax(np.abs(points), axis=0)
 
-    def normalize(self, points):
-        points = points * self.scale * np.array([1, -1]) + self.origin
-        return points
+    def normalize(self, obj):
+        if isinstance(obj, (np.ndarray, list)):
+            points = obj * self.scale * np.array([1, -1]) + self.origin
+            return points
+
+        if isinstance(obj, (int, float)):
+            return obj * self.scale.sum()/2
+
+        raise TypeError(f'Argument should be ndarray, list, or scalar. Type used: {type(points)}.')
 
     def from_normalized(self, points):
         points = (points - self.origin) / (self.scale * np.array([1, -1]))

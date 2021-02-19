@@ -67,7 +67,7 @@ class LineSet(Shape):
 
         self.properties = LineSetProperties(
             type = 'lineset',
-            points = list(map(list, points)),
+            points = list(map(list, list(points))),
             color = color,
             width = width,
             arrows = arrows,
@@ -149,8 +149,7 @@ class LineSet(Shape):
         shape_name = f'{datetime.datetime.now()}-shape'
         scene.add_shape(self, shape_name)
 
-        for i, shape in enumerate(shapes):
-            scene.add_shape(shape, f'{datetime.datetime.now()}-{i}-shape', True)
+        scene.add_background(shapes)
 
         cx = ending_point[0] - self.properties.points[point_i][0]
         cy = ending_point[1] - self.properties.points[point_i][1]
@@ -187,15 +186,14 @@ class LineSet(Shape):
         shape_name = f'{datetime.datetime.now()}-shape'
         scene.add_shape(self, shape_name)
 
-        for i, shape in enumerate(shapes):
-            scene.add_shape(shape, f'{datetime.datetime.now()}-{i}-shape', True)
+        scene.add_background(shapes)
 
         class MotionFrame(Frame):
             def apply_frame(self, props):
                 x, y = p(props.i * dt, props.i)
 
-                self.scene.shapes[shape_name].properties.points[point_i][0] = x
-                self.scene.shapes[shape_name].properties.points[point_i][1] = y
+                self.props(shape_name).points[point_i][0] = x
+                self.props(shape_name).points[point_i][1] = y
 
                 props.i += 1
 
@@ -215,8 +213,7 @@ class LineSet(Shape):
         shape_name = f'{datetime.datetime.now()}-shape'
         scene.add_shape(self, shape_name)
 
-        for i, shape in enumerate(shapes):
-            scene.add_shape(shape, f'{datetime.datetime.now()}-{i}-shape', True)
+        scene.add_background(shapes)
 
         if n is None:
             n = int(abs(theta) * 100 * n_scale)

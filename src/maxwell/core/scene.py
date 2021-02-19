@@ -2,9 +2,13 @@ from time import sleep
 import os
 
 import json
+import datetime
 
-from maxwell.core.util import clear, download_canvas
+import numpy as np
+
+from maxwell.core.util import clear
 from maxwell.core.properties import PropertiesEncoder, Properties
+from maxwell.core.group import Group
 
 
 class Scene():
@@ -36,6 +40,24 @@ class Scene():
         else:
             self.shapes[shape_id] = shape
 
+    def add_group(self, group, send_to_background=False):
+        for shape_id, shape in group.shapes.items():
+            if send_to_background:
+                self.background[shape_id] = shape
+            else:
+                self.shapes[shape_id] = shape
+
+    def add_background(self, shapes):
+        if not isinstance(shapes, (list, np.ndarray)):
+            shapes = [shapes]
+
+        for i, obj in enumerate(shapes):
+            if isinstance(obj, Group):
+                for j, shape in enumerate(obj.shapes.values()):
+                    self.add_shape(shape, f'{datetime.datetime.now()}-{i}-{j}-shape', True)
+            else:
+                self.add_shape(obj, f'{datetime.datetime.now()}-{i}-shape', True)
+
     def merge_with(self, other_scene):
         self.merged_properties.append(other_scene.properties)
         self.shapes |= other_scene.shapes
@@ -51,7 +73,10 @@ class Scene():
 
         return self
 
-    def play(self, frame_duration=.05, save_path='none', framerate=40, fps=40):
+    def play(self, frame_duration=.05, save_path='none', framerate=40, fps=40, initial_clear=True):
+        if initial_clear:
+            clear(self.client)
+
         rendered_frames = [json.dumps(self.shapes, cls=PropertiesEncoder)]
         for frames in self.frames:
             for i, frame in enumerate(frames):
@@ -80,13 +105,14 @@ class Scene():
 
 
 class TransformationScene:
-    def __init__(self, scene, dt):
+    def __init__(self, scene, dt, initial_clear=True):
         self.scene = scene
         self.dt = dt
+        self.initial_clear = initial_clear
 
     def __iter__(self):
         yield self.scene
         yield self.dt
 
     def play(self):
-        self.scene.play(frame_duration=self.dt)
+        self.scene.play(frame_duration=self.dt, initial_clear=self.initial_clear)
