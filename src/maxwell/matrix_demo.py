@@ -7,7 +7,7 @@ resize_window(rerender=False)
 
 system.scale = np.array([60, 60])
 
-ps_axis_group().render()
+ps_axis_group(5).render()
 
 ## Basis vectors
 text_group = Group(background=True)

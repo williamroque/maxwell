@@ -81,7 +81,7 @@ class Arc(Shape):
 
         return TransformationScene(scene, dt)
 
-    def render(self, background):
+    def render(self, background=False):
         message = {
             'command': 'draw',
             'args': self.get_props(background)
