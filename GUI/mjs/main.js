@@ -59,7 +59,7 @@ server.on('connection', socket => {
                         width: parsedMessage.args.width,
                         height: parsedMessage.args.height
                     });
-                    mainWindow.dispatchWebEvent('resize-window');
+                    mainWindow.dispatchWebEvent('resize-window', parsedMessage.args.rerender);
                 } else {
                     mainWindow.dispatchWebEvent('parse-message', parsedMessage);
                 }

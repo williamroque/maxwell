@@ -10,14 +10,16 @@ const bgCtx = backgroundCanvas.getContext('2d');
 
 
 let rerenderBackground = false;
-function resizeCanvas() {
+function resizeCanvas(_, rerender) {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     backgroundCanvas.width = window.innerWidth;
     backgroundCanvas.height = window.innerHeight;
 
-    rerenderBackground = true;
+    if (rerender) {
+        rerenderBackground = true;
+    }
 }
 
 window.addEventListener('resize', resizeCanvas, false);
@@ -186,7 +188,7 @@ let isPlaying = false;
 
 ipcRenderer.on('parse-message', (_, data) => {
     if (data.command === 'draw') {
-        draw(data.args, ctx);
+        draw(data.args, data.args.background ? bgCtx : ctx);
     } else if (data.command === 'clear') {
         clearCanvas(data.args.background);
     } else if (data.command === 'awaitEvent') {
