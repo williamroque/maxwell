@@ -45,8 +45,10 @@ class Latex(Shape):
             isTemporary = is_temporary
         )
 
-    def get_props(self):
-        adjustments = {}
+    def get_props(self, background=False):
+        adjustments = {
+            'background': background
+        }
 
         if self.system is not None:
             point = self.system.normalize(
@@ -63,7 +65,7 @@ class Latex(Shape):
             **self.properties
         } | adjustments
 
-    def render(self):
+    def render(self, background=False):
         preview(
             self.properties.text,
             viewer='file',
@@ -82,7 +84,7 @@ class Latex(Shape):
 
         message = {
             'command': 'draw',
-            'args': self.get_props()
+            'args': self.get_props(background)
         }
 
         self.client.send_message(message)

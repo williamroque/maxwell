@@ -79,12 +79,13 @@ def set_dark_mode(client):
 
     client.send_message(message)
 
-def resize_window(client, width=600, height=500):
+def resize_window(client, width=600, height=500, rerender=True):
     message = {
         'command': 'resizeWindow',
         'args': {
             'width': width,
-            'height': height
+            'height': height,
+            'rerender': rerender
         }
     }
 
@@ -121,3 +122,12 @@ def rotate(points, origin, theta, degrees=False):
 
     return (points - origin).dot(R.T) + origin
 
+
+def track_clicks(client, f, system=None):
+    while not (props := await_click(client, 'altKey'))[2]:
+        point = props[:2]
+
+        if system is not None:
+            point = system.from_normalized(point)
+
+        f(point)

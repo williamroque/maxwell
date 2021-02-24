@@ -42,13 +42,14 @@ toggle_background = partial(util.toggle_background, client)
 set_light_mode = partial(util.set_light_mode, client)
 set_dark_mode = partial(util.set_dark_mode, client)
 resize_window = partial(util.resize_window, client)
+track_clicks = partial(util.track_clicks, client, system=system)
 
 Arc = partial(arc.Arc, client, system=system)
 Image = partial(img.Image, client)
 Latex = partial(latex.Latex, client)
 LineSet = partial(line.LineSet, client, system=system)
-Polygon = partial(polygon.Polygon, client)
-Rect = partial(rect.Rect, client)
+Polygon = partial(polygon.Polygon, client, system=system)
+Rect = partial(rect.Rect, client, system=system)
 
 Scene = partial(scene.Scene, client)
 
@@ -61,3 +62,11 @@ class COLORS:
     RED = '#DC5A5E'
     GREEN = '#A6B860'
     BLUE = '#7AA1C0'
+
+## Frequently used groups
+### Primary/secondary axis group
+ps_axis_group = lambda n: Group(shapes={
+    'axes': create_axes(),
+    'primary-grid': create_grid(n, 1),
+    'secondary-grid': create_grid(n * 2, 2)
+}, background=True)

@@ -105,14 +105,13 @@ class Scene():
 
 
 class TransformationScene:
-    def __init__(self, scene, dt, initial_clear=True):
+    def __init__(self, scene, dt):
         self.scene = scene
         self.dt = dt
-        self.initial_clear = initial_clear
 
     def __iter__(self):
         yield self.scene
         yield self.dt
 
-    def play(self):
-        self.scene.play(frame_duration=self.dt, initial_clear=self.initial_clear)
+    def play(self, **kwargs):
+        self.scene.play(frame_duration=self.dt, **kwargs)

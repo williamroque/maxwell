@@ -60,7 +60,7 @@ class Polygon(Shape):
             theta += 180 + d_theta
             point = new_point
 
-    def render(self):
-        self.lineset.render()
+    def render(self, background=False):
+        self.lineset.render(background)
 
         return self

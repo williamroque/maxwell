@@ -1,8 +1,11 @@
+import numpy as np
+
 from maxwell.shapes.shape import Shape
 from maxwell.core.properties import Properties
 
+
 class Rect(Shape):
-    def __init__(self, client, x=0, y=0, cx=30, cy=30, fill_color="#fff", border_color="#fff"):
+    def __init__(self, client, x=0, y=0, cx=30, cy=30, fill_color="#fff", border_color="#fff", system=None):
         """
         A class for rectangles.
 
@@ -14,6 +17,7 @@ class Rect(Shape):
         * cy         -- The height of the rectangle.
         * fill_color -- Fill color.
         * border     -- Border color.
+        * system     -- The coordinate system.
         """
 
         self.client = client
@@ -28,12 +32,32 @@ class Rect(Shape):
             borderColor = border_color,
         )
 
-    def render(self):
+        self.system = system
+
+    def get_props(self, background=False):
+        adjustments = {
+            'background': background
+        }
+
+        if self.system is not None:
+            point = self.system.normalize(
+                np.array([
+                    self.properties.x,
+                    self.properties.y
+                ])
+            ).astype(int).tolist()
+
+            adjustments['x'] = point[0]
+            adjustments['y'] = point[1]
+
+        return {
+            **self.properties
+        } | adjustments
+
+    def render(self, background=False):
         message = {
             'command': 'draw',
-            'args': {
-                **self.properties
-            }
+            'args': self.get_props(background)
         }
 
         self.client.send_message(message)

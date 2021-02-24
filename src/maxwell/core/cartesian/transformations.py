@@ -84,7 +84,10 @@ class System():
         xx = xx.flatten()
         yy = yy.flatten()
 
-        vector_field = f(xx, yy)
+        vector_field = []
+
+        for x, y in zip(xx, yy):
+            vector_field.append(f(x, y))
 
         magnitudes = []
         max_magnitude = 0

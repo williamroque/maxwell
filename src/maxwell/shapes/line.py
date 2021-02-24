@@ -74,8 +74,10 @@ class LineSet(Shape):
             arrowSize = arrow_size
         )
 
-    def get_props(self):
-        adjustments = {}
+    def get_props(self, background=False):
+        adjustments = {
+            'background': background
+        }
 
         if self.system is not None:
             adjustments['points'] = self.system.normalize(
@@ -242,10 +244,10 @@ class LineSet(Shape):
 
         return TransformationScene(scene, dt)
 
-    def render(self):
+    def render(self, background=False):
         message = {
             'command': 'draw',
-            'args': self.get_props()
+            'args': self.get_props(background)
         }
 
         self.client.send_message(message, True)
