@@ -12,7 +12,7 @@ fig_width = 4
 fig_height = 3
 
 plt.style.use('dark_background')
-plt.rcParams["figure.figsize"] = (fig_width, fig_height)
+plt.rcParams['figure.figsize'] = (fig_width, fig_height)
 
 client = Client()
 
