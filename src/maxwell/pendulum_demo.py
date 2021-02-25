@@ -21,7 +21,7 @@ mu = 1
 g = 9.81
 L = 5
 
-f = lambda x, y: np.array([y, -mu*y-g/L*np.sin(x)])
+f = lambda theta, theta_dot: np.array([theta_dot, -mu*theta_dot - g/L*np.sin(theta)])
 
 field_group = Group()
 for i, line in enumerate(system.render_normalized_2d_vector_field(f, X, Y, arrow_scale=.3, arrow_size=2, width=2)):

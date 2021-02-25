@@ -79,7 +79,7 @@ def set_dark_mode(client):
 
     client.send_message(message)
 
-def resize_window(client, width=600, height=500, rerender=True):
+def resize_window(client, width=600, height=500, rerender=True, system=None):
     message = {
         'command': 'resizeWindow',
         'args': {
@@ -90,6 +90,11 @@ def resize_window(client, width=600, height=500, rerender=True):
     }
 
     client.send_message(message)
+
+    client.receive_message()
+
+    if system is not None:
+        system.set_origin()
 
 def partial(func, *partial_args, **partial_kwargs):
     partial_func = lambda *args, **kwargs: func(*partial_args, *args, **partial_kwargs, **kwargs)

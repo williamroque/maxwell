@@ -11,8 +11,11 @@ class System():
         self.scale = scale
         self.origin = origin
 
-    def set_origin(self, origin):
-        self.origin = origin
+    def set_origin(self, origin=None):
+        if origin is not None:
+            self.origin = origin
+        else:
+            self.origin = self.client.get_shape() / 2
 
     def set_scale(self, scale):
         self.scale = scale

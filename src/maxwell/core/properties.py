@@ -20,6 +20,8 @@ class PropertiesEncoder(JSONEncoder):
                         out[k] = v
 
             return out
+        elif isinstance(obj, [int64, float64]):
+            return int(obj)
 
         return JSONEncoder.default(self, obj)
 

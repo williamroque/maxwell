@@ -55,11 +55,17 @@ server.on('connection', socket => {
                 let parsedMessage = JSON.parse(message);
 
                 if (parsedMessage.command === 'resizeWindow') {
-                    mainWindow.window.setBounds({
-                        width: parsedMessage.args.width,
-                        height: parsedMessage.args.height
-                    });
-                    mainWindow.dispatchWebEvent('resize-window', parsedMessage.args.rerender);
+                    const { width, height } = parsedMessage.args;
+
+                    const currentBounds = mainWindow.window.getBounds();
+                    if (currentBounds.width === width && currentBounds.height === height) {
+                        socket.write('[]');
+                    } else {
+                        mainWindow.window.setBounds({
+                            width: width,
+                            height: height
+                        });
+                    }
                 } else {
                     mainWindow.dispatchWebEvent('parse-message', parsedMessage);
                 }

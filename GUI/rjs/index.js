@@ -10,7 +10,7 @@ const bgCtx = backgroundCanvas.getContext('2d');
 
 
 let rerenderBackground = false;
-function resizeCanvas(_, rerender) {
+function resizeCanvas(_, rerender=true) {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
@@ -20,10 +20,11 @@ function resizeCanvas(_, rerender) {
     if (rerender) {
         rerenderBackground = true;
     }
+
+    ipcRenderer.sendSync('send-results', []);
 }
 
 window.addEventListener('resize', resizeCanvas, false);
-ipcRenderer.on('resize-window', resizeCanvas);
 
 let isLightMode = false;
 

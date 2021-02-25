@@ -41,7 +41,7 @@ center_origin = partial(util.center_origin, client, system)
 toggle_background = partial(util.toggle_background, client)
 set_light_mode = partial(util.set_light_mode, client)
 set_dark_mode = partial(util.set_dark_mode, client)
-resize_window = partial(util.resize_window, client)
+resize_window = partial(util.resize_window, client, system=system)
 track_clicks = partial(util.track_clicks, client, system=system)
 
 Arc = partial(arc.Arc, client, system=system)
@@ -53,8 +53,8 @@ Rect = partial(rect.Rect, client, system=system)
 
 Scene = partial(scene.Scene, client)
 
-create_axes = partial(shapes.create_axes, client, width, height)
-create_grid = partial(shapes.create_grid, client, system, width, height)
+create_axes = partial(shapes.create_axes, client, system)
+create_grid = partial(shapes.create_grid, client, system)
 create_rect = partial(shapes.create_rect, client, system)
 
 ## Constants

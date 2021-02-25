@@ -19,16 +19,20 @@ class Axes():
 
         return self.x_axis, self.y_axis
 
-def create_axes(client, width, height, color='#777'):
+def create_axes(client, system, color='#777'):
     """
     A function for creating axes. Output may be separated
     into component axes or rendered at the same time.
 
     Arguments:
     * client -- Target client.
-    * width  -- Width of axis. Usually frame width.
-    * height -- Height of axis. Usually frame height.
+    * system -- The coordinate system.
+    * color  -- The color of the axes.
     """
+
+    width, height = client.get_shape()
+    width = int(width)
+    height = int(height)
 
     x_axis = LineSet(client, [(0, height/2), (width, height/2)], width=1, color=color)
     y_axis = LineSet(client, [(width/2, 0), (width/2, height)], width=1, color=color)
@@ -49,7 +53,11 @@ class Grid():
 
         return self.lines
 
-def create_grid(client, system, width, height, n, density, color='#333B'):
+def create_grid(client, system, n, density, color='#333B'):
+    width, height = client.get_shape()
+    width = int(width)
+    height = int(height)
+
     lines = []
 
     dx, dy = system.scale / density
