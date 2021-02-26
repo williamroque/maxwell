@@ -18,10 +18,10 @@ y = np.linspace(-8, 8, 30)
 system.set_fill_scale(max(np.abs(x).max(), np.abs(y).max()), 100)
 
 ## Vector field
-f = lambda x, y: np.dstack((
+f = lambda x, y: np.array([
     np.cos(x) * np.cos(y),
     np.sin(x) + np.sin(y)
-))[0] * 10
+]) * 10
 
 ### Gravity
 #f = lambda x, y: np.dstack((
@@ -84,12 +84,14 @@ lines = system.render_normalized_2d_vector_field(
     cmap='cw',
 )
 
+field_group = Group(background=True)
 for i, line in enumerate(lines):
-    scene.add_shape(line, f'vector_{i}', True)
-    line.render()
+    field_group.add_shape(line, f'vector_{i}')
+
+field_group.render()
 
 ## Particles
-particles = []
+particle_group = Group()
 
 p_distance = 1
 p_n = 5
@@ -103,15 +105,16 @@ for i in range(p_n):
 
         particle = Arc(x, y, 3, fill_color='#000', border_color='#000')
 
-        particles.append(particle)
-        scene.add_shape(particle, 'particle-{}'.format(p_n * i + j))
+        particle_group.add_shape(particle, 'particle-{}'.format(p_n * i + j))
 
 dt = .01
+
+scene.add_group(particle_group)
 
 class ParticleFrame(Frame):
     def apply_frame(self, properties):
         for i, point in enumerate(properties.points):
-            v = f(*point)[0]
+            v = f(*point)
 
             point[0] += v[0] * dt
             point[1] += v[1] * dt
@@ -119,8 +122,7 @@ class ParticleFrame(Frame):
             self.props(f'particle-{i}').x = point[0]
             self.props(f'particle-{i}').y = point[1]
 
-for particle in particles:
-    particle.render()
+particle_group.render()
 
 ## Animation
 await_space()
@@ -128,7 +130,7 @@ await_space()
 for _ in range(1000):
     scene.add_frame(ParticleFrame())
 
-scene.play(frame_duration=dt)
+scene.play(frame_duration=dt, initial_clear=False)
 
 ## Closing
 client.close()

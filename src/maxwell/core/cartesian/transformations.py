@@ -11,6 +11,10 @@ class System():
         self.scale = scale
         self.origin = origin
 
+    def unset(self):
+        self.origin = np.array([0, 0])
+        self.scale = np.array([1, -1])
+
     def set_origin(self, origin=None):
         if origin is not None:
             self.origin = origin

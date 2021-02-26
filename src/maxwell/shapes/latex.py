@@ -8,6 +8,50 @@ from maxwell.shapes.shape import Shape
 from maxwell.core.properties import Properties
 
 
+def render_latex(latex, src, color):
+    preview(
+        latex,
+        viewer='file',
+        filename=src,
+        euler=False,
+        dvioptions=[
+            "-T", "tight", "-z", "0", "--truecolor", "-D 600",
+            "-bg", "Transparent", "-fg",
+            'rgb {} {} {}'.format(
+                color[0] / 255,
+                color[1] / 255,
+                color[2] / 255,
+            )
+        ]
+    )
+
+
+class LatexProperties(Properties):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            if key == 'text':
+                self._text = value
+            else:
+                setattr(self, key, value)
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, string):
+        self._text = string
+
+        if self.isTemporary:
+            self.src = f'/tmp/{datetime.datetime.now()}.png'
+
+        render_latex(
+            self._text,
+            self.src,
+            self.color
+        )
+
+
 class Latex(Shape):
     def __init__(self, client, text, font_size=12, x=0, y=0, color=(255, 255, 255), path=None, system=None):
         """
@@ -34,7 +78,7 @@ class Latex(Shape):
             path = os.path.expanduser(path)
             is_temporary = False
 
-        self.properties = Properties(
+        self.properties = LatexProperties(
             type = 'image',
             src = path,
             x = x,
@@ -66,20 +110,10 @@ class Latex(Shape):
         } | adjustments
 
     def render(self, background=False):
-        preview(
+        render_latex(
             self.properties.text,
-            viewer='file',
-            filename=self.properties.src,
-            euler=False,
-            dvioptions=[
-                "-T", "tight", "-z", "0", "--truecolor", "-D 600",
-                "-bg", "Transparent", "-fg",
-                'rgb {} {} {}'.format(
-                    self.properties.color[0] / 255,
-                    self.properties.color[1] / 255,
-                    self.properties.color[2] / 255,
-                )
-            ]
+            self.properties.src,
+            self.properties.color
         )
 
         message = {

@@ -129,23 +129,32 @@ function drawArc(args, ctx) {
     ctx.stroke();
 }
 
+let imagePromises = [];
 function drawImage(args, ctx) {
     let { src, x, y, width, height, isTemporary } = args;
 
     const image = new Image();
     image.src = src;
 
-    image.onload = function() {
-        if (typeof width === 'undefined') {
-            width = this.naturalWidth * height / this.naturalHeight;
-        }
+    imagePromises.push(new Promise(resolve => {
+        image.onload = function() {
+            if (typeof width === 'undefined') {
+                width = this.naturalWidth * height / this.naturalHeight;
+            }
 
-        ctx.drawImage(image, x, y, width, height);
+            ctx.drawImage(image, x, y, width, height);
 
-        if (isTemporary) {
-            spawn('rm', [src]);
-        }
-    };
+            if (isTemporary) {
+                spawn('rm', [src]);
+            }
+
+            resolve();
+        };
+
+        image.onerror = () => {
+            resolve();
+        };
+    }));
 }
 
 function downloadCanvas(filePath) {
@@ -251,11 +260,18 @@ ipcRenderer.on('parse-message', (_, data) => {
                 });
 
                 if (doesSave) {
-                    downloadCanvas(`${data.args.savePath}/image_${(frameCount - frames.length).toString().padStart(10, '0')}.png`);
-                }
+                    console.log(imagePromises);
+                    Promise.all(imagePromises).then(() => {
+                        downloadCanvas(`${data.args.savePath}/image_${(frameCount - frames.length).toString().padStart(10, '0')}.png`);
 
-                if (isPlaying) {
-                    setTimeout(renderFrame, data.args.frameDuration * 1000, frames);
+                        if (isPlaying) {
+                            renderFrame(frames);
+                        }
+                    });
+                } else {
+                    if (isPlaying) {
+                        setTimeout(renderFrame, data.args.frameDuration * 1000, frames);
+                    }
                 }
             }
         }

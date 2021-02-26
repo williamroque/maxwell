@@ -5,6 +5,8 @@ import numpy as np
 
 clear()
 
+system.unset()
+
 r1 = Rect(50, 50, 50, 50, fill_color='orange', border_color='orange')
 r1.render()
 

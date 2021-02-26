@@ -77,6 +77,10 @@ class Scene():
         if initial_clear:
             clear(self.client)
 
+        save_path = os.path.expanduser(save_path)
+        if not os.path.isdir(save_path):
+            os.mkdir(save_path)
+
         rendered_frames = [json.dumps(self.shapes, cls=PropertiesEncoder)]
         for frames in self.frames:
             for i, frame in enumerate(frames):
@@ -89,7 +93,7 @@ class Scene():
                 'frames': rendered_frames,
                 'background': json.dumps(self.background, cls=PropertiesEncoder),
                 'frameDuration': frame_duration,
-                'savePath': os.path.expanduser(save_path),
+                'savePath': save_path,
                 'framerate': framerate,
                 'fps': fps,
             }
@@ -105,13 +109,17 @@ class Scene():
 
 
 class TransformationScene:
-    def __init__(self, scene, dt):
+    def __init__(self, scene, dt, initial_clear):
         self.scene = scene
         self.dt = dt
+        self.initial_clear = initial_clear
 
     def __iter__(self):
         yield self.scene
         yield self.dt
 
     def play(self, **kwargs):
+        if not 'initial_clear' in kwargs:
+            kwargs['initial_clear'] = self.initial_clear
+
         self.scene.play(frame_duration=self.dt, **kwargs)
