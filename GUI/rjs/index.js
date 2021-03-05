@@ -9,7 +9,7 @@ const backgroundCanvas = document.querySelector('#background-canvas');
 const bgCtx = backgroundCanvas.getContext('2d');
 
 
-let rerenderBackground = false;
+let rerenderBackground = false, sendResizeResponse = false;
 function resizeCanvas(_, rerender=true) {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -21,9 +21,14 @@ function resizeCanvas(_, rerender=true) {
         rerenderBackground = true;
     }
 
-    ipcRenderer.sendSync('send-results', []);
+    if (sendResizeReponse) {
+        ipcRenderer.sendSync('send-results', []);
+
+        sendResizeResponse = false;
+    }
 }
 
+ipcRenderer.on('resize-window', () => sendResizeReponse = true);
 window.addEventListener('resize', resizeCanvas, false);
 
 let isLightMode = false;
@@ -194,7 +199,7 @@ function clearCanvas(clearBackground) {
     }
 }
 
-let isPlaying = false;
+let isPlaying = false, awaitsCompletion = false;
 
 ipcRenderer.on('parse-message', (_, data) => {
     if (data.command === 'draw') {
@@ -219,6 +224,8 @@ ipcRenderer.on('parse-message', (_, data) => {
     } else if (data.command === 'renderScene') {
         isPlaying = true;
 
+        awaitsCompletion = data.args.awaitsCompletion;
+
         const frameCount = data.args.frames.length;
         const doesSave = data.args.savePath !== 'none';
 
@@ -232,6 +239,10 @@ ipcRenderer.on('parse-message', (_, data) => {
             if (frames.length < 1) {
                 if (doesSave) {
                     spawn('ffmpeg', `-y -r ${data.args.framerate} -i ${data.args.savePath}/image_%010d.png -c:v libx264 -vf fps=${data.args.fps} -pix_fmt yuv420p ${data.args.savePath}/out.mp4`.split(' '))
+                }
+
+                if (awaitsCompletion) {
+                    ipcRenderer.sendSync('send-results', ['completed']);
                 }
             } else {
                 const frame = JSON.parse(frames.shift());
@@ -289,6 +300,10 @@ document.addEventListener('keydown', e => {
     if (e.ctrlKey) {
         if (e.key === 'c') {
             isPlaying = false;
+
+            if (awaitsCompletion) {
+                ipcRenderer.sendSync('send-results', ['completed']);
+            }
         } else if (e.key === 'u') {
             clearCanvas(true);
         } else if (e.key === 'b') {

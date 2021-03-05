@@ -59,7 +59,10 @@ class Arc(Shape):
             **self.properties
         } | adjustments
 
-    def follow_path(self, p, n=500, dt=.01, shapes=[]):
+    def follow_path(self, p, n=None, dt=.01, duration=1, shapes=[], initial_clear=False):
+        if n is None:
+            n = int(duration / dt)
+
         scene = Scene(self.client, { 'i': 0 })
 
         shape_name = f'{datetime.datetime.now()}-shape'
@@ -79,7 +82,7 @@ class Arc(Shape):
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return TransformationScene(scene, dt)
+        return TransformationScene(scene, dt, initial_clear)
 
     def render(self, background=False):
         message = {

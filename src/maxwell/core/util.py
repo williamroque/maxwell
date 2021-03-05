@@ -51,6 +51,14 @@ def await_properties(client, keys):
 
     return json.loads(client.receive_message())
 
+def await_completion(client):
+    while True:
+        message = client.receive_message()
+        message = json.loads(message)
+
+        if message[0] == 'completed':
+            break
+
 def center_origin(client, system):
     system.set_origin(client.get_shape() / 2)
 

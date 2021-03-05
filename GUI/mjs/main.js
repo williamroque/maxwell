@@ -61,6 +61,8 @@ server.on('connection', socket => {
                     if (currentBounds.width === width && currentBounds.height === height) {
                         socket.write('[]');
                     } else {
+                        mainWindow.dispatchWebEvent('resize-window');
+
                         mainWindow.window.setBounds({
                             width: width,
                             height: height

@@ -6,7 +6,7 @@ import datetime
 
 import numpy as np
 
-from maxwell.core.util import clear
+from maxwell.core.util import clear, await_completion
 from maxwell.core.properties import PropertiesEncoder, Properties
 from maxwell.core.group import Group
 
@@ -73,7 +73,7 @@ class Scene():
 
         return self
 
-    def play(self, frame_duration=.05, save_path='none', framerate=40, fps=40, initial_clear=True):
+    def play(self, frame_duration=.05, save_path='none', framerate=40, fps=40, initial_clear=True, awaits_completion=False):
         if initial_clear:
             clear(self.client)
 
@@ -96,10 +96,14 @@ class Scene():
                 'savePath': save_path,
                 'framerate': framerate,
                 'fps': fps,
+                'awaitsCompletion': awaits_completion,
             }
         }
 
         self.client.send_message(message)
+
+        if awaits_completion:
+            await_completion(self.client)
 
     def render(self):
         if self.current_frame > -1:

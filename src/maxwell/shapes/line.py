@@ -145,7 +145,7 @@ class LineSet(Shape):
 
         return angle
 
-    def move_point(self, point_i, ending_point, n=None, dt=.01, f=None, duration=.5, shapes=[]):
+    def move_point(self, point_i, ending_point, n=None, dt=.01, f=None, duration=.5, shapes=[], initial_clear=True):
         scene = Scene(self.client, { 'i': 0 })
 
         shape_name = f'{datetime.datetime.now()}-shape'
@@ -180,9 +180,9 @@ class LineSet(Shape):
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return TransformationScene(scene, dt)
+        return TransformationScene(scene, dt, initial_clear)
 
-    def follow_path(self, point_i, p, n=500, dt=.01, shapes=[]):
+    def follow_path(self, point_i, p, n=500, dt=.01, shapes=[], initial_clear=False):
         scene = Scene(self.client, { 'i': 0 })
 
         shape_name = f'{datetime.datetime.now()}-shape'
@@ -202,9 +202,9 @@ class LineSet(Shape):
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return TransformationScene(scene, dt)
+        return TransformationScene(scene, dt, initial_clear)
 
-    def rotate_about(self, origin, theta, dt=.01, n=None, n_scale=1, f=None, animate=True, shapes=[]):
+    def rotate_about(self, origin, theta, dt=.01, n=None, n_scale=1, f=None, animate=True, shapes=[], initial_clear=False):
         if not animate:
             self.properties.points = rotate(self.properties.points, origin, theta)
 
@@ -229,7 +229,7 @@ class LineSet(Shape):
 
         class MotionFrame(Frame):
             def apply_frame(self, props):
-                d_theta = C[props.i]
+                d_theta = C[props.i] * theta
 
                 self.props(shape_name).points = rotate(
                     self.props(shape_name).points,
@@ -242,7 +242,7 @@ class LineSet(Shape):
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return TransformationScene(scene, dt)
+        return TransformationScene(scene, dt, initial_clear)
 
     def render(self, background=False):
         message = {
