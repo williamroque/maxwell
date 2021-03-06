@@ -145,7 +145,7 @@ class LineSet(Shape):
 
         return angle
 
-    def move_point(self, point_i, ending_point, n=None, dt=.01, f=None, duration=.5, shapes=[], initial_clear=True):
+    def move_point(self, point_i, ending_point, n=None, dt=.01, f=None, duration=.5, shapes=[], initial_clear=False):
         scene = Scene(self.client, { 'i': 0 })
 
         shape_name = f'{datetime.datetime.now()}-shape'
@@ -161,7 +161,7 @@ class LineSet(Shape):
             n = int(duration / dt)
 
         if f is None:
-            f = (lambda x: 0 * x + 1 / n, 0, 1)
+            f = (np.sin, 0, np.pi)
 
         X = np.linspace(f[1], f[2], n)
         Y = np.abs(f[0](X))
@@ -181,6 +181,9 @@ class LineSet(Shape):
             scene.add_frame(MotionFrame())
 
         return TransformationScene(scene, dt, initial_clear)
+
+    def move_end(self, point, *args, **kwargs):
+        return self.move_point(len(self.properties.points) - 1, point, *args, **kwargs)
 
     def follow_path(self, point_i, p, n=500, dt=.01, shapes=[], initial_clear=False):
         scene = Scene(self.client, { 'i': 0 })
@@ -221,7 +224,7 @@ class LineSet(Shape):
             n = int(abs(theta) * 100 * n_scale)
 
         if f is None:
-            f = (lambda x: 0 * x + 1 / n, 0, 1)
+            f = (np.sin, 0, np.pi)
 
         X = np.linspace(f[1], f[2], n)
         Y = np.abs(f[0](X))

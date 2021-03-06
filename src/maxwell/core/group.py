@@ -23,3 +23,5 @@ class Group():
     def render(self):
         for shape in self.shapes.values():
             shape.render(background=self.background)
+
+        return self

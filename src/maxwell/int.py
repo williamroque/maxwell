@@ -1,4 +1,5 @@
 import numpy as np
+from time import sleep
 #import matplotlib.pyplot as plt
 
 import maxwell.core.util as util
@@ -71,3 +72,7 @@ ps_axis_group = lambda n: Group(shapes={
     'primary-grid': create_grid(n, 1),
     'secondary-grid': create_grid(n * 2, 2)
 }, background=True)
+
+## Frequently used shapes
+def create_vector(point, color=COLORS.BLUE, arrow_size=6):
+    return LineSet([[0, 0], point], color=color, arrows=1, arrow_size=arrow_size)

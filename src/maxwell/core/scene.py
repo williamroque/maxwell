@@ -126,4 +126,7 @@ class TransformationScene:
         if not 'initial_clear' in kwargs:
             kwargs['initial_clear'] = self.initial_clear
 
+        if not 'awaits_completion' in kwargs:
+            kwargs['awaits_completion'] = True
+
         self.scene.play(frame_duration=self.dt, **kwargs)

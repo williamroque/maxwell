@@ -30,7 +30,7 @@ class Shape():
             n = int(duration / dt)
 
         if f is None:
-            f = (lambda x: 0 * x + 1 / n, 0, 1)
+            f = (np.sin, 0, np.pi)
 
         X = np.linspace(f[1], f[2], n)
         Y = np.abs(f[0](X))
