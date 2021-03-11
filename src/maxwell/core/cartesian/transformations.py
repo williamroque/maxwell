@@ -1,5 +1,7 @@
 import numpy as np
+
 from maxwell.shapes.line import LineSet
+from maxwell.core.group import Group
 
 import colorsys
 
@@ -8,8 +10,8 @@ class System():
     def __init__(self, client, scale, origin):
         self.client = client
 
-        self.scale = scale
-        self.origin = origin
+        self.scale = np.array(scale).astype(float)
+        self.origin = np.array(origin).astype(float)
 
     def unset(self):
         self.origin = np.array([0, 0])
@@ -68,7 +70,7 @@ class System():
         )
 
     def red_green_blue(self, magnitude, max_value):
-        ratio = magnitude / max_value
+        ratio = 1 - magnitude / max_value
 
         norm_rgb = colorsys.hsv_to_rgb(ratio, .7, .6)
 
@@ -86,7 +88,7 @@ class System():
             return v
         return v / norm
 
-    def render_normalized_2d_vector_field(self, f, X, Y, arrow_scale=1, width=3, arrow_size=6, cmap='cw', max_threshold=np.inf):
+    def render_normalized_2d_vector_field(self, f, X, Y, arrow_scale=.3, width=2, arrow_size=2, cmap='cw', max_threshold=np.inf, asgroup=False):
         xx, yy = np.meshgrid(X, Y)
         xx = xx.flatten()
         yy = yy.flatten()
@@ -118,7 +120,7 @@ class System():
 
         colormap = np.vectorize(cmap_key[cmap], excluded=[1])(magnitudes, min(max_magnitude, max_threshold))
 
-        arrows = []
+        field_group = Group(background=True)
         for i, vector in enumerate(vector_field):
             starting_point = np.array([xx[i], yy[i]])
             ending_point = starting_point + vector * arrow_scale
@@ -133,6 +135,8 @@ class System():
                 arrows=1, arrow_size=arrow_size
             )
 
-            arrows.append(arrow)
+            field_group.add_shape(arrow, f'vector-{i}')
 
-        return arrows
+        if not asgroup:
+            return field_group.shapes.values()
+        return field_group

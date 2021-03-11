@@ -29,6 +29,18 @@ class Client():
     def connect(self):
         self.socket.connect((self.ip, self.port))
 
+    def change_server(self, ip, port):
+        self.ip = ip
+        self.port = port
+
+        self.close()
+
+        self.socket = socket.socket(
+            socket.AF_INET,
+            socket.SOCK_STREAM
+        )
+        self.connect()
+
     def send_message(self, mess, contains_ndarray=False):
         if contains_ndarray:
             encoder = NumpyEncoder

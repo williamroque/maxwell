@@ -19,7 +19,7 @@ class Axes():
 
         return self.x_axis, self.y_axis
 
-def create_axes(client, system, color='#777'):
+def create_axes(client, system, color='#555', width=1):
     """
     A function for creating axes. Output may be separated
     into component axes or rendered at the same time.
@@ -30,12 +30,14 @@ def create_axes(client, system, color='#777'):
     * color  -- The color of the axes.
     """
 
+    line_width = width
+
     width, height = client.get_shape()
     width = int(width)
     height = int(height)
 
-    x_axis = LineSet(client, [(0, height/2), (width, height/2)], width=1, color=color)
-    y_axis = LineSet(client, [(width/2, 0), (width/2, height)], width=1, color=color)
+    x_axis = LineSet(client, [(0, height/2), (width, height/2)], width=line_width, color=color)
+    y_axis = LineSet(client, [(width/2, 0), (width/2, height)], width=line_width, color=color)
 
     return Axes(x_axis, y_axis)
 
@@ -53,7 +55,9 @@ class Grid():
 
         return self.lines
 
-def create_grid(client, system, n, density, color='#333B'):
+def create_grid(client, system, n, density, color='#333B', width=2):
+    line_width = width
+
     width, height = client.get_shape()
     width = int(width)
     height = int(height)
@@ -64,10 +68,10 @@ def create_grid(client, system, n, density, color='#333B'):
 
     for i in range(-n, n + 1):
         x = system.origin[0] + dx * i
-        lines.append(LineSet(client, [(x, 0), (x, height)], width=1, color=color))
+        lines.append(LineSet(client, [(x, 0), (x, height)], width=line_width, color=color))
 
         y = system.origin[1] + dy * i
-        lines.append(LineSet(client, [(0, y), (width, y)], width=1, color=color))
+        lines.append(LineSet(client, [(0, y), (width, y)], width=line_width, color=color))
 
     return Grid(lines)
 

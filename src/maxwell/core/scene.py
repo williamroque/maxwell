@@ -78,7 +78,7 @@ class Scene():
             clear(self.client)
 
         save_path = os.path.expanduser(save_path)
-        if not os.path.isdir(save_path):
+        if not os.path.isdir(save_path) and save_path != 'none':
             os.mkdir(save_path)
 
         rendered_frames = [json.dumps(self.shapes, cls=PropertiesEncoder)]

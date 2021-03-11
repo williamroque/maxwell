@@ -36,10 +36,8 @@ text_group.render()
 ## Animation
 await_space()
 
-f = [np.sin, 0, np.pi]
-
-i_scene, i_dt = i_hat.move_point(1, [1.5, .5], f=f)
-j_scene, j_dt = j_hat.move_point(1, [.5, 2], f=f)
+i_scene, i_dt = i_hat.move_point(1, [1.5, .5])
+j_scene, j_dt = j_hat.move_point(1, [.5, 2])
 
 i_scene.merge_with(j_scene).play(frame_duration=i_dt, initial_clear=False)
 
