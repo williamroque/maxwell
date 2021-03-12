@@ -53,7 +53,7 @@ class LatexProperties(Properties):
 
 
 class Latex(Shape):
-    def __init__(self, client, text, font_size=12, x=0, y=0, color=(255, 255, 255), path=None, system=None):
+    def __init__(self, client, text, font_size=12, x=0, y=0, color=(255, 255, 255), path=None, system=None, group=None):
         """
         A class for latex.
 
@@ -66,10 +66,15 @@ class Latex(Shape):
         * color     -- The font color.
         * path      -- The where the rendered latex should be saved. Temporary for None-values.
         * system    -- The coordinate system.
+        * group
         """
 
         self.client = client
         self.system = system
+        self.group = group
+
+        if self.group is not None:
+            self.group.add_shape(self)
 
         if path == None:
             path = f'/tmp/{datetime.datetime.now()}.png'

@@ -6,7 +6,7 @@ from maxwell.core.util import rotate
 
 
 class Polygon(Shape):
-    def __init__(self, client, origin, n_sides, triangle_side_length, color='#fff', width=3):
+    def __init__(self, client, origin, n_sides, triangle_side_length, color='#fff', width=3, group=None):
         """
         A class for polygons.
 
@@ -18,9 +18,14 @@ class Polygon(Shape):
         were a triangle.
         * color                -- The color of the lines.
         * width                -- The stroke width.
+        * group
         """
 
         self.client = client
+        self.group = group
+
+        if self.group is not None:
+            self.group.add_shape(self)
 
         self.origin = origin
         self.triangle_side_length = triangle_side_length

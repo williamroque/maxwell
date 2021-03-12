@@ -11,14 +11,20 @@ class Group():
 
         self.background = background
 
-    def add_shape(self, obj, shape_id):
+    def add_shape(self, obj, shape_id=None):
         from maxwell.core.cartesian.shapes import Axes, Grid
 
         if isinstance(obj, (list, tuple, np.ndarray, Axes, Grid)):
             for i, shape in enumerate(obj):
-                self.shapes[f'{shape_id}-{i}'] = shape
+                if shape_id is not None:
+                    self.shapes[f'{shape_id}-{i}'] = shape
+                else:
+                    self.shapes[f'unnamed-shape-{len(self.shapes.values())}'] = shape
         else:
-            self.shapes[shape_id] = obj
+            if shape_id is not None:
+                self.shapes[shape_id] = obj
+            else:
+                self.shapes[f'unnamed-shape-{len(self.shapes.values())}'] = obj
 
     def render(self):
         for shape in self.shapes.values():

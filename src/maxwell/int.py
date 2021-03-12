@@ -48,13 +48,15 @@ try:
     resize_window = partial(util.resize_window, client, system=system)
     track_clicks = partial(util.track_clicks, client, system=system)
 
-    Arc = partial(arc.Arc, client, system=system)
-    Image = partial(img.Image, client)
-    Latex = partial(latex.Latex, client)
-    LineSet = partial(line.LineSet, client, system=system)
-    Polygon = partial(polygon.Polygon, client, system=system)
-    Rect = partial(rect.Rect, client, system=system)
-    Text = partial(text.Text, client, system=system)
+    global_group = Group()
+
+    Arc = partial(arc.Arc, client, system=system, group=global_group)
+    Image = partial(img.Image, client, group=global_group)
+    Latex = partial(latex.Latex, client, group=global_group)
+    LineSet = LS = partial(line.LineSet, client, system=system, group=global_group)
+    Polygon = partial(polygon.Polygon, client, system=system, group=global_group)
+    Rect = partial(rect.Rect, client, system=system, group=global_group)
+    Text = partial(text.Text, client, system=system, group=global_group)
 
     Scene = partial(scene.Scene, client)
 

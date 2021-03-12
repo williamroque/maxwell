@@ -5,7 +5,7 @@ from maxwell.core.properties import Properties
 
 
 class Rect(Shape):
-    def __init__(self, client, x=0, y=0, cx=30, cy=30, fill_color='#fff', border_color='#fff', system=None):
+    def __init__(self, client, x=0, y=0, cx=30, cy=30, fill_color='#fff', border_color='#fff', system=None, group=None):
         """
         A class for rectangles.
 
@@ -18,9 +18,14 @@ class Rect(Shape):
         * fill_color -- Fill color.
         * border     -- Border color.
         * system     -- The coordinate system.
+        * group
         """
 
         self.client = client
+        self.group = group
+
+        if self.group is not None:
+            self.group.add_shape(self)
 
         self.properties = Properties(
             type = 'rect',

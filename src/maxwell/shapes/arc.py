@@ -9,7 +9,7 @@ from maxwell.core.frame import Frame
 
 
 class Arc(Shape):
-    def __init__(self, client, x=0, y=0, radius=7, theta_1=0, theta_2=2*np.pi, fill_color='#fff', border_color='#fff', system=None):
+    def __init__(self, client, x=0, y=0, radius=7, theta_1=0, theta_2=2*np.pi, fill_color='#fff', border_color='#fff', system=None, group=None):
         """
         A class for arcs.
 
@@ -23,10 +23,15 @@ class Arc(Shape):
         * fill_color   -- The fill color for the arc.
         * border_color -- The border color.
         * system       -- The coordinate system.
+        * group
         """
 
         self.client = client
         self.system = system
+        self.group = group
+
+        if self.group is not None:
+            self.group.add_shape(self)
 
         self.properties = Properties(
             type = 'arc',

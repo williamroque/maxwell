@@ -5,7 +5,7 @@ from maxwell.core.properties import Properties
 
 
 class Text(Shape):
-    def __init__(self, client, text, x=0, y=0, font_spec='15pt CMU Serif', color='#fff', stroked=False, system=None):
+    def __init__(self, client, text, x=0, y=0, font_spec='15pt CMU Serif', color='#fff', stroked=False, system=None, group=None):
         """
         A class for normal text.
 
@@ -17,10 +17,15 @@ class Text(Shape):
         * font_size    -- The font size.
         * color        -- The font color.
         * system       -- The coordinate system.
+        * group
         """
 
         self.client = client
         self.system = system
+        self.group = group
+
+        if self.group is not None:
+            self.group.add_shape(self)
 
         self.properties = Properties(
             type = 'text',

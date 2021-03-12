@@ -42,7 +42,7 @@ class LineSetProperties(Properties):
 
 
 class LineSet(Shape):
-    def __init__(self, client, points, color='#fff', width=3, arrows=0, arrow_size=6, system=None):
+    def __init__(self, client, points, color='#fff', width=3, arrows=0, arrow_size=6, system=None, group=None):
         """
         A class for lines.
 
@@ -60,10 +60,15 @@ class LineSet(Shape):
         * arrow_size -- The radius of the circle in which the arrow head
         is inscribed.
         * system     -- The coordinate system.
+        * group
         """
 
         self.client = client
         self.system = system
+        self.group = group
+
+        if self.group is not None:
+            self.group.add_shape(self)
 
         self.properties = LineSetProperties(
             type = 'lineset',

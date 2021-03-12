@@ -5,7 +5,7 @@ from maxwell.core.properties import Properties
 
 
 class Image(Shape):
-    def __init__(self, client, src, x, y, width, height, system=None):
+    def __init__(self, client, src, x, y, width, height, system=None, group=None):
         """
         A class for images.
 
@@ -17,9 +17,14 @@ class Image(Shape):
         * width  -- The image's display width.
         * height -- The image's display height.
         * system -- The coordinate system.
+        * group
         """
 
         self.client = client
+        self.group = group
+
+        if self.group is not None:
+            self.group.add_shape(self)
 
         self.properties = Properties(
             type = 'image',

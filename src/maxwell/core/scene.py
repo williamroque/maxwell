@@ -47,16 +47,18 @@ class Scene():
             else:
                 self.shapes[shape_id] = shape
 
-    def add_background(self, shapes):
+    def add_background(self, shapes, exclude_instance=None):
         if not isinstance(shapes, (list, np.ndarray)):
             shapes = [shapes]
 
         for i, obj in enumerate(shapes):
             if isinstance(obj, Group):
                 for j, shape in enumerate(obj.shapes.values()):
-                    self.add_shape(shape, f'{datetime.datetime.now()}-{i}-{j}-shape', True)
+                    if exclude_instance is None or shape != exclude_instance:
+                        self.add_shape(shape, f'{datetime.datetime.now()}-{i}-{j}-shape', True)
             else:
-                self.add_shape(obj, f'{datetime.datetime.now()}-{i}-shape', True)
+                if exclude_instance is None or obj != exclude_instance:
+                    self.add_shape(obj, f'{datetime.datetime.now()}-{i}-shape', True)
 
     def merge_with(self, other_scene):
         self.merged_properties.append(other_scene.properties)

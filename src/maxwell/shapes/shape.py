@@ -15,7 +15,7 @@ class Shape():
         shape_name = f'{datetime.datetime.now()}-shape'
         scene.add_shape(self, shape_name)
 
-        scene.add_background(shapes)
+        scene.add_background(shapes, self)
 
         starting_point = [
             self.properties.x,

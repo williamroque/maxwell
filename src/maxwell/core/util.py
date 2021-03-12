@@ -105,7 +105,11 @@ def resize_window(client, width=600, height=500, rerender=True, system=None):
         system.set_origin()
 
 def partial(func, *partial_args, **partial_kwargs):
-    partial_func = lambda *args, **kwargs: func(*partial_args, *args, **partial_kwargs, **kwargs)
+    def partial_func(*args, **kwargs):
+        kwargs = partial_kwargs | kwargs
+
+        return func(*partial_args, *args, **kwargs)
+
     partial_func.__doc__ = func.__doc__
 
     if inspect.isclass(func):
