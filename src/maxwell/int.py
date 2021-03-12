@@ -11,6 +11,7 @@ import maxwell.shapes.latex as latex
 import maxwell.shapes.line as line
 import maxwell.shapes.polygon as polygon
 import maxwell.shapes.rect as rect
+import maxwell.shapes.text as text
 
 from maxwell.client.client import Client
 
@@ -53,6 +54,7 @@ try:
     LineSet = partial(line.LineSet, client, system=system)
     Polygon = partial(polygon.Polygon, client, system=system)
     Rect = partial(rect.Rect, client, system=system)
+    Text = partial(text.Text, client, system=system)
 
     Scene = partial(scene.Scene, client)
 
@@ -71,8 +73,8 @@ try:
 
 ## Frequently used groups
 ### Primary/secondary axis group
-    ps_axis_group = lambda n, primary_width=2: Group(shapes={
-        'primary-grid': create_grid(n, 1, width=primary_width),
+    ps_axis_group = lambda n, primary_width=2, show_numbers=False: Group(shapes={
+        'primary-grid': create_grid(n, 1, width=primary_width, show_numbers=show_numbers),
         'secondary-grid': create_grid(n * 2, 2, width=1),
         'axes': create_axes(width=1),
     }, background=True)

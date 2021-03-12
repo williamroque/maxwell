@@ -2,6 +2,7 @@ import numpy as np
 
 from maxwell.shapes.line import LineSet
 from maxwell.shapes.rect import Rect
+from maxwell.shapes.text import Text
 
 
 class Axes():
@@ -55,25 +56,43 @@ class Grid():
 
         return self.lines
 
-def create_grid(client, system, n, density, color='#333B', width=2):
+def create_grid(client, system, n, density, color='#333B', width=2, show_numbers=False):
     line_width = width
 
     width, height = client.get_shape()
+
     width = int(width)
     height = int(height)
 
-    lines = []
+    left_top = system.from_normalized(np.array([0, 0]))
+    right_bottom = system.from_normalized(np.array([width, height]))
 
-    dx, dy = system.scale / density
+    lines = []
+    numbers = []
+
+    dx = dy = 1 / density
 
     for i in range(-n, n + 1):
-        x = system.origin[0] + dx * i
-        lines.append(LineSet(client, [(x, 0), (x, height)], width=line_width, color=color))
+        x = dx * i
+        lines.append(LineSet(client, [(x, left_top[1]), (x, right_bottom[1])], width=line_width, color=color, system=system))
 
-        y = system.origin[1] + dy * i
-        lines.append(LineSet(client, [(0, y), (width, y)], width=line_width, color=color))
+        y = dy * i
+        lines.append(LineSet(client, [(left_top[0], y), (right_bottom[0], y)], width=line_width, color=color, system=system))
 
-    return Grid(lines)
+        if show_numbers:
+            font_color = '#57706E'
+            font_spec = f'{int(system.scale[0] / 6)}pt CMU Serif'
+
+            x_margin = system.scale[0] * .0015
+            y_margin = system.scale[0] * .0035
+
+            x_label = Text(client, x, x + x_margin, -y_margin, system=system, color=font_color, font_spec=font_spec)
+            y_label = Text(client, y, x_margin, y - y_margin, system=system, color=font_color, font_spec=font_spec)
+
+            numbers.append(x_label)
+            numbers.append(y_label)
+
+    return Grid(lines + numbers)
 
 def create_rect(client, system, a, b, h):
     """
