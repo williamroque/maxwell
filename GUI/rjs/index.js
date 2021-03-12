@@ -162,6 +162,20 @@ function drawImage(args, ctx) {
     }));
 }
 
+function drawText(args, ctx) {
+    const { text, x, y, fontSpec, color, stroked } = args;
+
+    ctx.font = fontSpec;
+
+    if (stroked) {
+        ctx.strokeStyle = color;
+        ctx.strokeText(text, x, y);
+    } else {
+        ctx.fillStyle = color;
+        ctx.fillText(text, x, y);
+    }
+}
+
 function downloadCanvas(filePath) {
     const url = canvas.toDataURL('image/png', 0.8);
 
@@ -189,7 +203,10 @@ function draw(args, ctx) {
         drawArc(args, ctx);
     } else if (args.type === 'image') {
         drawImage(args, ctx);
-    }}
+    } else if (args.type === 'text') {
+        drawText(args, ctx);
+    }
+}
 
 function clearCanvas(clearBackground) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
