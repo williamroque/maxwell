@@ -80,6 +80,10 @@ server.on('connection', socket => {
     socket.on('close', () => {
         ipcMain.removeAllListeners('send-results');
     });
+
+    socket.on('error', err => {
+        console.log(err.stack);
+    });
 });
 
 try {

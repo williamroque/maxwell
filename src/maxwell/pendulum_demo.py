@@ -7,15 +7,15 @@ resize_window(800, 800)
 
 axis_group = Group()
 
-axes = create_axes(color='#3339', width=1).render()
-axis_group.add_shape(axes, 'axes')
-
-grid = create_grid(7, 1, color='#3336', width=1).render()
-axis_group.add_shape(grid, 'grid')
-
 X = np.linspace(-7, 7, 20)
 Y = np.linspace(-7, 7, 20)
 system.set_fill_scale(X, 0)
+
+axes = create_axes(color='#3339', width=1).render()
+axis_group.add_shape(axes, 'axes')
+
+grid = create_grid(9, 1, color='#3336', width=1).render()
+axis_group.add_shape(grid, 'grid')
 
 mu = 1
 g = 9.81
