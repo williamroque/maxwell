@@ -9,7 +9,7 @@ import datetime
 
 
 class Shape():
-    def move_to_point(self, point, n=None, dt=.01, f=None, shapes=[], duration=.2, initial_clear=True):
+    def move_to_point(self, point, n=None, dt=.01, f=None, shapes=[], duration=.2, initial_clear=False):
         scene = Scene(self.client, { 'i': 0 })
 
         shape_name = f'{datetime.datetime.now()}-shape'

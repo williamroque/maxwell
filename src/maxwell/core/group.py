@@ -26,8 +26,9 @@ class Group():
             else:
                 self.shapes[f'unnamed-shape-{len(self.shapes.values())}'] = obj
 
-    def render(self):
+    def render(self, exclude_shape=None):
         for shape in self.shapes.values():
-            shape.render(background=self.background)
+            if exclude_shape is None or shape != exclude_shape:
+                shape.render(background=self.background)
 
         return self

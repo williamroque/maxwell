@@ -93,6 +93,9 @@ class LineSet(Shape):
             **self.properties
         } | adjustments
 
+    def set_points(self, points):
+        self.properties.points = list(map(list, list(points)))
+
     @staticmethod
     def collide(line, point, threshold=0):
         """
