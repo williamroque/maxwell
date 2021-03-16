@@ -38,8 +38,8 @@ class Arc(Shape):
             x = x,
             y = y,
             radius = radius,
-            theta_1 = theta_1,
-            theta_2 = theta_2,
+            theta_1 = -theta_1,
+            theta_2 = -theta_2,
             fillColor = fill_color,
             borderColor = border_color,
         )

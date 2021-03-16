@@ -75,7 +75,7 @@ class Scene():
 
         return self
 
-    def play(self, frame_duration=.05, save_path='none', framerate=40, fps=40, initial_clear=True, awaits_completion=False):
+    def play(self, frame_duration=.05, save_path='none', framerate=40, fps=40, initial_clear=True, awaits_completion=False, clears=True):
         if initial_clear:
             clear(self.client)
 
@@ -99,6 +99,7 @@ class Scene():
                 'framerate': framerate,
                 'fps': fps,
                 'awaitsCompletion': awaits_completion,
+                'clears': clears
             }
         }
 

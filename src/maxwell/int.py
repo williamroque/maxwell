@@ -91,11 +91,11 @@ try:
         return LineSet([[0, 0], point], color=color, arrows=1, arrow_size=arrow_size)
 
 ## For quick graphing
-    def init_graph(scale_by=1.0, n=5):
+    def init_graph(scale_by=1.0, n=5, show_numbers=False):
         clear()
 
         system.scale *= scale_by
-        ps_axis_group(n).render()
+        ps_axis_group(n, show_numbers=show_numbers).render()
 
 ## For when the server might not be up
     def run(callback):

@@ -264,7 +264,9 @@ ipcRenderer.on('parse-message', (_, data) => {
             } else {
                 const frame = JSON.parse(frames.shift());
 
-                clearCanvas(false);
+                if (data.args.clears) {
+                    clearCanvas(false);
+                }
 
                 if (doesSave) {
                     ctx.fillStyle = isLightMode ? '#fff0d1' : '#171414';
