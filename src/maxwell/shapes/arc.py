@@ -4,17 +4,18 @@ import numpy as np
 
 from maxwell.shapes.shape import Shape
 from maxwell.core.properties import Properties
-from maxwell.core.scene import TransformationScene, Scene
+from maxwell.core.scene import Scene
 from maxwell.core.frame import Frame
 
 
 class Arc(Shape):
-    def __init__(self, client, x=0, y=0, radius=7, theta_1=0, theta_2=2*np.pi, fill_color='#fff', border_color='transparent', system=None, group=None):
+    def __init__(self, client, shape_name=None, x=0, y=0, radius=7, theta_1=0, theta_2=2*np.pi, fill_color='#fff', border_color='transparent', system=None, group=None):
         """
         A class for arcs.
 
         Arguments:
         * client       -- Target client.
+        * shape_name
         * x            -- The x-coordinate.
         * y            -- The y-coordinate.
         * radius       -- The radius of the arc.
@@ -30,8 +31,13 @@ class Arc(Shape):
         self.system = system
         self.group = group
 
+        if shape_name is None:
+            shape_name = f'{datetime.datetime.now()}-shape'
+
+        self.shape_name = shape_name
+
         if self.group is not None:
-            self.group.add_shape(self)
+            self.group.add_shape(self, shape_name)
 
         self.properties = Properties(
             type = 'arc',
@@ -64,9 +70,9 @@ class Arc(Shape):
             **self.properties
         } | adjustments
 
-    def follow_path(self, p, n=None, dt=.01, duration=1, shapes=[], initial_clear=False):
+    def follow_path(self, p, n=None, fps=20, duration=1, shapes=[], initial_clear=False):
         if n is None:
-            n = int(duration / dt)
+            n = int(duration * fps)
 
         scene = Scene(self.client, { 'i': 0 })
 
@@ -77,7 +83,7 @@ class Arc(Shape):
 
         class MotionFrame(Frame):
             def apply_frame(self, props):
-                x, y = p(props.i * dt, props.i, self.props(shape_name).x, self.props(shape_name).y)
+                x, y = p(props.i * 1/fps, props.i, self.props(shape_name).x, self.props(shape_name).y)
 
                 self.props(shape_name).x = x
                 self.props(shape_name).y = y
@@ -87,7 +93,7 @@ class Arc(Shape):
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return TransformationScene(scene, dt, initial_clear)
+        return scene
 
     def render(self, background=False):
         message = {

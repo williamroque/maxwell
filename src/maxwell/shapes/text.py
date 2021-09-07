@@ -1,3 +1,5 @@
+import datetime
+
 import numpy as np
 
 from maxwell.shapes.shape import Shape
@@ -5,13 +7,14 @@ from maxwell.core.properties import Properties
 
 
 class Text(Shape):
-    def __init__(self, client, text, x=0, y=0, font_spec='15pt CMU Serif', color='#fff', stroked=False, system=None, group=None):
+    def __init__(self, client, text, shape_name=None, x=0, y=0, font_spec='15pt CMU Serif', color='#fff', stroked=False, system=None, group=None):
         """
         A class for normal text.
 
         Arguments:
         * client       -- Target client.
         * text         -- The text to be displayed.
+        * shape_name
         * x            -- The x-coordinate.
         * y            -- The y-coordinate.
         * font_size    -- The font size.
@@ -24,8 +27,13 @@ class Text(Shape):
         self.system = system
         self.group = group
 
+        if shape_name is None:
+            shape_name = f'{datetime.datetime.now()}-shape'
+
+        self.shape_name = shape_name
+
         if self.group is not None:
-            self.group.add_shape(self)
+            self.group.add_shape(self, shape_name)
 
         self.properties = Properties(
             type = 'text',

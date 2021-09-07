@@ -1,3 +1,5 @@
+import datetime
+
 import numpy as np
 
 from maxwell.shapes.shape import Shape
@@ -6,7 +8,7 @@ from maxwell.core.util import rotate
 
 
 class Polygon(Shape):
-    def __init__(self, client, origin, n_sides, triangle_side_length, color='#fff', width=3, group=None):
+    def __init__(self, client, origin, n_sides, triangle_side_length, shape_name=None, color='#fff', width=3, group=None):
         """
         A class for polygons.
 
@@ -16,6 +18,7 @@ class Polygon(Shape):
         * n_sides              -- The number of sides of the polygon.
         * triangle_side_length -- The length of the sides if the polygon
         were a triangle.
+        * shape_name
         * color                -- The color of the lines.
         * width                -- The stroke width.
         * group
@@ -24,8 +27,13 @@ class Polygon(Shape):
         self.client = client
         self.group = group
 
+        if shape_name is None:
+            shape_name = f'{datetime.datetime.now()}-shape'
+
+        self.shape_name = shape_name
+
         if self.group is not None:
-            self.group.add_shape(self)
+            self.group.add_shape(self, shape_name)
 
         self.origin = origin
         self.triangle_side_length = triangle_side_length

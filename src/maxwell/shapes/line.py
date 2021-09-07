@@ -2,9 +2,10 @@ import numpy as np
 
 from maxwell.shapes.shape import Shape
 from maxwell.core.properties import Properties
-from maxwell.core.scene import Scene, TransformationScene
+from maxwell.core.scene import Scene
 from maxwell.core.frame import Frame
 from maxwell.core.util import rotate
+from maxwell.core.group import Group
 
 import datetime
 
@@ -42,14 +43,15 @@ class LineSetProperties(Properties):
 
 
 class LineSet(Shape):
-    def __init__(self, client, points, color='#fff', width=3, arrows=0, arrow_size=6, system=None, group=None):
+    def __init__(self, client, points, shape_name=None, color='#fff', width=3, arrows=0, arrow_size=6, system=None, group=None):
         """
         A class for lines.
 
         Arguments:
         * client     -- Target client.
-        * points     -- The points connecting the lines as 2-tuples or
-        2-item lists
+        * points     -- The points connecting the lines as 2-tuples,
+        2-item lists, or groups
+        * shape_name
         * color      -- The color of the lines.
         * width      -- The stroke width of the lines.
         * arrows     -- Which arrows to display if only single line:
@@ -67,8 +69,21 @@ class LineSet(Shape):
         self.system = system
         self.group = group
 
+        if shape_name is None:
+            shape_name = f'{datetime.datetime.now()}-shape'
+
+        self.shape_name = shape_name
+
+        if isinstance(points, Group):
+            point_list = []
+
+            for shape in points.shapes.values():
+                point_list.append([shape.properties.x, shape.properties.y])
+
+            points = point_list
+
         if self.group is not None:
-            self.group.add_shape(self)
+            self.group.add_shape(self, shape_name)
 
         self.properties = LineSetProperties(
             type = 'lineset',
@@ -153,7 +168,7 @@ class LineSet(Shape):
 
         return angle
 
-    def move_point(self, point_i, ending_point, n=None, dt=.01, f=None, duration=.5, shapes=[], initial_clear=False):
+    def move_point(self, point_i, ending_point, n=None, fps=20, f=None, duration=.5, shapes=[]):
         scene = Scene(self.client, { 'i': 0 })
 
         shape_name = f'{datetime.datetime.now()}-shape'
@@ -166,7 +181,7 @@ class LineSet(Shape):
         r = np.hypot(cx, cy)
 
         if n is None:
-            n = int(duration / dt)
+            n = int(duration * fps)
 
         if f is None:
             f = (np.sin, 0, np.pi)
@@ -188,12 +203,12 @@ class LineSet(Shape):
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return TransformationScene(scene, dt, initial_clear)
+        return scene
 
     def move_end(self, point, *args, **kwargs):
         return self.move_point(len(self.properties.points) - 1, point, *args, **kwargs)
 
-    def follow_path(self, point_i, p, n=500, dt=.01, shapes=[], initial_clear=False):
+    def follow_path(self, point_i, p, n=500, fps=20, shapes=[]):
         scene = Scene(self.client, { 'i': 0 })
 
         shape_name = f'{datetime.datetime.now()}-shape'
@@ -203,7 +218,7 @@ class LineSet(Shape):
 
         class MotionFrame(Frame):
             def apply_frame(self, props):
-                x, y = p(props.i * dt, props.i)
+                x, y = p(props.i / fps, props.i)
 
                 self.props(shape_name).points[point_i][0] = x
                 self.props(shape_name).points[point_i][1] = y
@@ -213,9 +228,9 @@ class LineSet(Shape):
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return TransformationScene(scene, dt, initial_clear)
+        return scene
 
-    def rotate_about(self, origin, theta, dt=.01, n=None, n_scale=1, f=None, animate=True, shapes=[], initial_clear=False):
+    def rotate_about(self, origin, theta, n=None, n_scale=1, f=None, animate=True, shapes=[]):
         if not animate:
             self.properties.points = rotate(self.properties.points, origin, theta)
 
@@ -253,7 +268,7 @@ class LineSet(Shape):
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return TransformationScene(scene, dt, initial_clear)
+        return scene
 
     def render(self, background=False):
         message = {

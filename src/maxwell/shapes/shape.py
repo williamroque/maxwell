@@ -1,6 +1,6 @@
 import numpy as np
 
-from maxwell.core.scene import Scene, TransformationScene
+from maxwell.core.scene import Scene
 from maxwell.core.frame import Frame
 
 from maxwell.core.util import await_click
@@ -9,25 +9,29 @@ import datetime
 
 
 class Shape():
-    def move_to_point(self, point, n=None, dt=.01, f=None, shapes=[], duration=.2, initial_clear=False):
-        scene = Scene(self.client, { 'i': 0 })
-
-        shape_name = f'{datetime.datetime.now()}-shape'
-        scene.add_shape(self, shape_name)
-
-        scene.add_background(shapes, self)
-
+    def move_to_point(self, point, n=None, fps=100, f=None, shapes=[], duration=.2, initial_clear=False):
         starting_point = [
             self.properties.x,
             self.properties.y
         ]
+
+        scene = Scene(self.client, {
+            'i': 0,
+            'x': starting_point[0],
+            'y': starting_point[1],
+            'shape_name': self.shape_name
+        })
+
+        scene.add_shape(self)
+
+        scene.add_background(shapes, self)
 
         cx = point[0] - starting_point[0]
         cy = point[1] - starting_point[1]
         r = np.hypot(cx, cy)
 
         if n is None:
-            n = int(duration / dt)
+            n = int(duration * fps)
 
         if f is None:
             f = (np.sin, 0, np.pi)
@@ -41,15 +45,17 @@ class Shape():
                 dx = cx * C[props.i]
                 dy = cy * C[props.i]
 
-                self.scene.shapes[shape_name].properties.x += dx
-                self.scene.shapes[shape_name].properties.y += dy
+                shape_name = props['shape_name']
+
+                self.props(shape_name).x += dx
+                self.props(shape_name).y += dy
 
                 props.i += 1
 
         for _ in range(n):
             scene.add_frame(MotionFrame())
 
-        return TransformationScene(scene, dt, initial_clear)
+        return scene
 
     def move_to(self, other_shape, n=None, dt=.01, f=None, shapes=[]):
         ending_point = [

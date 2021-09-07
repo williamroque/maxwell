@@ -21,14 +21,14 @@ function resizeCanvas(_, rerender=true) {
         rerenderBackground = true;
     }
 
-    if (sendResizeReponse) {
+    if (sendResizeResponse) {
         ipcRenderer.sendSync('send-results', []);
 
         sendResizeResponse = false;
     }
 }
 
-ipcRenderer.on('resize-window', () => sendResizeReponse = true);
+ipcRenderer.on('resize-window', () => sendResizeResponse = true);
 window.addEventListener('resize', resizeCanvas, false);
 
 let isLightMode = false;
@@ -36,6 +36,10 @@ let isLightMode = false;
 function toggleBackground() {
     document.body.classList.toggle('light-body');
     isLightMode = !isLightMode;
+}
+
+function setBackground(background) {
+    document.body.style.background = background;
 }
 
 function setLightMode() {
@@ -211,6 +215,8 @@ function draw(args, ctx) {
 function clearCanvas(clearBackground) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    console.log('clearing...');
+
     if (clearBackground) {
         bgCtx.clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -241,77 +247,46 @@ ipcRenderer.on('parse-message', (_, data) => {
     } else if (data.command === 'renderScene') {
         isPlaying = true;
 
-        awaitsCompletion = data.args.awaitsCompletion;
-
         const frameCount = data.args.frames.length;
-        const doesSave = data.args.savePath !== 'none';
+        const frameDuration = data.args.frameDuration * 1000;
 
-        if (!doesSave) {
-            Object.values(JSON.parse(data.args.background)).forEach(shape => {
-                draw(shape, bgCtx);
-            });
-        }
+        const background = data.args.background;
 
-        function renderFrame(frames) {
-            if (frames.length < 1) {
-                if (doesSave) {
-                    spawn('ffmpeg', `-y -r ${data.args.framerate} -i ${data.args.savePath}/image_%010d.png -c:v libx264 -vf fps=${data.args.fps} -pix_fmt yuv420p ${data.args.savePath}/out.mp4`.split(' '))
+        const frames = data.args.frames;
+
+        function renderFrame(i = 0) {
+            if (i >= frames.length) return;
+
+            const frame = frames[i];
+
+            clearCanvas(false);
+
+            if (rerenderBackground) {
+                for (const shape of background) {
+                    draw(shape, bgCtx)
                 }
 
-                if (awaitsCompletion) {
-                    ipcRenderer.sendSync('send-results', ['completed']);
-                }
-            } else {
-                const frame = JSON.parse(frames.shift());
+                rerenderBackground = false;
+            }
 
-                if (data.args.clears) {
-                    clearCanvas(false);
-                }
+            for (const shape of frame) {
+                draw(shape, ctx)
+            }
 
-                if (doesSave) {
-                    ctx.fillStyle = isLightMode ? '#fff0d1' : '#171414';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                    Object.values(JSON.parse(data.args.background)).forEach(shape => {
-                        draw(shape, ctx);
-                    });
-                }
-
-                if (rerenderBackground) {
-                    Object.values(JSON.parse(data.args.background)).forEach(shape => {
-                        draw(shape, bgCtx);
-                    });
-
-                    rerenderBackground = false;
-                }
-
-                Object.values(frame).forEach(shape => {
-                    draw(shape, ctx);
-                });
-
-                if (doesSave) {
-                    console.log(imagePromises);
-                    Promise.all(imagePromises).then(() => {
-                        downloadCanvas(`${data.args.savePath}/image_${(frameCount - frames.length).toString().padStart(10, '0')}.png`);
-
-                        if (isPlaying) {
-                            renderFrame(frames);
-                        }
-                    });
-                } else {
-                    if (isPlaying) {
-                        setTimeout(renderFrame, data.args.frameDuration * 1000, frames);
-                    }
-                }
+            if (isPlaying) {
+                setTimeout(renderFrame, frameDuration, i + 1);
             }
         }
-        renderFrame(data.args.frames);
+
+        renderFrame();
     } else if (data.command === 'toggleBackground') {
         toggleBackground();
     } else if (data.command === 'setLightMode') {
         setLightMode();
     } else if (data.command === 'setDarkMode') {
         setDarkMode();
+    } else if (data.command === 'setBackground') {
+        setBackground(data.args.background);
     }
 });
 

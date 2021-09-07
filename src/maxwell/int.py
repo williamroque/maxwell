@@ -15,6 +15,7 @@ import maxwell.shapes.text as text
 
 from maxwell.client.client import Client
 
+from maxwell.core.sequence import Sequence
 import maxwell.core.scene as scene
 from maxwell.core.frame import Frame
 from maxwell.core.group import Group
@@ -43,6 +44,7 @@ try:
     await_completion = partial(util.await_completion, client)
     center_origin = partial(util.center_origin, client, system)
     toggle_background = partial(util.toggle_background, client)
+    set_background = partial(util.set_background, client)
     set_light_mode = partial(util.set_light_mode, client)
     set_dark_mode = partial(util.set_dark_mode, client)
     resize_window = partial(util.resize_window, client, system=system)
@@ -59,6 +61,8 @@ try:
     Text = partial(text.Text, client, system=system, group=global_group)
 
     Scene = partial(scene.Scene, client)
+
+    Sequence = partial(Sequence, client)
 
     create_axes = partial(shapes.create_axes, client, system)
     create_grid = partial(shapes.create_grid, client, system)

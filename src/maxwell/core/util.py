@@ -5,19 +5,17 @@ import inspect
 
 import numpy as np
 
+from maxwell.client.message import Message
+
 
 def clear(client, background=True):
-    message = {
-        'command': 'clear',
-        'args': {
-            'background': background
-        }
-    }
+    message = Message(client, 'clear', background = background)
+    message.send()
 
-    client.send_message(message)
 
 def run_server():
     os.system('/Users/jetblack/maxwell/GUI/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron /Users/jetblack/maxwell/GUI/ &')
+
 
 def await_event(client, event, keys=[]):
     message = {
@@ -32,12 +30,15 @@ def await_event(client, event, keys=[]):
 
     return json.loads(client.receive_message())
 
+
 def await_space(client):
     while await_event(client, 'keydown', ['key'])[0] != ' ':
         pass
 
+
 def await_click(client, *props):
     return await_event(client, 'click', ['clientX', 'clientY', *props])
+
 
 def await_properties(client, keys):
     message = {
@@ -51,6 +52,7 @@ def await_properties(client, keys):
 
     return json.loads(client.receive_message())
 
+
 def await_completion(client):
     while True:
         message = client.receive_message()
@@ -59,8 +61,10 @@ def await_completion(client):
         if message[0] == 'completed':
             break
 
+
 def center_origin(client, system):
     system.set_origin(client.get_shape() / 2)
+
 
 def download_canvas(client, fileName):
     message = {
@@ -72,20 +76,35 @@ def download_canvas(client, fileName):
 
     client.send_message(message)
 
+
 def toggle_background(client):
     message = {'command': 'toggleBackground'}
 
     client.send_message(message)
+
+
+def set_background(client, background):
+    message = {
+        'command': 'setBackground',
+        'args': {
+            'background': background
+        }
+    }
+
+    client.send_message(message)
+
 
 def set_light_mode(client):
     message = {'command': 'setLightMode'}
 
     client.send_message(message)
 
+
 def set_dark_mode(client):
     message = {'command': 'setDarkMode'}
 
     client.send_message(message)
+
 
 def resize_window(client, width=600, height=500, rerender=True, system=None):
     message = {
@@ -104,6 +123,7 @@ def resize_window(client, width=600, height=500, rerender=True, system=None):
     if system is not None:
         system.set_origin()
 
+
 def partial(func, *partial_args, **partial_kwargs):
     def partial_func(*args, **kwargs):
         kwargs = partial_kwargs | kwargs
@@ -116,6 +136,7 @@ def partial(func, *partial_args, **partial_kwargs):
         partial_func.__doc__ = func.__init__.__doc__
 
     return partial_func
+
 
 def rotate(points, origin, theta, degrees=False):
     """

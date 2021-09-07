@@ -8,13 +8,6 @@ import numpy as np
 from maxwell.core.util import await_properties
 
 
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.astype(int).tolist()
-        return json.JSONEncoder.default(self, obj)
-
-
 class Client():
     def __init__(self, ip='127.0.0.1', port=1337):
         self.ip = ip
@@ -41,10 +34,8 @@ class Client():
         )
         self.connect()
 
-    def send_message(self, mess, contains_ndarray=False):
-        if contains_ndarray:
-            encoder = NumpyEncoder
-        else:
+    def send_message(self, mess, encoder=None):
+        if encoder is None:
             encoder = json.JSONEncoder
 
         self.socket.sendall((json.dumps(mess, cls=encoder) + '\n').encode('utf-8'))

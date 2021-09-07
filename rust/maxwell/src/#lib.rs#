@@ -1,0 +1,18 @@
+use std::net::TcpStream;
+use std::collections::HashMap;
+
+struct Client {
+    stream: TcpStream,
+}
+
+trait Command {
+    fn get_json -> 
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_connects() {
+        assert_eq!(2 + 2, 4);
+    }
+}

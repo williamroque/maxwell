@@ -9,7 +9,7 @@ class PropertiesEncoder(JSONEncoder):
 
         if isinstance(obj, ndarray):
             return obj.astype(int).tolist()
-        elif issubclass(type(obj), Shape) or issubclass(type(obj), Scene):
+        elif isinstance(obj, (Shape, Scene)):
             out = {}
 
             if 'get_props' in dir(obj):
@@ -20,7 +20,7 @@ class PropertiesEncoder(JSONEncoder):
                         out[k] = v
 
             return out
-        elif isinstance(obj, [int64, float64]):
+        elif isinstance(obj, (int64, float64)):
             return int(obj)
 
         return JSONEncoder.default(self, obj)

@@ -14,9 +14,9 @@ class Axes():
         yield self.x_axis
         yield self.y_axis
 
-    def render(self):
-        self.x_axis.render()
-        self.y_axis.render()
+    def render(self, background=True):
+        self.x_axis.render(background=background)
+        self.y_axis.render(background=background)
 
         return self.x_axis, self.y_axis
 
@@ -98,7 +98,7 @@ def create_rect(client, system, a, b, h):
     """
     A function for creating a rectangle within a cartesian
     coordinate system. Plays well with Riemann sum
-    demonstrations.
+    demonstrations. Deprecated.
 
     Arguments:
     * client -- Target client.
