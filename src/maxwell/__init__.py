@@ -1,1 +1,1 @@
-from maxwell.int import *
+from maxwell.interactive import *

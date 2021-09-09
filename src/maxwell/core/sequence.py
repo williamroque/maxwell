@@ -1,8 +1,8 @@
 import os
-import json
 
 from maxwell.client.message import Message
 from maxwell.core.properties import PropertiesEncoder
+from maxwell.core.group import Group
 
 
 class Sequence:
@@ -17,21 +17,27 @@ class Sequence:
         self.fps = fps
 
         if background is None:
-            background = {}
+            background = Group()
 
         self.background = background
+
+        self.show_shapes = []
 
 
     def add_scene(self, scene):
         self.scenes.append(scene)
 
+        for shape in self.show_shapes:
+            scene.add_shape(shape)
+
+
+    def show(self, shape):
+        self.show_shapes.append(shape)
+
 
     def wait(self, duration):
-        self.scenes[-1].extend(duration*self.fps)
-
-
-    def get_background_props(self):
-        return [shape.get_props() for shape in self.background.values()]
+        if len(self.scenes) > 0:
+            self.scenes[-1].extend(int(duration * self.fps))
 
 
     def compile(self, save_path='none', initial_clear=True, clears=True):
@@ -48,7 +54,7 @@ class Sequence:
             self.client, 'renderScene',
             encoder          = PropertiesEncoder,
             frames           = rendered_frames,
-            background       = self.get_background_props(),
+            background       = list(self.background.shapes.values()),
             frameDuration    = 1/self.fps,
             savePath         = save_path,
             framerate        = self.fps,

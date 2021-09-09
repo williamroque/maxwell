@@ -1,8 +1,15 @@
 from maxwell import *
 
+
 clear()
 
-axis_group = ps_axis_group(5).render()
+axis_group = ps_axis_group(5)
+axis_group.render()
+
+background_group = Group()
+background_group.merge_with(axis_group)
+
+sequence = Sequence(background=background_group)
 
 f = lambda x: np.sin(x)
 f_prime = lambda x: np.cos(x)
@@ -10,40 +17,40 @@ f_prime = lambda x: np.cos(x)
 X = np.linspace(-5, 5, 100)
 Y = f(X)
 
-LS(zip(X, Y), color=BLUE, width=2).render()
+curve = LS(zip(X, Y), color=BLUE, width=2)
+curve.render()
+background_group.add_shape(curve)
 
-x_n = 1
-y_n = f(x_n)
 
-guess_point = Arc(x_n, y_n, fill_color=GREEN).render()
-tangent_line = LS(zip(X, f_prime(x_n) * (X - x_n) + y_n), color=RED, width=2)
+x_next = 1
+y_next = f(x_next)
 
-global_group.background = True
+guess_point = Arc(x_next, y_next, fill_color=GREEN).render()
+tangent_line = LS(zip(X, f_prime(x_next) * (X - x_next) + y_next), color=RED, width=2).render()
+sequence.show(tangent_line)
 
-def guess(n = 3):
-    global x_n, y_n
 
-    if n == 0:
-        return
+def guess(f, f_prime, sequence, x_previous):
+    x_next = x_previous - f(x_previous)/f_prime(x_previous)
+    y_next = f(x_next)
 
-    clear()
-    axis_group.render()
-    global_group.render(guess_point)
-    guess_point.render()
+    sequence.wait(.5)
 
-    x_n = x_n - f(x_n)/f_prime(x_n)
-    y_n = f(x_n)
+    follow_tangent = guess_point.move_to_point((x_next, 0))
+    follow_tangent.add_shape(tangent_line)
 
-    sleep(.5)
-    guess_point.move_to_point((x_n, 0), shapes=global_group).play()
+    sequence.add_scene(follow_tangent)
 
-    sleep(.5)
-    guess_point.move_to_point((x_n, y_n), shapes=global_group).play()
+    sequence.wait(.5)
 
-    tangent_line.set_points(zip(X, f_prime(x_n) * (X - x_n) + y_n))
+    find_y = guess_point.move_to_point((x_next, y_next))
+    sequence.add_scene(find_y)
 
-    guess(n - 1)
+    sequence.add_scene(tangent_line.rotate_about(np.array([0, 0]), np.pi/3))
 
-await_space()
 
-guess()
+guess(sequence, np.pi/3, 3)
+
+
+message = sequence.compile()
+message.send()

@@ -9,7 +9,10 @@ import datetime
 
 
 class Shape():
-    def move_to_point(self, point, n=None, fps=100, f=None, shapes=[], duration=.2, initial_clear=False):
+    def move_to_point(self, point, n=None, fps=100, f=None, shapes=None, duration=.2, initial_clear=False):
+        if shapes is None:
+            shapes = []
+
         starting_point = [
             self.properties.x,
             self.properties.y
@@ -17,18 +20,16 @@ class Shape():
 
         scene = Scene(self.client, {
             'i': 0,
-            'x': starting_point[0],
-            'y': starting_point[1],
+            'cx': None,
+            'cy': None,
+            'final_x': point[0],
+            'final_y': point[1],
             'shape_name': self.shape_name
         })
 
         scene.add_shape(self)
 
         scene.add_background(shapes, self)
-
-        cx = point[0] - starting_point[0]
-        cy = point[1] - starting_point[1]
-        r = np.hypot(cx, cy)
 
         if n is None:
             n = int(duration * fps)
@@ -42,13 +43,14 @@ class Shape():
 
         class MotionFrame(Frame):
             def apply_frame(self, props):
-                dx = cx * C[props.i]
-                dy = cy * C[props.i]
+                shape_name = props.shape_name
 
-                shape_name = props['shape_name']
+                if props.i == 0:
+                    props.cx = props.final_x - self.props(shape_name).x
+                    props.cy = props.final_y - self.props(shape_name).y
 
-                self.props(shape_name).x += dx
-                self.props(shape_name).y += dy
+                self.props(shape_name).x += props.cx * C[props.i]
+                self.props(shape_name).y += props.cy * C[props.i]
 
                 props.i += 1
 

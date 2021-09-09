@@ -236,10 +236,9 @@ class LineSet(Shape):
 
             return self
 
-        scene = Scene(self.client, { 'i': 0 })
+        scene = Scene(self.client, { 'i': 0, 'shape_name': self.shape_name })
 
-        shape_name = f'{datetime.datetime.now()}-shape'
-        scene.add_shape(self, shape_name)
+        scene.add_shape(self)
 
         scene.add_background(shapes)
 
@@ -256,6 +255,8 @@ class LineSet(Shape):
         class MotionFrame(Frame):
             def apply_frame(self, props):
                 d_theta = C[props.i] * theta
+
+                shape_name = props.shape_name
 
                 self.props(shape_name).points = rotate(
                     self.props(shape_name).points,
@@ -276,6 +277,6 @@ class LineSet(Shape):
             'args': self.get_props(background)
         }
 
-        self.client.send_message(message, True)
+        self.client.send_message(message)
 
         return self

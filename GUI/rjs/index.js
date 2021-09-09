@@ -252,6 +252,10 @@ ipcRenderer.on('parse-message', (_, data) => {
 
         const background = data.args.background;
 
+        for (const shape of background) {
+            draw(shape, bgCtx)
+        }
+
         const frames = data.args.frames;
 
         function renderFrame(i = 0) {
@@ -260,6 +264,8 @@ ipcRenderer.on('parse-message', (_, data) => {
             const frame = frames[i];
 
             clearCanvas(false);
+
+            if (frame.length === 0) renderFrame(i + 1);
 
             if (rerenderBackground) {
                 for (const shape of background) {

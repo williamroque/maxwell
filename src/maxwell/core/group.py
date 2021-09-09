@@ -19,9 +19,12 @@ class Group():
                 self.shapes[shape.shape_name] = shape
         else:
             if shape_name is None:
-                self.shapes[shape.shape_name] = obj
+                self.shapes[obj.shape_name] = obj
             else:
                 self.shapes[shape_name] = obj
+
+    def merge_with(self, other_group):
+        self.shapes |= other_group.shapes
 
     def render(self, exclude_shape=None):
         for shape in self.shapes.values():

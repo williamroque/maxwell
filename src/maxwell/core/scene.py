@@ -13,6 +13,7 @@ import numpy as np
 from maxwell.core.util import clear, await_completion
 from maxwell.core.properties import PropertiesEncoder, Properties
 from maxwell.core.group import Group
+from maxwell.core.frame import Frame
 from maxwell.client.message import Message
 
 
@@ -40,7 +41,7 @@ class Scene():
         sleep(timeout)
 
     def extend(self, n):
-        self.frames[-1:] *= n
+        self.frames += [Frame()] * n
 
     def add_shape(self, shape, send_to_background=False):
         if send_to_background:
@@ -104,7 +105,7 @@ class Scene():
         if not os.path.isdir(save_path) and save_path != 'none':
             os.mkdir(save_path)
 
-        self.extend(wait*fps)
+        self.extend(int(wait * fps))
 
         rendered_frames = self.render_frames()
 
