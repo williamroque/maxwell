@@ -71,6 +71,7 @@ class Text(Shape):
             **self.properties
         } | adjustments
 
+
     def render(self, background=False):
         message = {
             'command': 'draw',

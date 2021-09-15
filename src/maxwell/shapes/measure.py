@@ -108,7 +108,20 @@ class Measure(Curve):
         orthonormal = self.get_orthonormal()
 
         label_position = (self.A + self.B)/2 + orthonormal*self.label_offset
-        label = Text(self.client, str(round(self.norm, 1)), *label_position, color=self.color, italic=self.italic, system=self.system)
-        label.add_access_hook(Measure.label_hook, self, orthonormal, self.label_offset, self.custom_label)
+        label = Text(
+            self.client,
+            str(round(self.norm, 1)),
+            *label_position,
+            color=self.color,
+            italic=self.italic,
+            system=self.system
+        )
+        label.add_access_hook(
+            Measure.label_hook,
+            self,
+            orthonormal,
+            self.label_offset,
+            self.custom_label
+        )
 
         return label

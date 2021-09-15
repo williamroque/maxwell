@@ -219,8 +219,6 @@ function drawMarkdown(args, ctx) {
             ctx.font = fontSpec;
         }
 
-        console.log(part, partWidth, isItalic)
-
         isItalic = !isItalic;
 
         if (stroked) {
