@@ -6,10 +6,14 @@ class Group():
         self.shapes = {}
 
         if shapes is not None:
-            for shape_id, shape in shapes.items():
-                self.add_shape(shape, shape_id)
+            if not isinstance(shapes, (np.ndarray, list, tuple)):
+                shapes = [shapes]
+
+            for shape in shapes:
+                self.add_shape(shape)
 
         self.background = background
+
 
     def add_shape(self, obj, shape_name=None):
         from maxwell.core.cartesian.shapes import Axes, Grid
@@ -23,8 +27,10 @@ class Group():
             else:
                 self.shapes[shape_name] = obj
 
+
     def merge_with(self, other_group):
         self.shapes |= other_group.shapes
+
 
     def render(self, exclude_shape=None):
         for shape in self.shapes.values():

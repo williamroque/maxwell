@@ -8,7 +8,7 @@ class PropertiesEncoder(JSONEncoder):
         from maxwell.core.scene import Scene
 
         if isinstance(obj, ndarray):
-            return obj.astype(int).tolist()
+            return obj.tolist()
         elif isinstance(obj, (Shape, Scene)):
             out = {}
 
@@ -20,8 +20,6 @@ class PropertiesEncoder(JSONEncoder):
                         out[k] = v
 
             return out
-        elif isinstance(obj, (int64, float64)):
-            return int(obj)
 
         return JSONEncoder.default(self, obj)
 

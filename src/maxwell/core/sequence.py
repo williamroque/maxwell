@@ -65,3 +65,8 @@ class Sequence:
 
         return message
 
+
+    def run(self, **kwargs):
+        message = self.compile(**kwargs)
+        message.send()
+

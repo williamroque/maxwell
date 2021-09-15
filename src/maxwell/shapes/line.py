@@ -4,7 +4,7 @@ from maxwell.shapes.shape import Shape
 from maxwell.core.properties import Properties
 from maxwell.core.scene import Scene
 from maxwell.core.frame import Frame
-from maxwell.core.util import rotate
+from maxwell.core.util import rotate, create_easing_function
 from maxwell.core.group import Group
 
 import datetime
@@ -42,7 +42,7 @@ class LineSetProperties(Properties):
             point[1] += dy
 
 
-class LineSet(Shape):
+class Curve(Shape):
     def __init__(self, client, points, shape_name=None, color='#fff', width=3, arrows=0, arrow_size=6, system=None, group=None):
         """
         A class for lines.
@@ -94,7 +94,27 @@ class LineSet(Shape):
             arrowSize = arrow_size
         )
 
+
+    @staticmethod
+    def zip_function(func, start, end, point_num):
+        "Create a zipped array of points from a mathematical function."
+
+        x_values = np.linspace(start, end, point_num)
+        y_values = func(x_values)
+
+        return zip(x_values, y_values)
+
+
+    @staticmethod
+    def zip_functions(funcs, *args):
+        "Zip several functions at once."
+
+        return (Curve.zip_function(func, *args) for func in funcs)
+
+
     def get_props(self, background=False):
+        "Extract shape rendering properties."
+
         adjustments = {
             'background': background
         }
@@ -102,135 +122,76 @@ class LineSet(Shape):
         if self.system is not None:
             adjustments['points'] = self.system.normalize(
                 self.properties.points
-            ).astype(int).tolist()
+            ).tolist() # if there are any performance issues, try .astype(int)
 
         return {
             **self.properties
         } | adjustments
 
+
     def set_points(self, points):
+        "Change the curve's points."
+
         self.properties.points = list(map(list, list(points)))
 
-    @staticmethod
-    def collide(line, point, threshold=0):
-        """
-        Determine whether a point coincides with line within a certain
-        threshold. This is done by converting to polar coordinates.
-
-        Arguments:
-        * line      -- The 2-tuple of 2-tuples (or lists) representing
-        the line.
-        * point     -- The point.
-        * threshold -- The maximum distance between the line and the
-        point before they are considered to have collided.
-        """
-
-        if point[0] == line[0][0] and point[1] == line[0][1] or\
-           point[0] == line[1][0] and point[1] == line[1][1]:
-            return True
-
-        line_angle = LineSet.get_angle(*line)
-        line_point_angle = LineSet.get_angle(line[0], point)
-
-        line_r = np.sqrt((line[1][0] - line[0][0]) ** 2 + (line[1][1] - line[0][0]) ** 2)
-        line_point_r = np.sqrt((line[0][0] - point[0]) ** 2 + (line[0][1] - point[1]) ** 2)
-
-        return round(line_point_r * np.sin(np.abs(line_angle - line_point_angle)), 5) <= threshold and line_point_r <= line_r
 
     @staticmethod
-    def get_angle(p_1, p_2):
-        """
-        The angular distance between two points, taken as follows:
+    def move_point_setup(self, props):
+        "Frame setup for `move_point`."
 
-        │  │
-        │  o
-        │ ╱│
-        │╱ │
-        o  │
-        │  │
+        props.cx = props.ending_point[0] - props.point[0]
+        props.cy = props.ending_point[1] - props.point[1]
 
-        Arguments:
-        * line      -- The 2-tuple of 2-tuples (or lists) representing
-        the line.
-        * point     -- The point.
-        * threshold -- The maximum distance between the line and the
-        point before they are considered to have collided.
-        """
 
-        dx = p_2[0] - p_1[0]
-        dy = p_2[1] - p_1[1]
-        r = np.sqrt(dx**2 + dy**2)
+    @staticmethod
+    def move_point_apply(self, props):
+        "Frame callback for `move_point`."
 
-        angle = np.arcsin(dy/r)
+        x_change = props.cx * props.easing_function[props.i]
+        y_change = props.cy * props.easing_function[props.i]
 
-        if p_2[0] < p_1[0]:
-            angle = np.pi - angle
+        props.point[0] += x_change
+        props.point[1] += y_change
 
-        return angle
 
-    def move_point(self, point_i, ending_point, n=None, fps=20, f=None, duration=.5, shapes=[]):
-        scene = Scene(self.client, { 'i': 0 })
+    def move_point(self, point_i, ending_point, fps=100, easing_function=None, duration=.5, shapes=None):
+        "Create a scene moving a specific point."
 
-        shape_name = f'{datetime.datetime.now()}-shape'
-        scene.add_shape(self, shape_name)
+        frame_num = int(duration * fps)
 
-        scene.add_background(shapes)
+        if easing_function is None:
+            easing_function = create_easing_function(frame_num)
 
-        cx = ending_point[0] - self.properties.points[point_i][0]
-        cy = ending_point[1] - self.properties.points[point_i][1]
-        r = np.hypot(cx, cy)
+        scene = Scene(self.client, {
+            'cx': None,
+            'cy': None,
+            'point': self.properties.points[point_i],
+            'ending_point': ending_point,
+            'easing_function': easing_function
+        })
 
-        if n is None:
-            n = int(duration * fps)
+        scene.repeat_frame(
+            frame_num,
+            Curve.move_point_apply,
+            Curve.move_point_setup
+        )
 
-        if f is None:
-            f = (np.sin, 0, np.pi)
+        scene.add_shape(self)
 
-        X = np.linspace(f[1], f[2], n)
-        Y = np.abs(f[0](X))
-        C = Y / Y.sum()
-
-        class MotionFrame(Frame):
-            def apply_frame(self, props):
-                dx = cx * C[props.i]
-                dy = cy * C[props.i]
-
-                self.props(shape_name).points[point_i][0] += dx
-                self.props(shape_name).points[point_i][1] += dy
-
-                props.i += 1
-
-        for _ in range(n):
-            scene.add_frame(MotionFrame())
+        if shapes is not None:
+            scene.add_background(shapes)
 
         return scene
 
     def move_end(self, point, *args, **kwargs):
+        "Create a scene moving the last point."
+
         return self.move_point(len(self.properties.points) - 1, point, *args, **kwargs)
 
-    def follow_path(self, point_i, p, n=500, fps=20, shapes=[]):
-        scene = Scene(self.client, { 'i': 0 })
-
-        shape_name = f'{datetime.datetime.now()}-shape'
-        scene.add_shape(self, shape_name)
-
-        scene.add_background(shapes)
-
-        class MotionFrame(Frame):
-            def apply_frame(self, props):
-                x, y = p(props.i / fps, props.i)
-
-                self.props(shape_name).points[point_i][0] = x
-                self.props(shape_name).points[point_i][1] = y
-
-                props.i += 1
-
-        for _ in range(n):
-            scene.add_frame(MotionFrame())
-
-        return scene
 
     def rotate_about(self, origin, theta, n=None, n_scale=1, f=None, animate=True, shapes=[]):
+        "Create a scene moving the curve about a specific point."
+
         if not animate:
             self.properties.points = rotate(self.properties.points, origin, theta)
 
@@ -258,7 +219,7 @@ class LineSet(Shape):
 
                 shape_name = props.shape_name
 
-                self.props(shape_name).points = rotate(
+                self.props(shape_name).properties.points = rotate(
                     self.props(shape_name).points,
                     origin,
                     d_theta
@@ -270,6 +231,67 @@ class LineSet(Shape):
             scene.add_frame(MotionFrame())
 
         return scene
+
+
+    @staticmethod
+    def transform_setup(self, props):
+        "Callback for transformation frames setup."
+
+        for j, point in enumerate(props.points):
+            target_x, target_y = props.target_curve[j]
+
+            props.cx.append(target_x - point[0])
+            props.cy.append(target_y - point[1])
+
+
+    @staticmethod
+    def transform_apply(self, props):
+        "Callback for transformation frames."
+
+        for j, point in enumerate(props.points):
+            ratio = props.easing_function[props.i]
+
+            x_change = props.cx[j] * ratio
+            y_change = props.cy[j] * ratio
+
+            props.points[j][0] += x_change
+            props.points[j][1] += y_change
+
+
+    def transform(self, target_curve, duration=2, fps=100, easing_function=None, shapes=None):
+        "Create a scene transforming the curve into another one."
+
+        frame_num = int(duration * fps)
+
+        if isinstance(target_curve, Curve):
+            target_curve = target_curve.properties.points
+
+        target_curve = list(target_curve)
+
+        if easing_function is None:
+            easing_function = create_easing_function(frame_num)
+
+        scene = Scene(self.client, {
+            'cx': [],
+            'cy': [],
+            'points': self.properties.points,
+            'target_curve': target_curve,
+            'easing_function': easing_function
+        })
+
+        scene.repeat_frame(
+            frame_num,
+            Curve.transform_apply,
+            Curve.transform_setup
+        )
+
+        scene.add_shape(self)
+
+        if shapes is not None:
+            scene.add_background(shapes)
+
+        return scene
+
 
     def render(self, background=False):
         message = {

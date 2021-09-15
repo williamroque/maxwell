@@ -1,6 +1,6 @@
 import numpy as np
 
-from maxwell.shapes.line import LineSet
+from maxwell.shapes.line import Curve
 from maxwell.core.group import Group
 
 import colorsys
@@ -125,7 +125,7 @@ class System():
             starting_point = np.array([xx[i], yy[i]])
             ending_point = starting_point + vector * arrow_scale
 
-            arrow = LineSet(
+            arrow = Curve(
                 self.client,
                 [
                     self.normalize(starting_point),

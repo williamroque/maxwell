@@ -1,9 +1,9 @@
-import numpy as np
 from time import sleep
-#import matplotlib.pyplot as plt
+
+import numpy as np
 
 import maxwell.core.util as util
-from maxwell.core.util import partial, rotate
+from maxwell.core.util import partial
 
 import maxwell.shapes.arc as arc
 import maxwell.shapes.img as img
@@ -12,6 +12,7 @@ import maxwell.shapes.line as line
 import maxwell.shapes.polygon as polygon
 import maxwell.shapes.rect as rect
 import maxwell.shapes.text as text
+import maxwell.shapes.vector as vector
 
 from maxwell.client.client import Client
 
@@ -52,13 +53,17 @@ try:
 
     global_group = Group()
 
+    zip_function = line.Curve.zip_function
+    zip_functions = line.Curve.zip_functions
+
     Arc = partial(arc.Arc, client, system=system, group=global_group)
     Image = partial(img.Image, client, group=global_group)
     Latex = partial(latex.Latex, client, group=global_group)
-    LineSet = LS = partial(line.LineSet, client, system=system, group=global_group)
+    Curve = LS = partial(line.Curve, client, system=system, group=global_group)
     Polygon = partial(polygon.Polygon, client, system=system, group=global_group)
     Rect = partial(rect.Rect, client, system=system, group=global_group)
     Text = partial(text.Text, client, system=system, group=global_group)
+    Vector = partial(vector.Vector, client, system=system, group=global_group)
 
     Scene = partial(scene.Scene, client)
 
@@ -68,14 +73,12 @@ try:
     create_grid = partial(shapes.create_grid, client, system)
     create_rect = partial(shapes.create_rect, client, system)
 
+    measure = partial(util.measure, client, system)
+
 ## Constants
-    class COLORS:
-        RED = '#DC5A5E'
-        GREEN = '#A6B860'
-        BLUE = '#7AA1C0'
-    RED = COLORS.RED
-    GREEN = COLORS.GREEN
-    BLUE = COLORS.BLUE
+    RED = '#DC5A5E'
+    GREEN = '#A6B860'
+    BLUE = '#7AA1C0'
 
 ## Frequently used groups
 ### Primary/secondary axis group
@@ -84,15 +87,6 @@ try:
         'secondary-grid': create_grid(n * 2, 2, width=1),
         'axes': create_axes(width=1),
     }, background=True)
-
-## Frequently used shapes
-    def create_vector(*args, color=COLORS.BLUE, arrow_size=6):
-        if len(args) > 1:
-            point = np.array(args)
-        else:
-            point = args[0]
-
-        return LineSet([[0, 0], point], color=color, arrows=1, arrow_size=arrow_size)
 
 ## For quick graphing
     def init_graph(scale_by=1.0, n=5, show_numbers=False):

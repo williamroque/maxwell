@@ -3,7 +3,7 @@ import datetime
 import numpy as np
 
 from maxwell.shapes.shape import Shape
-from maxwell.shapes.line import LineSet
+from maxwell.shapes.line import Curve
 from maxwell.core.util import rotate
 
 
@@ -41,8 +41,8 @@ class Polygon(Shape):
         self.width = width
         self.points = []
 
-        self.lineset = LineSet(self.client, np.array(self.points), self.color, self.width)
-        self.properties = self.lineset.properties
+        self.curve = Curve(self.client, np.array(self.points), self.color, self.width)
+        self.properties = self.curve.properties
 
         self.change_side_number(n_sides)
 
@@ -54,7 +54,7 @@ class Polygon(Shape):
 
         self.construct_points()
 
-        self.lineset.properties.points = np.array(self.points)
+        self.curve.properties.points = np.array(self.points)
 
     def construct_points(self):
         self.points.append(self.origin)
@@ -74,6 +74,6 @@ class Polygon(Shape):
             point = new_point
 
     def render(self, background=False):
-        self.lineset.render(background)
+        self.curve.render(background)
 
         return self

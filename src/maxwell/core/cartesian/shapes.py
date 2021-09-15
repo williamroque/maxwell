@@ -1,6 +1,6 @@
 import numpy as np
 
-from maxwell.shapes.line import LineSet
+from maxwell.shapes.line import Curve
 from maxwell.shapes.rect import Rect
 from maxwell.shapes.text import Text
 
@@ -37,8 +37,8 @@ def create_axes(client, system, color='#555', width=1):
     width = int(width)
     height = int(height)
 
-    x_axis = LineSet(client, [(0, height/2), (width, height/2)], width=line_width, color=color)
-    y_axis = LineSet(client, [(width/2, 0), (width/2, height)], width=line_width, color=color)
+    x_axis = Curve(client, [(0, height/2), (width, height/2)], width=line_width, color=color)
+    y_axis = Curve(client, [(width/2, 0), (width/2, height)], width=line_width, color=color)
 
     return Axes(x_axis, y_axis)
 
@@ -74,10 +74,10 @@ def create_grid(client, system, n, density, color='#333B', width=2, show_numbers
 
     for i in range(-n, n + 1):
         x = dx * i
-        lines.append(LineSet(client, [(x, left_top[1]), (x, right_bottom[1])], width=line_width, color=color, system=system))
+        lines.append(Curve(client, [(x, left_top[1]), (x, right_bottom[1])], width=line_width, color=color, system=system))
 
         y = dy * i
-        lines.append(LineSet(client, [(left_top[0], y), (right_bottom[0], y)], width=line_width, color=color, system=system))
+        lines.append(Curve(client, [(left_top[0], y), (right_bottom[0], y)], width=line_width, color=color, system=system))
 
         if show_numbers:
             font_color = '#57706E'

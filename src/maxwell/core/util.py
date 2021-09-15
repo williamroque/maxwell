@@ -1,5 +1,6 @@
 import os
 import json
+from copy import deepcopy
 
 import inspect
 
@@ -169,3 +170,69 @@ def track_clicks(client, f, system=None):
             point = system.from_normalized(point)
 
         f(point)
+
+
+def create_easing_function(step_num, func=np.sin, start=0, end=np.pi):
+    x_values = np.linspace(start, end, step_num)
+    y_values = np.abs(func(x_values))
+
+    return y_values / y_values.sum()
+
+
+def measure_label_hook(self, measure_shape, orthonormal, label_offset):
+    A = np.array(measure_shape.properties.points[2])
+    B = np.array(measure_shape.properties.points[3])
+
+    r = np.linalg.norm(B - A)
+
+    x, y = (A + B)/2 + orthonormal*label_offset
+
+    self.properties.text = str(round(r, 1))
+    self.properties.x = x
+    self.properties.y = y
+
+
+def measure(client, system, A, B, offset, terminal_width, color='#7AA1C0', use_label=False, label_offset=1):
+    "Create a measuring stick between points A and B."
+
+    from maxwell.shapes.line import Curve
+    from maxwell.shapes.text import Text
+
+    A = deepcopy(A)
+    B = deepcopy(B)
+
+    R = np.array([[0, -1],
+                  [1,  0]])
+
+    orthonormal = R @ (B - A)
+    orthonormal /= np.linalg.norm(orthonormal)
+
+    offset_vector = orthonormal * offset
+
+    A += offset_vector
+    B += offset_vector
+
+    terminal_a_start = A - orthonormal * terminal_width/2
+    terminal_a_end = A + orthonormal * terminal_width/2
+
+    terminal_b_start = B - orthonormal * terminal_width/2
+    terminal_b_end = B + orthonormal * terminal_width/2
+
+    curve = []
+    curve.append(terminal_a_start)
+    curve.append(terminal_a_end)
+    curve.append(A)
+    curve.append(B)
+    curve.append(terminal_b_start)
+    curve.append(terminal_b_end)
+
+    measure_curve = Curve(client, curve, color=color, system=system)
+
+    if use_label:
+        label_position = (A + B)/2 + orthonormal*label_offset
+        label = Text(client, str(np.linalg.norm(B - A)), *label_position, color=color, system=system)
+        label.add_access_hook(measure_label_hook, measure_curve, orthonormal, label_offset)
+    else:
+        label = None
+
+    return measure_curve, label

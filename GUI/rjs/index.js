@@ -170,6 +170,8 @@ function drawText(args, ctx) {
     const { text, x, y, fontSpec, color, stroked } = args;
 
     ctx.font = fontSpec;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
     if (stroked) {
         ctx.strokeStyle = color;
@@ -214,8 +216,6 @@ function draw(args, ctx) {
 
 function clearCanvas(clearBackground) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    console.log('clearing...');
 
     if (clearBackground) {
         bgCtx.clearRect(0, 0, canvas.width, canvas.height);

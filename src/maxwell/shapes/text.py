@@ -7,16 +7,16 @@ from maxwell.core.properties import Properties
 
 
 class Text(Shape):
-    def __init__(self, client, text, shape_name=None, x=0, y=0, font_spec='15pt CMU Serif', color='#fff', stroked=False, system=None, group=None):
+    def __init__(self, client, text, x=0, y=0, shape_name=None, font_spec='15pt CMU Serif', color='#fff', stroked=False, system=None, group=None):
         """
         A class for normal text.
 
         Arguments:
         * client       -- Target client.
         * text         -- The text to be displayed.
-        * shape_name
         * x            -- The x-coordinate.
         * y            -- The y-coordinate.
+        * shape_name
         * font_size    -- The font size.
         * color        -- The font color.
         * system       -- The coordinate system.
@@ -26,6 +26,8 @@ class Text(Shape):
         self.client = client
         self.system = system
         self.group = group
+
+        self.access_hooks = []
 
         if shape_name is None:
             shape_name = f'{datetime.datetime.now()}-shape'
@@ -45,10 +47,18 @@ class Text(Shape):
             stroked = stroked
         )
 
+
+    def add_access_hook(self, callback, *args):
+        self.access_hooks.append((callback, args))
+
+
     def get_props(self, background=False):
         adjustments = {
             'background': background
         }
+
+        for access_hook, args in self.access_hooks:
+            access_hook(self, *args)
 
         if self.system is not None:
             point = self.system.normalize(
@@ -56,7 +66,7 @@ class Text(Shape):
                     self.properties.x,
                     self.properties.y
                 ])
-            ).astype(int).tolist()
+            ).tolist()
 
             adjustments['x'] = point[0]
             adjustments['y'] = point[1]
