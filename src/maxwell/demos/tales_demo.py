@@ -80,13 +80,14 @@ sequence.show(original_top_measure.label)
 sequence.show(original_bottom_measure.label)
 
 section_scene = curve.transform(target_curve, duration=.8)
-sequence.add_scene(section_scene)
-
 top_measure_scene = original_top_measure.transform(target_top_measure, duration=.8)
-section_scene.link_scene(top_measure_scene)
-
 bottom_measure_scene = original_bottom_measure.transform(target_bottom_measure, duration=.8)
-section_scene.link_scene(bottom_measure_scene)
+
+sequence.add_scenes(
+    section_scene,
+    top_measure_scene,
+    bottom_measure_scene
+)
 
 
 sequence.wait(.5)
@@ -114,9 +115,9 @@ top_ratio_text = ratio_text(top_equation, y=80)
 top_ratio_text.set_opacity(0)
 
 bottom_ratio_scene = bottom_ratio_text.show(duration=.2)
-sequence.add_scene(bottom_ratio_scene)
-
 top_ratio_scene = top_ratio_text.show(duration=.2)
-bottom_ratio_scene.link_scene(top_ratio_scene)
+
+sequence.add_scenes(bottom_ratio_scene, top_ratio_scene)
+
 
 sequence.run()

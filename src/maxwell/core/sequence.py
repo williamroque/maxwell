@@ -31,6 +31,13 @@ class Sequence:
             scene.add_shape(shape)
 
 
+    def add_scenes(self, first, *rest):
+        for scene in rest:
+            first.link_scene(scene)
+
+        self.add_scene(first)
+
+
     def show(self, shape):
         self.show_shapes.append(shape)
 
