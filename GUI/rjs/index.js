@@ -167,7 +167,7 @@ function drawImage(args, ctx) {
 }
 
 function drawText(args, ctx) {
-    const { text, x, y, fontSpec, color, stroked } = args;
+    const { text, x, y, fontSpec, color, stroked, markdown } = args;
 
     ctx.font = fontSpec;
     ctx.textAlign = 'center';
@@ -179,6 +179,59 @@ function drawText(args, ctx) {
     } else {
         ctx.fillStyle = color;
         ctx.fillText(text, x, y);
+    }
+}
+
+function drawMarkdown(args, ctx) {
+    const { text, x, y, fontSpec, color, stroked } = args;
+
+    ctx.font = fontSpec;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+
+    const italics = /_(.*?)_/g;
+
+    const textParts = text.split(italics);
+
+    let partWidths = [];
+    let isItalic = text[0] === '_';
+    for (const part of textParts) {
+        if (isItalic) {
+            ctx.font = 'italic ' + fontSpec;
+        } else {
+            ctx.font = fontSpec;
+        }
+
+        isItalic = !isItalic;
+
+        partWidths.push(ctx.measureText(part).width);
+    }
+
+    let currentX = x - partWidths.reduce((a, b) => a + b, 0) / 2;
+    isItalic = text[0] === '_';
+    for (let i = 0; i < textParts.length; i++) {
+        const part = textParts[i];
+        const partWidth = partWidths[i];
+
+        if (isItalic) {
+            ctx.font = 'italic ' + fontSpec;
+        } else {
+            ctx.font = fontSpec;
+        }
+
+        console.log(part, partWidth, isItalic)
+
+        isItalic = !isItalic;
+
+        if (stroked) {
+            ctx.strokeStyle = color;
+            ctx.strokeText(part, currentX, y);
+        } else {
+            ctx.fillStyle = color;
+            ctx.fillText(part, currentX, y);
+        }
+
+        currentX += partWidth;
     }
 }
 
@@ -210,7 +263,11 @@ function draw(args, ctx) {
     } else if (args.type === 'image') {
         drawImage(args, ctx);
     } else if (args.type === 'text') {
-        drawText(args, ctx);
+        if (args.markdown) {
+            drawMarkdown(args, ctx);
+        } else {
+            drawText(args, ctx);
+        }
     }
 }
 

@@ -249,7 +249,7 @@ class Curve(Shape):
         "Callback for transformation frames."
 
         for j, point in enumerate(props.points):
-            ratio = props.easing_function[props.i]
+            ratio = props.easing_ratio
 
             x_change = props.cx[j] * ratio
             y_change = props.cy[j] * ratio
@@ -258,37 +258,31 @@ class Curve(Shape):
             props.points[j][1] += y_change
 
 
-    def transform(self, target_curve, duration=2, fps=100, easing_function=None, shapes=None):
+    def transform(self, target_curve, **kwargs):
         "Create a scene transforming the curve into another one."
-
-        frame_num = int(duration * fps)
 
         if isinstance(target_curve, Curve):
             target_curve = target_curve.properties.points
 
         target_curve = list(target_curve)
 
-        if easing_function is None:
-            easing_function = create_easing_function(frame_num)
-
-        scene = Scene(self.client, {
+        scene_properties = {
             'cx': [],
             'cy': [],
             'points': self.properties.points,
             'target_curve': target_curve,
-            'easing_function': easing_function
-        })
+        }
+
+        scene, frame_num = self.create_scene(
+            scene_properties,
+            **kwargs
+        )
 
         scene.repeat_frame(
             frame_num,
             Curve.transform_apply,
             Curve.transform_setup
         )
-
-        scene.add_shape(self)
-
-        if shapes is not None:
-            scene.add_background(shapes)
 
         return scene
 

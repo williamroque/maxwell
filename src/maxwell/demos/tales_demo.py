@@ -36,34 +36,48 @@ target_curve = get_section(SLOPE, HEIGHT, WIDTH * RATIO, OFFSET)
 
 ## Set background
 background_curve = Curve(original_curve, color=GREEN)
-background_top_measure, background_top_label = measure(*original_curve[:2], 1/2, 1/3, use_label=True)
-background_bottom_measure, background_bottom_label = measure(*original_curve[-2:], 1/2, 1/3, use_label=True)
+
+background_top_measure = Measure(*original_curve[:2], use_label=True, custom_label=lambda _: 'x', italic=True)
+background_bottom_measure = Measure(*original_curve[-2:], use_label=True)
+
 background_group = Group((
     background_curve,
     background_top_measure,
-    background_top_label,
+    background_top_measure.label,
     background_bottom_measure,
-    background_bottom_label
+    background_bottom_measure.label
 )).render()
 
 
-## Show measures
-original_top_measure, top_label = measure(*original_curve[:2], 1/2, 1/3, use_label=True, color='#7AA1C055')
-original_bottom_measure, bottom_label = measure(*original_curve[-2:], 1/2, 1/3, use_label=True, color='#7AA1C055')
+## Set up animation
+sequence = Sequence(background=background_group)
 
-target_top_measure, _ = measure(*target_curve[:2], 1/2, 1/3)
-target_bottom_measure, _ = measure(*target_curve[-2:], 1/2, 1/3)
+
+## Show measures
+original_measure = partial(Measure, use_label=True, color='#7AA1C055')
+
+original_top_measure = original_measure(*original_curve[:2])
+original_bottom_measure = original_measure(*original_curve[-2:])
+
+sequence.show(original_top_measure)
+sequence.show(original_bottom_measure)
+
+target_top_measure = Measure(*target_curve[:2])
+target_bottom_measure = Measure(*target_curve[-2:])
 
 
 ## Show shape
 curve = Curve(original_curve, color='#A6B86055').render()
+sequence.show(curve)
+
+
+## Await
+await_space()
 
 
 ## Animate
-sequence = Sequence(background=background_group)
-
-sequence.show(top_label)
-sequence.show(bottom_label)
+sequence.show(original_top_measure.label)
+sequence.show(original_bottom_measure.label)
 
 section_scene = curve.transform(target_curve, duration=.8)
 sequence.add_scene(section_scene)
@@ -73,5 +87,36 @@ section_scene.link_scene(top_measure_scene)
 
 bottom_measure_scene = original_bottom_measure.transform(target_bottom_measure, duration=.8)
 section_scene.link_scene(bottom_measure_scene)
+
+
+sequence.wait(.5)
+
+
+ratio_text = partial(Text, x=100, color=BLUE, markdown=True, system=None)
+ratio_equation = partial('{} : {} = {}'.format)
+
+bottom_equation = ratio_equation(
+    round(target_bottom_measure.norm, 1),
+    round(original_bottom_measure.norm, 1),
+    RATIO
+)
+
+top_equation = ratio_equation(
+    round(target_top_measure.norm, 1),
+    '_x_',
+    RATIO
+)
+
+bottom_ratio_text = ratio_text(bottom_equation, y=50)
+bottom_ratio_text.set_opacity(0)
+
+top_ratio_text = ratio_text(top_equation, y=80)
+top_ratio_text.set_opacity(0)
+
+bottom_ratio_scene = bottom_ratio_text.show(duration=.2)
+sequence.add_scene(bottom_ratio_scene)
+
+top_ratio_scene = top_ratio_text.show(duration=.2)
+bottom_ratio_scene.link_scene(top_ratio_scene)
 
 sequence.run()

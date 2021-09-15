@@ -3,6 +3,7 @@ import json
 from copy import deepcopy
 
 import inspect
+import colorsys
 
 import numpy as np
 
@@ -179,60 +180,77 @@ def create_easing_function(step_num, func=np.sin, start=0, end=np.pi):
     return y_values / y_values.sum()
 
 
-def measure_label_hook(self, measure_shape, orthonormal, label_offset):
-    A = np.array(measure_shape.properties.points[2])
-    B = np.array(measure_shape.properties.points[3])
-
-    r = np.linalg.norm(B - A)
-
-    x, y = (A + B)/2 + orthonormal*label_offset
-
-    self.properties.text = str(round(r, 1))
-    self.properties.x = x
-    self.properties.y = y
+def ratios_to_hex(ratios):
+    return (hex(int(255 * ratio))[2:] for ratio in ratios)
 
 
-def measure(client, system, A, B, offset, terminal_width, color='#7AA1C0', use_label=False, label_offset=1):
-    "Create a measuring stick between points A and B."
+def hex_to_ratios(values):
+    return (int(value, 16)/255 for value in values)
 
-    from maxwell.shapes.line import Curve
-    from maxwell.shapes.text import Text
 
-    A = deepcopy(A)
-    B = deepcopy(B)
+def hsv_to_hex(hue, saturation, value):
+    norm_rgb = colorsys.hsv_to_rgb(hue, saturation, value)
 
-    R = np.array([[0, -1],
-                  [1,  0]])
+    color = '#{:0>2}{:0>2}{:0>2}'.format(
+        *ratios_to_hex(norm_rgb)
+    )
 
-    orthonormal = R @ (B - A)
-    orthonormal /= np.linalg.norm(orthonormal)
+    return color
 
-    offset_vector = orthonormal * offset
 
-    A += offset_vector
-    B += offset_vector
+def hex_to_hsv(color):
+    color = color[1:]
 
-    terminal_a_start = A - orthonormal * terminal_width/2
-    terminal_a_end = A + orthonormal * terminal_width/2
+    if len(color) < 6:
+        color = ''.join(sum(zip(color, color), ()))
 
-    terminal_b_start = B - orthonormal * terminal_width/2
-    terminal_b_end = B + orthonormal * terminal_width/2
+    hex_values = (color[i*2:i*2+2] for i in range(3))
 
-    curve = []
-    curve.append(terminal_a_start)
-    curve.append(terminal_a_end)
-    curve.append(A)
-    curve.append(B)
-    curve.append(terminal_b_start)
-    curve.append(terminal_b_end)
+    ratios = hex_to_ratios(hex_values)
 
-    measure_curve = Curve(client, curve, color=color, system=system)
+    return np.array(colorsys.rgb_to_hsv(*ratios))
 
-    if use_label:
-        label_position = (A + B)/2 + orthonormal*label_offset
-        label = Text(client, str(np.linalg.norm(B - A)), *label_position, color=color, system=system)
-        label.add_access_hook(measure_label_hook, measure_curve, orthonormal, label_offset)
+
+
+def color_to_int(color, force_alpha=True):
+    color = color[1:]
+
+    if len(color) < 6:
+        color = ''.join(sum(zip(color, color), ()))
+
+    if force_alpha:
+        color = color.ljust(8, 'F')
+
+    return int(color, 16)
+
+
+def int_to_color(num, force_alpha=True):
+    color = hex(num)[2:]
+
+    if force_alpha:
+        color = color.zfill(8)
     else:
-        label = None
+        color = color.zfill(len(color) + len(color)%2)
 
-    return measure_curve, label
+    return '#' + color
+
+
+def rgb_to_hex(color):
+    color = color[:4]
+
+    hex_values = (hex(int(value))[2:] for value in color)
+
+    return '#{:0>2}{:0>2}{:0>2}{:0>2}'.format(*hex_values)
+
+
+def hex_to_rgb(color):
+    color = color[1:]
+
+    if len(color) < 6:
+        color = ''.join(sum(zip(color, color), ()))
+
+    color = color.ljust(8, 'F')
+
+    hex_values = (color[i*2:i*2+2] for i in range(4))
+
+    return np.array([int(value, 16) for value in hex_values])

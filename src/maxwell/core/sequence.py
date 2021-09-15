@@ -69,4 +69,3 @@ class Sequence:
     def run(self, **kwargs):
         message = self.compile(**kwargs)
         message.send()
-

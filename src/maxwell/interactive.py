@@ -13,6 +13,7 @@ import maxwell.shapes.polygon as polygon
 import maxwell.shapes.rect as rect
 import maxwell.shapes.text as text
 import maxwell.shapes.vector as vector
+import maxwell.shapes.measure as measure
 
 from maxwell.client.client import Client
 
@@ -64,6 +65,7 @@ try:
     Rect = partial(rect.Rect, client, system=system, group=global_group)
     Text = partial(text.Text, client, system=system, group=global_group)
     Vector = partial(vector.Vector, client, system=system, group=global_group)
+    Measure = partial(measure.Measure, client, system=system, group=global_group)
 
     Scene = partial(scene.Scene, client)
 
@@ -72,8 +74,6 @@ try:
     create_axes = partial(shapes.create_axes, client, system)
     create_grid = partial(shapes.create_grid, client, system)
     create_rect = partial(shapes.create_rect, client, system)
-
-    measure = partial(util.measure, client, system)
 
 ## Constants
     RED = '#DC5A5E'

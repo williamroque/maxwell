@@ -14,6 +14,10 @@ class Frame():
     def apply_frame(self):
         props = self.scene.properties
 
+        if 'easing_function' in props.keys()\
+           and props.i < len(props.easing_function):
+            props.easing_ratio = props.easing_function[props.i]
+
         if props.i == 0 and self.setup_callback is not None:
             self.setup_callback(self, props)
 

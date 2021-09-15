@@ -7,21 +7,8 @@ from maxwell.core.properties import Properties
 
 
 class Text(Shape):
-    def __init__(self, client, text, x=0, y=0, shape_name=None, font_spec='15pt CMU Serif', color='#fff', stroked=False, system=None, group=None):
-        """
-        A class for normal text.
-
-        Arguments:
-        * client       -- Target client.
-        * text         -- The text to be displayed.
-        * x            -- The x-coordinate.
-        * y            -- The y-coordinate.
-        * shape_name
-        * font_size    -- The font size.
-        * color        -- The font color.
-        * system       -- The coordinate system.
-        * group
-        """
+    def __init__(self, client, text, x=0, y=0, shape_name=None, font_size='15pt', font_family='CMU Serif', italic=False, markdown=False, color='#fff', stroked=False, system=None, group=None):
+        "A class for normal text."
 
         self.client = client
         self.system = system
@@ -31,6 +18,14 @@ class Text(Shape):
 
         if shape_name is None:
             shape_name = f'{datetime.datetime.now()}-shape'
+
+        font_spec = ''
+
+        if italic:
+            font_spec += 'italic '
+
+        font_spec += font_size + ' '
+        font_spec += font_family
 
         self.shape_name = shape_name
 
@@ -44,7 +39,8 @@ class Text(Shape):
             y = y,
             fontSpec = font_spec,
             color = color,
-            stroked = stroked
+            stroked = stroked,
+            markdown = markdown
         )
 
 
