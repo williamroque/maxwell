@@ -82,11 +82,11 @@ try:
 
 ## Frequently used groups
 ### Primary/secondary axis group
-    ps_axis_group = lambda n, primary_width=2, show_numbers=False: Group(shapes={
-        'primary-grid': create_grid(n, 1, width=primary_width, show_numbers=show_numbers),
-        'secondary-grid': create_grid(n * 2, 2, width=1),
-        'axes': create_axes(width=1),
-    }, background=True)
+    ps_axis_group = lambda n, primary_width=2, show_numbers=False: Group(shapes=[
+        create_grid(n, 1, width=primary_width, show_numbers=show_numbers),
+        create_grid(n * 2, 2, width=1),
+        create_axes(width=1),
+    ], background=True)
 
 ## For quick graphing
     def init_graph(scale_by=1.0, n=5, show_numbers=False):

@@ -24,7 +24,7 @@ class Text(Shape):
         if italic:
             font_spec += 'italic '
 
-        font_spec += font_size + ' '
+        font_spec += str(font_size) + ' '
         font_spec += font_family
 
         self.shape_name = shape_name

@@ -136,7 +136,7 @@ class Curve(Shape):
 
 
     @staticmethod
-    def move_point_setup(self, props):
+    def move_point_setup(frame, props):
         "Frame setup for `move_point`."
 
         props.cx = props.ending_point[0] - props.point[0]
@@ -144,7 +144,7 @@ class Curve(Shape):
 
 
     @staticmethod
-    def move_point_apply(self, props):
+    def move_point_apply(frame, props):
         "Frame callback for `move_point`."
 
         x_change = props.cx * props.easing_function[props.i]
@@ -234,7 +234,7 @@ class Curve(Shape):
 
 
     @staticmethod
-    def transform_setup(self, props):
+    def transform_setup(frame, props):
         "Callback for transformation frames setup."
 
         for j, point in enumerate(props.points):
@@ -245,7 +245,7 @@ class Curve(Shape):
 
 
     @staticmethod
-    def transform_apply(self, props):
+    def transform_apply(frame, props):
         "Callback for transformation frames."
 
         for j, point in enumerate(props.points):

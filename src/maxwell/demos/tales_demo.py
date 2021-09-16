@@ -76,9 +76,11 @@ await_space()
 
 
 ## Animate
+### Show labels
 sequence.show(original_top_measure.label)
 sequence.show(original_bottom_measure.label)
 
+### Extend/contract section
 section_scene = curve.transform(target_curve, duration=.8)
 top_measure_scene = original_top_measure.transform(target_top_measure, duration=.8)
 bottom_measure_scene = original_bottom_measure.transform(target_bottom_measure, duration=.8)
@@ -93,31 +95,109 @@ sequence.add_scenes(
 sequence.wait(.5)
 
 
-ratio_text = partial(Text, x=100, color=BLUE, markdown=True, system=None)
+### Show ratio equations
+equation_text = partial(Text, x=100, color=BLUE, markdown=True, system=None)
 ratio_equation = partial('{} : {} = {}'.format)
 
-bottom_equation = ratio_equation(
+bottom_equation_parameters = [
     round(target_bottom_measure.norm, 1),
     round(original_bottom_measure.norm, 1),
     RATIO
-)
+]
 
-top_equation = ratio_equation(
+top_equation_parameters = [
     round(target_top_measure.norm, 1),
     '_x_',
     RATIO
-)
+]
 
-bottom_ratio_text = ratio_text(bottom_equation, y=50)
+bottom_equation = ratio_equation(*bottom_equation_parameters)
+top_equation = ratio_equation(*top_equation_parameters)
+
+bottom_ratio_text = equation_text(bottom_equation, y=50)
 bottom_ratio_text.set_opacity(0)
 
-top_ratio_text = ratio_text(top_equation, y=80)
+top_ratio_text = equation_text(top_equation, y=80)
 top_ratio_text.set_opacity(0)
 
 bottom_ratio_scene = bottom_ratio_text.show(duration=.2)
 top_ratio_scene = top_ratio_text.show(duration=.2)
 
 sequence.add_scenes(bottom_ratio_scene, top_ratio_scene)
+
+
+sequence.wait(3)
+
+
+### Hide ratio equations
+bottom_ratio_scene = bottom_ratio_text.hide(duration=.2)
+top_ratio_scene = top_ratio_text.hide(duration=.2)
+
+sequence.add_scenes(bottom_ratio_scene, top_ratio_scene)
+
+
+### Solve for x
+lines = []
+
+#### Equation lines
+lines.append('{} : {} = {} : _x_'.format(
+    bottom_equation_parameters[0],
+    bottom_equation_parameters[1],
+    top_equation_parameters[0]
+))
+
+lines.append('_x_ × {} : {} = {}'.format(
+    bottom_equation_parameters[0],
+    bottom_equation_parameters[1],
+    top_equation_parameters[0]
+))
+
+lines.append('_x_ × {} = {} × {}'.format(
+    bottom_equation_parameters[0],
+    top_equation_parameters[0],
+    bottom_equation_parameters[1]
+))
+
+lines.append('_x_ = {} × {} : {}'.format(
+    top_equation_parameters[0],
+    bottom_equation_parameters[1],
+    bottom_equation_parameters[0]
+))
+
+#### Render lines
+line_scenes = []
+equation_lines = []
+for i, line in enumerate(lines):
+    equation_line = equation_text(line, x=130, y=50 + i*30)
+    equation_line.set_opacity(0)
+
+    line_scene = equation_line.show(duration=.2)
+    line_scenes.append(line_scene)
+
+    equation_lines.append(equation_line)
+
+sequence.add_scenes(*line_scenes)
+
+#### Hide lines
+sequence.wait(5)
+
+line_scenes = []
+for equation_line in equation_lines:
+    line_scene = equation_line.hide(duration=.2)
+    line_scenes.append(line_scene)
+
+sequence.add_scenes(*line_scenes)
+
+#### Show result
+result_text = equation_text('_x_ = {}'.format(
+    round(top_equation_parameters[0] *
+          bottom_equation_parameters[1] /
+          bottom_equation_parameters[0], 2)
+), y=50)
+result_text.set_opacity(0)
+
+result_scene = result_text.show(duration=.2)
+sequence.add_scene(result_scene)
 
 
 sequence.run()

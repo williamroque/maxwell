@@ -28,10 +28,21 @@ class Shape():
 
 
     @staticmethod
-    def change_color_apply(self, props):
+    def change_color_setup(frame, props):
+        "Setup for change_color frames."
+
+        original_color = frame.props(props.shape_name).color
+        original_color = hex_to_rgb(original_color)
+
+        props.shape_color = original_color
+        props.total_change = props.target_color - props.shape_color
+
+
+    @staticmethod
+    def change_color_apply(frame, props):
         "Callback for change_color frames."
 
-        shape = self.props(props.shape_name)
+        shape = frame.props(props.shape_name)
 
         color_change = props.easing_ratio * props.total_change
         color = props.shape_color + color_change
@@ -44,20 +55,17 @@ class Shape():
     def change_color(self, target_color, rgb=False, **kwargs):
         "Transition from current color to target color."
 
-        original_color = hex_to_rgb(self.properties.color)
-
         if not rgb:
             target_color = hex_to_rgb(target_color)
 
         scene_properties = {
-            'shape_color': original_color,
-            'total_change': target_color - original_color,
-            'shape_name': self.shape_name
+            'shape_name': self.shape_name,
+            'target_color': target_color
         }
 
         scene, frame_num = self.create_scene(scene_properties, **kwargs)
 
-        scene.repeat_frame(frame_num, Shape.change_color_apply)
+        scene.repeat_frame(frame_num, Shape.change_color_apply, Shape.change_color_setup)
 
         return scene
 

@@ -191,10 +191,15 @@ function drawMarkdown(args, ctx) {
 
     const italics = /_(.*?)_/g;
 
-    const textParts = text.split(italics);
+    let textParts = text.split(italics);
 
     let partWidths = [];
     let isItalic = text[0] === '_';
+
+    if (isItalic) {
+        textParts.shift();
+    }
+
     for (const part of textParts) {
         if (isItalic) {
             ctx.font = 'italic ' + fontSpec;

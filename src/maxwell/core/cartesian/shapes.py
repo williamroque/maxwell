@@ -81,13 +81,13 @@ def create_grid(client, system, n, density, color='#333B', width=2, show_numbers
 
         if show_numbers:
             font_color = '#57706E'
-            font_spec = f'{int(system.scale[0] / 6)}pt CMU Serif'
+            font_size = int(system.scale[0] / 6)
 
             x_margin = system.scale[0] * .0015
             y_margin = system.scale[0] * .0035
 
-            x_label = Text(client, x, x + x_margin, -y_margin, system=system, color=font_color, font_spec=font_spec)
-            y_label = Text(client, y, x_margin, y - y_margin, system=system, color=font_color, font_spec=font_spec)
+            x_label = Text(client, x, x + x_margin, -y_margin, system=system, color=font_color, font_size=font_size)
+            y_label = Text(client, y, x_margin, y - y_margin, system=system, color=font_color, font_size=font_size)
 
             numbers.append(x_label)
             numbers.append(y_label)
