@@ -21,9 +21,10 @@ from maxwell.core.sequence import Sequence
 import maxwell.core.scene as scene
 from maxwell.core.frame import Frame
 from maxwell.core.group import Group
+from maxwell.core.camera import Camera
 
 import maxwell.core.cartesian.shapes as shapes
-from maxwell.core.cartesian.transformations import System
+from maxwell.core.cartesian.system import System
 
 try:
 ## Setup
@@ -70,10 +71,12 @@ try:
     Scene = partial(scene.Scene, client)
 
     Sequence = partial(Sequence, client)
+    Camera = partial(Camera, client)
 
     create_axes = partial(shapes.create_axes, client, system)
     create_grid = partial(shapes.create_grid, client, system)
     create_rect = partial(shapes.create_rect, client, system)
+    create_vector_field = partial(vector.create_vector_field, client, system=system)
 
 ## Constants
     RED = '#DC5A5E'

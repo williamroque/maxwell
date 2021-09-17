@@ -31,6 +31,23 @@ class Properties:
     def keys(self):
         return [k for k in self.__dict__ if not k.startswith('_')]
 
+
     def __init__(self, **kwargs):
+        self.normalized_keys = []
+
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+
+    def set_normalized(self, *normalized_keys):
+        self.normalized_keys = normalized_keys
+
+
+    def get_normalized(self, system):
+        normalized = {}
+
+        if system is not None:
+            for key in self.normalized_keys:
+                normalized[key] = system.normalize(getattr(self, key)).tolist()
+
+        return { **self } | normalized

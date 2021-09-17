@@ -17,9 +17,11 @@ class LineSetProperties(Properties):
 
         self._x, self._y = self.points[0] if len(self.points) > 0 else None, None
 
+
     @property
     def x(self):
         return self._x
+
 
     @x.setter
     def x(self, value):
@@ -29,9 +31,11 @@ class LineSetProperties(Properties):
         for point in self.points:
             point[0] += dx
 
+
     @property
     def y(self):
         return self._y
+
 
     @y.setter
     def y(self, value):
@@ -44,26 +48,8 @@ class LineSetProperties(Properties):
 
 class Curve(Shape):
     def __init__(self, client, points, shape_name=None, color='#fff', width=3, arrows=0, arrow_size=6, system=None, group=None):
-        """
-        A class for lines.
-
-        Arguments:
-        * client     -- Target client.
-        * points     -- The points connecting the lines as 2-tuples,
-        2-item lists, or groups
-        * shape_name
-        * color      -- The color of the lines.
-        * width      -- The stroke width of the lines.
-        * arrows     -- Which arrows to display if only single line:
-        0 = none
-        1 = ending point
-        2 = starting point
-        3 = both
-        * arrow_size -- The radius of the circle in which the arrow head
-        is inscribed.
-        * system     -- The coordinate system.
-        * group
-        """
+        "A class for lines."
+        
 
         self.client = client
         self.system = system
@@ -93,6 +79,7 @@ class Curve(Shape):
             arrows = arrows,
             arrowSize = arrow_size
         )
+        self.properties.set_normalized('points')
 
 
     @staticmethod
@@ -112,21 +99,10 @@ class Curve(Shape):
         return (Curve.zip_function(func, *args) for func in funcs)
 
 
-    def get_props(self, background=False):
+    def get_props(self):
         "Extract shape rendering properties."
 
-        adjustments = {
-            'background': background
-        }
-
-        if self.system is not None:
-            adjustments['points'] = self.system.normalize(
-                self.properties.points
-            ).tolist() # if there are any performance issues, try .astype(int)
-
-        return {
-            **self.properties
-        } | adjustments
+        return self.properties.get_normalized(self.system)
 
 
     def set_points(self, points):
@@ -287,10 +263,10 @@ class Curve(Shape):
         return scene
 
 
-    def render(self, background=False):
+    def render(self):
         message = {
             'command': 'draw',
-            'args': self.get_props(background)
+            'args': self.get_props()
         }
 
         self.client.send_message(message)

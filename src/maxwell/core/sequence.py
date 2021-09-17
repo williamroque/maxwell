@@ -6,7 +6,7 @@ from maxwell.core.group import Group
 
 
 class Sequence:
-    def __init__(self, client, scenes=None, fps=100, background=None):
+    def __init__(self, client, scenes=None, fps=100, background=None, camera=None):
         self.client = client
 
         if scenes is None:
@@ -20,11 +20,15 @@ class Sequence:
             background = Group()
 
         self.background = background
+        self.camera = camera
 
         self.show_shapes = []
 
 
     def add_scene(self, scene):
+        if scene.camera is None:
+            scene.camera = self.camera
+
         self.scenes.append(scene)
 
         for shape in self.show_shapes:

@@ -1,28 +1,23 @@
-from time import sleep
 import os
-
-from copy import deepcopy
-
-import json
-import datetime
 
 from itertools import zip_longest
 
 import numpy as np
 
 from maxwell.core.util import clear, await_completion
-from maxwell.core.properties import PropertiesEncoder, Properties
+from maxwell.core.properties import Properties
 from maxwell.core.group import Group
 from maxwell.core.frame import Frame
 from maxwell.client.message import Message
 
 
 class Scene():
-    def __init__(self, client, properties={}):
+    def __init__(self, client, properties={}, camera=None):
         self.frames = []
         self.current_frame = -1
 
         self.properties = Properties(i = 0, **properties)
+        self.camera = camera
 
         self.linked_scenes = []
 
@@ -84,16 +79,8 @@ class Scene():
         self.linked_scenes.append(other_scene)
 
 
-    def get_shape_props(self):
-        return [shape.get_props() for shape in self.shapes.values()]
-
-
-    def get_background_props(self):
-        return [shape.get_props() for shape in self.background.values()]
-
-
     def render_frames(self):
-        rendered_frames = [self.get_shape_props()]
+        rendered_frames = []
 
         linked_frames = (linked_scene.frames for linked_scene in self.linked_scenes)
 
@@ -107,39 +94,17 @@ class Scene():
 
             frame_set = []
 
+            if self.camera is not None:
+                self.camera.run_hooks(self)
+
             for shape in shape_set:
-                frame_set.append(shape.get_props())
+                shape_props = shape.get_props()
+
+                if self.camera is not None:
+                    shape_props = self.camera.apply(shape, shape_props)
+
+                frame_set.append(shape_props)
 
             rendered_frames.append(frame_set)
 
         return rendered_frames
-
-
-    def play(self, fps=20, save_path='none', initial_clear=True, awaits_completion=False, clears=True, wait=0):
-        if initial_clear:
-            clear(self.client)
-
-        save_path = os.path.expanduser(save_path)
-        if not os.path.isdir(save_path) and save_path != 'none':
-            os.mkdir(save_path)
-
-        self.extend(int(wait * fps))
-
-        rendered_frames = self.render_frames()
-
-        message = Message(
-            self.client, 'renderScene',
-            frames           = rendered_frames,
-            background       = self.get_background_props(),
-            frameDuration    = 1/fps,
-            savePath         = save_path,
-            framerate        = fps,
-            fps              = fps,
-            awaitsCompletion = awaits_completion,
-            clears           = clears
-        )
-
-        message.send()
-
-        if awaits_completion:
-            await_completion(self.client)
