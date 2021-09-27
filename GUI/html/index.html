@@ -1,42 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        html, body {
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            background: #171414;
-            display: flex;
-            justify-content: center;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            html, body {
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                background: #171414;
+                display: flex;
+                justify-content: center;
+            }
 
-        body {
-            -webkit-app-region: drag;
-        }
+            body {
+                -webkit-app-region: drag;
+            }
 
-        body:active {
-            cursor: move;
-        }
+            body:active {
+                cursor: move;
+            }
 
-        .light-body {
-            background: #fff0d1;
-        }
+            .light-body {
+                background: #fff0d1;
+            }
 
-        #background-canvas {
-            position: absolute;
-        }
+            #background-canvas {
+                position: absolute;
+            }
 
-        #python-canvas {
-            position: absolute;
-        }
-    </style>
-</head>
-<body>
-    <canvas id="background-canvas" width="600" height="500"></canvas>
-    <canvas id="python-canvas" width="600" height="500"></canvas>
-    <script src="../rjs/index.js"></script>
-</body>
+            #python-canvas {
+                position: absolute;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="background-canvas" width="600" height="500"></canvas>
+        <canvas id="python-canvas" width="600" height="500"></canvas>
+        <script src="../rjs/draw.js"></script>
+        <script src="../rjs/setting.js"></script>
+        <script src="../rjs/properties.js"></script>
+        <script src="../rjs/variables.js"></script>
+        <script src="../rjs/events.js"></script>
+        <script src="../rjs/sequence.js"></script>
+        <script src="../rjs/index.js"></script>
+    </body>
 </html>
