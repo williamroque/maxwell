@@ -1,83 +1,51 @@
-import datetime
+from dataclasses import dataclass
 
 import numpy as np
 
-from maxwell.shapes.shape import Shape
+from maxwell.shapes.shape import Shape, ShapeConfig
 from maxwell.core.properties import Properties
 
 
+@dataclass
+class TextConfig:
+    x: int = 0
+    y: int = 0
+    font_size: str = '15pt'
+    font_family: str = 'CMU Serif'
+    italic: bool = False
+    markdown: bool = False
+    color: str = '#fff'
+    stroked: bool = False
+
+
 class Text(Shape):
-    def __init__(self, client, text, x=0, y=0, shape_name=None, font_size='15pt', font_family='CMU Serif', italic=False, markdown=False, color='#fff', stroked=False, system=None, group=None):
+    "A class for normal text."
+
+    def __init__(self, text, text_config: TextConfig = None, shape_config: ShapeConfig = None):
         "A class for normal text."
 
-        self.client = client
-        self.system = system
-        self.group = group
+        super().__init__(shape_config)
 
-        self.access_hooks = []
-
-        if shape_name is None:
-            shape_name = f'{datetime.datetime.now()}-shape'
+        if text_config is None:
+            text_config = TextConfig()
 
         font_spec = ''
 
-        if italic:
+        if text_config.italic:
             font_spec += 'italic '
 
-        font_spec += str(font_size) + ' '
-        font_spec += font_family
-
-        self.shape_name = shape_name
-
-        if self.group is not None:
-            self.group.add_shape(self, shape_name)
+        font_spec += str(text_config.font_size) + ' '
+        font_spec += text_config.font_family
 
         self.properties = Properties(
             type = 'text',
             text = text,
-            x = x,
-            y = y,
+            x = text_config.x,
+            y = text_config.y,
             fontSpec = font_spec,
-            color = color,
-            stroked = stroked,
-            markdown = markdown
+            color = text_config.color,
+            stroked = text_config.stroked,
+            markdown = text_config.markdown,
+            background = False
         )
-
-
-    def add_access_hook(self, callback, *args):
-        self.access_hooks.append((callback, args))
-
-
-    def get_props(self, background=False):
-        adjustments = {
-            'background': background
-        }
-
-        for access_hook, args in self.access_hooks:
-            access_hook(self, *args)
-
-        if self.system is not None:
-            point = self.system.normalize(
-                np.array([
-                    self.properties.x,
-                    self.properties.y
-                ])
-            ).tolist()
-
-            adjustments['x'] = point[0]
-            adjustments['y'] = point[1]
-
-        return {
-            **self.properties
-        } | adjustments
-
-
-    def render(self, background=False):
-        message = {
-            'command': 'draw',
-            'args': self.get_props(background)
-        }
-
-        self.client.send_message(message)
-
-        return self
+        self.properties.set_normalized(('x', 'y'))

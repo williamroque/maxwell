@@ -1,17 +1,81 @@
-import numpy as np
-
-from maxwell.core.scene import Scene
-from maxwell.core.frame import Frame
-
-from maxwell.core.util import await_click, create_easing_function, rgb_to_hex, hex_to_rgb
-
 import datetime
 
+from dataclasses import dataclass
 
-class Shape():
-    def create_scene(self, properties, duration=2, fps=100, easing_function=None, shapes=None):
-        frame_num = int(duration * fps)
+from maxwell.client.client import Client
+from maxwell.client.message import Message
+from maxwell.core.coordinates.cartesian.system import System
 
+from maxwell.core.scene import Scene
+
+from maxwell.core.util import await_click
+from maxwell.core.animation import create_easing_function, AnimationConfig
+from maxwell.core.util import rgb_to_hex, hex_to_rgb
+
+
+@dataclass
+class ShapeConfig:
+    client: Client = None
+    system: System = None
+    group: 'Group' = None
+    shape_name: str = None
+
+
+class Shape:
+    "The shape superclass."
+
+    DEFAULT_CLIENT = None
+    DEFAULT_SYSTEM = None
+
+    def __init__(self, shape_config: ShapeConfig = None):
+        "The shape superclass."
+
+        if shape_config is None:
+            shape_config = ShapeConfig()
+
+        self.client = shape_config.client
+        if self.client is None:
+            if Shape.DEFAULT_CLIENT is None:
+                raise ValueError("Client specification required. Consider setting DEFAULT_CLIENT.")
+
+            self.client = Shape.DEFAULT_CLIENT
+
+        self.system = shape_config.system
+        if self.system is None:
+            self.system = Shape.DEFAULT_SYSTEM
+
+        self.group = shape_config.group
+
+        self.shape_name = shape_config.shape_name
+        if self.shape_name is None:
+            self.shape_name = f'{datetime.datetime.now()}-shape'
+
+        if self.group is not None:
+            self.group.add_shape(self)
+
+        self.access_hooks = []
+
+
+    def add_access_hook(self, callback, *args):
+        self.access_hooks.append((callback, args))
+
+
+    def get_props(self):
+        "Extract shape rendering properties."
+
+        for access_hook, args in self.access_hooks:
+            access_hook(self, *args)
+
+        return self.properties.get_normalized(self.system)
+
+
+    def create_scene(self, properties, animation_config: AnimationConfig = None):
+        if animation_config is None:
+            animation_config = AnimationConfig()
+
+        frame_num = int(animation_config.duration * animation_config.fps)
+
+        easing_function = animation_config.easing_function
         if easing_function is None:
             easing_function = create_easing_function(frame_num)
 
@@ -21,8 +85,8 @@ class Shape():
 
         scene.add_shape(self)
 
-        if shapes is not None:
-            scene.add_background(shapes)
+        if animation_config.shapes is not None:
+            scene.add_background(animation_config.shapes)
 
         return scene, frame_num
 
@@ -52,7 +116,7 @@ class Shape():
         shape.color = rgb_to_hex(props.shape_color)
 
 
-    def change_color(self, target_color, rgb=False, **kwargs):
+    def change_color(self, target_color, rgb=False, animation_config: AnimationConfig = None):
         "Transition from current color to target color."
 
         if not rgb:
@@ -63,7 +127,7 @@ class Shape():
             'target_color': target_color
         }
 
-        scene, frame_num = self.create_scene(scene_properties, **kwargs)
+        scene, frame_num = self.create_scene(scene_properties, animation_config)
 
         scene.repeat_frame(frame_num, Shape.change_color_apply, Shape.change_color_setup)
 
@@ -79,70 +143,54 @@ class Shape():
         self.properties.color = rgb_to_hex(color)
 
 
-    def show(self, **kwargs):
+    def show(self, animation_config: AnimationConfig = None):
         "Animate showing shape (opacity-wise)."
 
         color = hex_to_rgb(self.properties.color)
         color[3] = 255
 
-        return self.change_color(color, rgb=True, **kwargs)
+        return self.change_color(color, True, animation_config)
 
 
-    def hide(self, **kwargs):
+    def hide(self, animation_config: AnimationConfig = None):
         "Animate hiding shape (opacity-wise)."
 
         color = hex_to_rgb(self.properties.color)
         color[3] = 0
 
-        return self.change_color(color, rgb=True, **kwargs)
+        return self.change_color(color, True, animation_config)
 
 
-    def move_to_point(self, point, fps=100, f=None, shapes=None, duration=.2, initial_clear=False):
-        if shapes is None:
-            shapes = []
+    @staticmethod
+    def move_to_point_setup(frame, props):
+        "Setup for move_to_point frames."
 
-        frame_num = int(duration * fps)
+        props.cx = props.final_x - frame.props(props.shape_name).x
+        props.cy = props.final_y - frame.props(props.shape_name).y
 
-        starting_point = [
-            self.properties.x,
-            self.properties.y
-        ]
 
-        scene = Scene(self.client, {
-            'i': 0,
+    @staticmethod
+    def move_to_point_apply(frame, props):
+        "Callback for move_to_point frames."
+
+        frame.props(props.shape_name).x += props.cx * props.easing_ratio
+        frame.props(props.shape_name).y += props.cy * props.easing_ratio
+
+
+    def move_to_point(self, point, animation_config: AnimationConfig = None):
+        scene_properties = {
             'cx': None,
             'cy': None,
             'final_x': point[0],
             'final_y': point[1],
             'shape_name': self.shape_name
-        })
+        }
 
-        scene.add_shape(self)
+        scene, frame_num = self.create_scene(scene_properties,
+                                             animation_config)
 
-        scene.add_background(shapes, self)
-
-        if f is None:
-            f = (np.sin, 0, np.pi)
-
-        X = np.linspace(f[1], f[2], frame_num)
-        Y = np.abs(f[0](X))
-        C = Y / Y.sum()
-
-        class MotionFrame(Frame):
-            def apply_frame(self, props):
-                shape_name = props.shape_name
-
-                if props.i == 0:
-                    props.cx = props.final_x - self.props(shape_name).x
-                    props.cy = props.final_y - self.props(shape_name).y
-
-                self.props(shape_name).x += props.cx * C[props.i]
-                self.props(shape_name).y += props.cy * C[props.i]
-
-                props.i += 1
-
-        for _ in range(n):
-            scene.add_frame(MotionFrame())
+        scene.repeat_frame(frame_num, Shape.move_to_point_apply,
+                           Shape.move_to_point_setup)
 
         return scene
 
@@ -156,24 +204,26 @@ class Shape():
         return self.move_to_point(ending_point, n, dt, f, shapes + [other_shape])
 
 
-    def follow(self, animate=True, shapes=[]):
+    def follow(self, animation_config: AnimationConfig = None):
         point = [None, None]
 
         while not (props := await_click(self.client, 'altKey'))[2]:
             point = props[:2]
 
-            if hasattr(self, 'system') and self.system is not None:
+            if self.system is not None:
                 point = self.system.from_normalized(point)
 
-            if animate:
-                scene = self.move_to_point(point, dt=.005, f=(np.sin, 0, np.pi), shapes=shapes, initial_clear=bool(shapes))
-            else:
-                scene = self.move_to_point(point, n = 1, shapes=shapes)
-
-            if shapes:
-                shapes = []
-
+            scene = self.move_to_point(point, animation_config)
             scene.play()
 
         return point
+
+
+    def render(self, background=False):
+        self.properties.background = background
+
+        message = Message(self.client, 'draw', args=self.get_props())
+        message.send()
+
+        return self
 

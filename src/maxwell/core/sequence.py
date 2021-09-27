@@ -51,10 +51,8 @@ class Sequence:
             self.scenes[-1].extend(int(duration * self.fps))
 
 
-    def compile(self, save_path='none', initial_clear=True, clears=True):
+    def compile(self, save_path='none', initial_clear=True, clears=True, await_completion=False):
         save_path = os.path.expanduser(save_path)
-        if not os.path.isdir(save_path) and save_path != 'none':
-            os.mkdir(save_path)
 
         rendered_frames = [frame for scene in self.scenes for frame in scene.render_frames()]
 
@@ -71,7 +69,7 @@ class Sequence:
             framerate        = self.fps,
             fps              = self.fps,
             clears           = clears,
-            awaitsCompletion = False,
+            awaitsCompletion = await_completion,
         )
 
         return message

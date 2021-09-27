@@ -125,14 +125,14 @@ function drawLineSet(args, ctx) {
 }
 
 function drawArc(args, ctx) {
-    const { x, y, radius, theta_1, theta_2, fillColor, borderColor } = args;
+    const { point, radius, theta_1, theta_2, fillColor, borderColor } = args;
 
     ctx.fillStyle = fillColor;
     ctx.strokeStyle = borderColor;
 
     ctx.beginPath();
 
-    ctx.arc(x, y, radius, theta_1, theta_2, true);
+    ctx.arc(...point, radius, theta_1, theta_2, true);
 
     ctx.fill();
     ctx.stroke();
@@ -238,14 +238,6 @@ function drawMarkdown(args, ctx) {
     }
 }
 
-function downloadCanvas(filePath) {
-    const url = canvas.toDataURL('image/png', 0.8);
-
-    const base64Data = url.replace(/^data:image\/png;base64,/, '');
-
-    fs.writeFile(filePath, base64Data, 'base64', () => {});
-}
-
 class Properties {
     static get width() {
         return canvas.width;
@@ -272,6 +264,23 @@ function draw(args, ctx) {
             drawText(args, ctx);
         }
     }
+}
+
+function saveVideo(blob, savePath) {
+    let reader = new FileReader();
+
+    reader.onload = () => {
+        let buffer = new Buffer(reader.result);
+
+        fs.writeFile(savePath, buffer, {}, (err, res) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+        })
+    };
+
+    reader.readAsArrayBuffer(blob);
 }
 
 function clearCanvas(clearBackground) {
@@ -302,24 +311,52 @@ ipcRenderer.on('parse-message', (_, data) => {
             'send-results',
             data.args.keys.map(k => Properties[k])
         );
-    } else if (data.command === 'downloadCanvas') {
-        downloadCanvas(data.args.fileName);
     } else if (data.command === 'renderScene') {
         isPlaying = true;
+        awaitsCompletion = data.args.awaitsCompletion;
 
         const frameCount = data.args.frames.length;
         const frameDuration = data.args.frameDuration * 1000;
+        const savePath = data.args.savePath;
+
+        let stream;
+        let mediaRecorder;
+        let chunks = [];
+        if (savePath !== 'none') {
+            stream = canvas.captureStream(0);
+
+            mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'video/webm'
+            });
+            mediaRecorder.ondataavailable = e => chunks.push(e.data);
+            mediaRecorder.onstop = e => saveVideo(new Blob(chunks, {type: 'video/webm'}), savePath);
+
+            mediaRecorder.start();
+        }
 
         const background = data.args.background;
 
-        for (const shape of background) {
-            draw(shape, bgCtx)
+        if (!stream) {
+            for (const shape of background) {
+                draw(shape, bgCtx)
+            }
         }
 
         const frames = data.args.frames;
 
         function renderFrame(i = 0) {
-            if (i >= frames.length) return;
+            if (i >= frames.length) {
+                if (awaitsCompletion) {
+                    ipcRenderer.sendSync('send-results', ['completed']);
+                    awaitsCompletion = false;
+                }
+
+                if (stream && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+
+                return;
+            }
 
             const frame = frames[i];
 
@@ -327,7 +364,7 @@ ipcRenderer.on('parse-message', (_, data) => {
 
             if (frame.length === 0) renderFrame(i + 1);
 
-            if (rerenderBackground) {
+            if (rerenderBackground || stream) {
                 for (const shape of background) {
                     draw(shape, bgCtx)
                 }
@@ -337,6 +374,10 @@ ipcRenderer.on('parse-message', (_, data) => {
 
             for (const shape of frame) {
                 draw(shape, ctx)
+            }
+
+            if (stream) {
+                stream.getVideoTracks()[0].requestFrame();
             }
 
             if (isPlaying) {

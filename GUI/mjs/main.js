@@ -34,6 +34,8 @@ server.on('connection', socket => {
     ipcMain.on('send-results', (event, data) => {
         socket.write(JSON.stringify(data));
 
+        console.log(data);
+
         event.returnValue = '';
     });
 

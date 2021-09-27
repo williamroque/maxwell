@@ -8,6 +8,7 @@ from maxwell.core.util import clear, await_completion
 from maxwell.core.properties import Properties
 from maxwell.core.group import Group
 from maxwell.core.frame import Frame
+from maxwell.core.sequence import Sequence
 from maxwell.client.message import Message
 
 
@@ -108,3 +109,7 @@ class Scene():
             rendered_frames.append(frame_set)
 
         return rendered_frames
+
+
+    def play(self):
+        Sequence(self.client, [self]).run()

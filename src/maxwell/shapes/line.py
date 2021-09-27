@@ -1,64 +1,37 @@
+"System for curves and all manner of line-based shapes."
+
+from dataclasses import dataclass
+
 import numpy as np
 
-from maxwell.shapes.shape import Shape
+from maxwell.shapes.shape import Shape, ShapeConfig
+
+from maxwell.core.animation import AnimationConfig
 from maxwell.core.properties import Properties
 from maxwell.core.scene import Scene
 from maxwell.core.frame import Frame
-from maxwell.core.util import rotate, create_easing_function
+from maxwell.core.util import rotate
 from maxwell.core.group import Group
 
-import datetime
 
-
-class LineSetProperties(Properties):
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-        self._x, self._y = self.points[0] if len(self.points) > 0 else None, None
-
-
-    @property
-    def x(self):
-        return self._x
-
-
-    @x.setter
-    def x(self, value):
-        self._x = value
-
-        dx = value - self.points[0][0]
-        for point in self.points:
-            point[0] += dx
-
-
-    @property
-    def y(self):
-        return self._y
-
-
-    @y.setter
-    def y(self, value):
-        self._y = value
-
-        dy = value - self.points[0][1]
-        for point in self.points:
-            point[1] += dy
+@dataclass
+class CurveConfig:
+    color: str = '#fff'
+    width: int = 3
+    arrows: int = 0
+    arrow_size: float = 6
 
 
 class Curve(Shape):
-    def __init__(self, client, points, shape_name=None, color='#fff', width=3, arrows=0, arrow_size=6, system=None, group=None):
-        "A class for lines."
-        
+    "A class for lines and a superclass for line-based shapes."
 
-        self.client = client
-        self.system = system
-        self.group = group
+    def __init__(self, points, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+        "A class for lines and a superclass for line-based shapes."
 
-        if shape_name is None:
-            shape_name = f'{datetime.datetime.now()}-shape'
+        super().__init__(shape_config)
 
-        self.shape_name = shape_name
+        if curve_config is None:
+            curve_config = CurveConfig()
 
         if isinstance(points, Group):
             point_list = []
@@ -68,41 +41,32 @@ class Curve(Shape):
 
             points = point_list
 
-        if self.group is not None:
-            self.group.add_shape(self, shape_name)
-
-        self.properties = LineSetProperties(
+        self.properties = Properties(
             type = 'lineset',
             points = list(map(list, list(points))),
-            color = color,
-            width = width,
-            arrows = arrows,
-            arrowSize = arrow_size
+            color = curve_config.color,
+            width = curve_config.width,
+            arrows = curve_config.arrows,
+            arrowSize = curve_config.arrow_size
         )
         self.properties.set_normalized('points')
 
 
-    @staticmethod
-    def zip_function(func, start, end, point_num):
-        "Create a zipped array of points from a mathematical function."
+    @classmethod
+    def from_function(cls, func, start, end, point_num, **kwargs):
+        "Create a `Curve` instance from a mathematical function."
 
         x_values = np.linspace(start, end, point_num)
         y_values = func(x_values)
 
-        return zip(x_values, y_values)
+        return cls(zip(x_values, y_values), **kwargs)
 
 
     @staticmethod
-    def zip_functions(funcs, *args):
-        "Zip several functions at once."
+    def from_functions(funcs, *args, **kwargs):
+        "Create several `Curve` instances from mathematical functions."
 
-        return (Curve.zip_function(func, *args) for func in funcs)
-
-
-    def get_props(self):
-        "Extract shape rendering properties."
-
-        return self.properties.get_normalized(self.system)
+        return [Curve.from_function(func, *args, **kwargs) for func in funcs]
 
 
     def set_points(self, points):
@@ -123,39 +87,30 @@ class Curve(Shape):
     def move_point_apply(frame, props):
         "Frame callback for `move_point`."
 
-        x_change = props.cx * props.easing_function[props.i]
-        y_change = props.cy * props.easing_function[props.i]
+        x_change = props.cx * props.easing_ratio
+        y_change = props.cy * props.easing_ratio
 
         props.point[0] += x_change
         props.point[1] += y_change
 
 
-    def move_point(self, point_i, ending_point, fps=100, easing_function=None, duration=.5, shapes=None):
+    def move_point(self, point_i, ending_point, animation_config: AnimationConfig = None):
         "Create a scene moving a specific point."
 
-        frame_num = int(duration * fps)
-
-        if easing_function is None:
-            easing_function = create_easing_function(frame_num)
-
-        scene = Scene(self.client, {
+        scene_properties = {
             'cx': None,
             'cy': None,
             'point': self.properties.points[point_i],
-            'ending_point': ending_point,
-            'easing_function': easing_function
-        })
+            'ending_point': ending_point
+        }
+
+        scene, frame_num = self.create_scene(scene_properties, animation_config)
 
         scene.repeat_frame(
             frame_num,
             Curve.move_point_apply,
             Curve.move_point_setup
         )
-
-        scene.add_shape(self)
-
-        if shapes is not None:
-            scene.add_background(shapes)
 
         return scene
 
@@ -234,7 +189,7 @@ class Curve(Shape):
             props.points[j][1] += y_change
 
 
-    def transform(self, target_curve, **kwargs):
+    def transform(self, target_curve, animation_config: AnimationConfig = None):
         "Create a scene transforming the curve into another one."
 
         if isinstance(target_curve, Curve):
@@ -251,7 +206,7 @@ class Curve(Shape):
 
         scene, frame_num = self.create_scene(
             scene_properties,
-            **kwargs
+            animation_config
         )
 
         scene.repeat_frame(
@@ -261,14 +216,3 @@ class Curve(Shape):
         )
 
         return scene
-
-
-    def render(self):
-        message = {
-            'command': 'draw',
-            'args': self.get_props()
-        }
-
-        self.client.send_message(message)
-
-        return self

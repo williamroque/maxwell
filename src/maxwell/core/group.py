@@ -1,8 +1,24 @@
+"For groups of shapes."
+
 import numpy as np
 
+from maxwell.core.util import check_type_name
+from maxwell.core.animation import AnimationConfig
 
-class Group():
+
+class Group:
+    "Group of shapes."
+
     def __init__(self, shapes=None, background=False):
+        """Group of shapes.
+
+        Arguments:
+        * shapes (ndarray<Shape>, list<Shape>, tuple<Shape>, Shape)
+        * background (bool) --- whether group should be rendered in the
+        background; note that this is not guaranteed to work (in a
+        scene, for example)
+        """
+
         self.shapes = {}
 
         if shapes is not None:
@@ -16,10 +32,10 @@ class Group():
 
 
     def add_shape(self, obj, shape_name=None):
-        from maxwell.core.cartesian.shapes import Axes, Grid
+        "Add a shape to the group."
 
-        if isinstance(obj, (list, tuple, np.ndarray, Axes, Grid)):
-            for i, shape in enumerate(obj):
+        if isinstance(obj, (list, tuple, np.ndarray)):
+            for shape in obj:
                 self.shapes[shape.shape_name] = shape
         else:
             if shape_name is None:
@@ -29,10 +45,60 @@ class Group():
 
 
     def merge_with(self, other_group):
+        "Merge with other group."
+
         self.shapes |= other_group.shapes
 
 
+    def get_points(self):
+        "Extract points from shapes."
+
+        points = []
+
+        for shape in self.shapes.values():
+            if check_type_name(shape, 'Arc'):
+                points.append(shape.properties.point)
+            elif check_type_name(shape, 'Vector'):
+                points.append(shape.origin)
+
+        return np.array(points)
+
+
+    def transform(self, group, animation_config: AnimationConfig = None):
+        "Transform all shapes from one group to another."
+
+        intersecting_keys = self.shapes.keys() & group.shapes.keys()
+        shapes = [(self.shapes[key], group.shapes[key]) for key in intersecting_keys]
+
+        scenes = []
+
+        for shape, target_shape in shapes:
+            if check_type_name(shape, 'Curve') and check_type_name(target_shape, 'Curve'):
+                transform_scene = shape.transform(
+                    target_shape,
+                    animation_config = animation_config
+                )
+                color_scene = shape.change_color(
+                    target_shape.properties.color,
+                    animation_config = animation_config
+                )
+
+                scenes.append(transform_scene)
+                scenes.append(color_scene)
+
+        scene, *other_scenes = scenes
+
+        for other_scene in other_scenes:
+            scene.link_scene(other_scene)
+
+        return scene
+
+
     def render(self, exclude_shape=None):
+        """Render shapes in group excluding the one specified by
+        `exclude_shape`.
+        """
+
         for shape in self.shapes.values():
             if exclude_shape is None or shape != exclude_shape:
                 shape.render(background=self.background)

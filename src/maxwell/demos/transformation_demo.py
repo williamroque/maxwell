@@ -5,15 +5,17 @@ clear()
 
 sequence = Sequence()
 
-original_curve, target_curve = zip_functions(
+curve_config = CurveConfig(color=BLUE, width=2)
+
+original_curve, target_curve = Curve.from_functions(
     [lambda x: x**2, np.sin],
-    -5, 5, 400
+    -5, 5, 400,
+    curve_config=curve_config
 )
 
-curve = Curve(original_curve, color=BLUE, width=2)
-curve.render()
+original_curve.render()
 
-scene = curve.transform(target_curve)
+scene = original_curve.transform(target_curve)
 sequence.add_scene(scene)
 
 message = sequence.compile()

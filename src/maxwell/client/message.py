@@ -1,7 +1,10 @@
 class Message:
-    def __init__(self, client, command, encoder=None, **args):
+    def __init__(self, client, command, encoder=None, args=None, **kwargs):
+        if args is not None:
+            kwargs |= args
+
         self.client = client
-        self.message_data = { 'command': command, 'args': args }
+        self.message_data = { 'command': command, 'args': kwargs }
         self.encoder = encoder
 
     def send(self):

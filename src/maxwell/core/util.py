@@ -173,13 +173,6 @@ def track_clicks(client, f, system=None):
         f(point)
 
 
-def create_easing_function(step_num, func=np.sin, start=0, end=np.pi):
-    x_values = np.linspace(start, end, step_num)
-    y_values = np.abs(func(x_values))
-
-    return y_values / y_values.sum()
-
-
 def ratios_to_hex(ratios):
     return (hex(int(255 * ratio))[2:] for ratio in ratios)
 
@@ -254,3 +247,10 @@ def hex_to_rgb(color):
     hex_values = (color[i*2:i*2+2] for i in range(4))
 
     return np.array([int(value, 16) for value in hex_values])
+
+
+def check_type_name(obj, types):
+    if isinstance(obj, str):
+        types = (types,)
+
+    return any(candidate.__name__ in types for candidate in type(obj).__mro__)

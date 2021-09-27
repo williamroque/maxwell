@@ -1,106 +1,74 @@
-import datetime
+from dataclasses import dataclass
 
 import numpy as np
 
-from maxwell.shapes.shape import Shape
+from maxwell.shapes.shape import Shape, ShapeConfig
+
+from maxwell.core.animation import AnimationConfig
 from maxwell.core.properties import Properties
 from maxwell.core.scene import Scene
 from maxwell.core.frame import Frame
 
 
+@dataclass
+class ArcConfig:
+    radius: int = 7
+    theta_1: float = 0
+    theta_2: float = 2*np.pi
+    color: str = '#fff'
+    border_color: str = 'transparent'
+
+
 class Arc(Shape):
-    def __init__(self, client, x=0, y=0, radius=7, theta_1=0, theta_2=2*np.pi, fill_color='#fff', border_color='transparent', shape_name=None, system=None, group=None):
-        """
-        A class for arcs.
+    def __init__(self, point=None, arc_config: ArcConfig = None, shape_config: ShapeConfig = None):
 
-        Arguments:
-        * client       -- Target client.
-        * shape_name
-        * x            -- The x-coordinate.
-        * y            -- The y-coordinate.
-        * radius       -- The radius of the arc.
-        * theta_1      -- The starting angle.
-        * theta_2      -- The ending angle.
-        * fill_color   -- The fill color for the arc.
-        * border_color -- The border color.
-        * system       -- The coordinate system.
-        * group
-        """
+        if point is None:
+            point = np.array((0, 0))
 
-        self.client = client
-        self.system = system
-        self.group = group
+        super().__init__(shape_config)
 
-        if shape_name is None:
-            shape_name = f'{datetime.datetime.now()}-shape'
-
-        self.shape_name = shape_name
-
-        if self.group is not None:
-            self.group.add_shape(self, shape_name)
+        if arc_config is None:
+            arc_config = ArcConfig()
 
         self.properties = Properties(
             type = 'arc',
-            x = x,
-            y = y,
-            radius = radius,
-            theta_1 = -theta_1,
-            theta_2 = -theta_2,
-            fillColor = fill_color,
-            borderColor = border_color,
+            point = point,
+            radius = arc_config.radius,
+            theta_1 = -arc_config.theta_1,
+            theta_2 = -arc_config.theta_2,
+            fillColor = arc_config.color,
+            borderColor = arc_config.border_color,
+        )
+        self.properties.set_normalized('point')
+
+
+    @staticmethod
+    def follow_path_apply(frame, props):
+        "Callback for follow_path frames."
+
+        point = props.path(
+            props.i * 1/props.fps,
+            props.i,
+            frame.props(props.shape_name).point,
         )
 
-    def get_props(self, background=False):
-        adjustments = {
-            'background': background
+        frame.props(props.shape_name).point = point
+
+        props.i += 1
+
+
+    def follow_path(self, path_function, animation_config: AnimationConfig = None):
+        if animation_config is None:
+            animation_config = AnimationConfig()
+
+        scene_properties = {
+            'fps': animation_config.fps,
+            'path': path_function,
+            'shape_name': self.shape_name
         }
 
-        if self.system is not None:
-            point = self.system.normalize(
-                np.array([
-                    self.properties.x,
-                    self.properties.y
-                ])
-            ).astype(int).tolist()
+        scene, frame_num = self.create_scene(scene_properties, animation_config)
 
-            adjustments['x'] = point[0]
-            adjustments['y'] = point[1]
-
-        return {
-            **self.properties
-        } | adjustments
-
-    def follow_path(self, p, n=None, fps=20, duration=1, shapes=[], initial_clear=False):
-        if n is None:
-            n = int(duration * fps)
-
-        scene = Scene(self.client, { 'i': 0 })
-
-        shape_name = f'{datetime.datetime.now()}-shape'
-        scene.add_shape(self, shape_name)
-
-        scene.add_background(shapes)
-
-        class MotionFrame(Frame):
-            def apply_frame(self, props):
-                x, y = p(props.i * 1/fps, props.i, self.props(shape_name).x, self.props(shape_name).y)
-
-                self.props(shape_name).x = x
-                self.props(shape_name).y = y
-
-                props.i += 1
-
-        for _ in range(n):
-            scene.add_frame(MotionFrame())
+        scene.repeat_frame(frame_num, Arc.follow_path_apply)
 
         return scene
-
-    def render(self, background=False):
-        message = {
-            'command': 'draw',
-            'args': self.get_props(background)
-        }
-
-        self.client.send_message(message)
-
-        return self

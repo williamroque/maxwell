@@ -3,20 +3,17 @@ import colorsys
 
 import numpy as np
 
-from maxwell.shapes.line import Curve, LineSetProperties
-from maxwell.shapes.arc import Arc
+from maxwell.shapes.shape import ShapeConfig
+from maxwell.shapes.line import Curve, CurveConfig
+from maxwell.shapes.arc import Arc, ArcConfig
 from maxwell.core.group import Group
 
 
 class Vector(Curve):
     "Vector shape."
 
-    def __init__(self, client, components, origin=None, shape_name=None, color='#fff', width=3, arrow_size=6, system=None, group=None):
+    def __init__(self, components, origin=None, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         "This is a Curve wrapper for vectors."
-
-        self.client = client
-        self.system = system
-        self.group = group
 
         if origin is None:
             origin = [0, 0]
@@ -31,22 +28,12 @@ class Vector(Curve):
 
         points = [origin, endpoint]
 
-        if shape_name is None:
-            shape_name = f'{datetime.datetime.now()}-shape'
+        if curve_config is None:
+            curve_config = CurveConfig()
 
-        self.shape_name = shape_name
+        curve_config.arrows = 1
 
-        if self.group is not None:
-            self.group.add_shape(self, shape_name)
-
-        self.properties = LineSetProperties(
-            type      = 'lineset',
-            points    = points,
-            color     = color,
-            width     = width,
-            arrows    = 1,
-            arrowSize = arrow_size
-        )
+        super().__init__(points, curve_config, shape_config)
 
 
     @property
@@ -84,6 +71,10 @@ class Vector(Curve):
 
 
 class Colorschemes:
+    """All the vector field colorschemes. Methods should take
+    magnitude and cap and return color.
+    """
+
     @staticmethod
     def ratio_to_hex(ratio):
         return hex(int(255 * ratio))[2:]
@@ -123,10 +114,16 @@ class Colorschemes:
         return color
 
 
-def create_vector_field(client, f, x, y, arrow_scale=.3, width=2, arrow_size=2, cmap='cw', max_threshold=np.inf, normalize=True, system=None):
+def create_vector_field(f, x, y, arrow_scale=.3, cmap='cw', max_threshold=np.inf, normalize=True, curve_config: CurveConfig = None, arc_config: ArcConfig = None, shape_config: ShapeConfig = None):
+    if curve_config is None:
+        curve_config = CurveConfig()
+
+    if shape_config is None:
+        shape_config = ShapeConfig()
+
     xx, yy = np.meshgrid(x, y)
 
-    vector_field = f(xx, yy)
+    vector_field = np.dstack((f(xx, yy)))
 
     magnitudes = np.linalg.norm(vector_field, axis=2)
     vector_field[magnitudes == 0] = np.nan
@@ -150,24 +147,28 @@ def create_vector_field(client, f, x, y, arrow_scale=.3, width=2, arrow_size=2, 
     for i, row in enumerate(vector_field):
         for j, vector in enumerate(row):
             origin = np.array([x[j], y[i]])
-            shape_name = f'vector-{i}'
+            vector_shape_config = ShapeConfig(
+                shape_name = f'vector-{i}-{j}',
+                client = shape_config.client,
+                system = shape_config.system
+            )
 
             if any(np.isnan(vector)):
+                arc_config.color = colormap(0, max_magnitude)
+
                 vector_shape = Arc(
-                    client,
-                    *origin,
-                    color = colormap(0, max_magnitude),
-                    system = system
+                    origin,
+                    arc_config = arc_config,
+                    shape_config = vector_shape_config
                 )
             else:
+                curve_config.color = colormap(magnitudes[i, j], max_magnitude)
+
                 vector_shape = Vector(
-                    client,
                     vector * arrow_scale,
                     origin,
-                    color = colormap(magnitudes[i, j], max_magnitude),
-                    arrow_size = arrow_size,
-                    width = width,
-                    shape_name = shape_name
+                    shape_config = vector_shape_config,
+                    curve_config = curve_config
                 )
 
             field_group.add_shape(vector_shape)

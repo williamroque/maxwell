@@ -47,7 +47,14 @@ class Properties:
         normalized = {}
 
         if system is not None:
-            for key in self.normalized_keys:
-                normalized[key] = system.normalize(getattr(self, key)).tolist()
+            for obj in self.normalized_keys:
+                if isinstance(obj, (tuple, ndarray, list)):
+                    values = [getattr(self, key) for key in obj]
+                    values = system.normalize(values).tolist()
+
+                    for key, value in zip(obj, values):
+                        normalized[key] = value
+                else:
+                    normalized[obj] = system.normalize(getattr(self, obj)).tolist()
 
         return { **self } | normalized
