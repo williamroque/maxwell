@@ -32,7 +32,16 @@
             #python-canvas {
                 position: absolute;
             }
+
+            .latex-container {
+                position: absolute;
+                height: min-content;
+                transform: translate(-50%, -50%);
+            }
         </style>
+
+        <script src="../katex/katex.min.js"></script>
+        <link rel="stylesheet" href="../katex/katex.min.css">
     </head>
     <body>
         <canvas id="background-canvas" width="600" height="500"></canvas>

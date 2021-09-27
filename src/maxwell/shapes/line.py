@@ -120,7 +120,20 @@ class Curve(Shape):
         return self.move_point(len(self.properties.points) - 1, point, *args, **kwargs)
 
 
-    def rotate_about(self, origin, theta, n=None, n_scale=1, f=None, animate=True, shapes=[]):
+    @staticmethod
+    def rotate_about_apply(frame, props):
+        "Frame callback for rotate_about."
+
+        shape_name = props.shape_name
+
+        frame.props(shape_name).points = rotate(
+            frame.props(shape_name).points,
+            props.origin,
+            props.angle * props.easing_ratio
+        )
+
+
+    def rotate_about(self, origin, theta, animate=False, animation_config: AnimationConfig = None):
         "Create a scene moving the curve about a specific point."
 
         if not animate:
@@ -128,38 +141,17 @@ class Curve(Shape):
 
             return self
 
-        scene = Scene(self.client, { 'i': 0, 'shape_name': self.shape_name })
+        scene_properties = {
+            'origin': origin,
+            'angle': theta
+        }
 
-        scene.add_shape(self)
+        scene, frame_num = self.create_scene(scene_properties, animation_config)
 
-        scene.add_background(shapes)
-
-        if n is None:
-            n = int(abs(theta) * 100 * n_scale)
-
-        if f is None:
-            f = (np.sin, 0, np.pi)
-
-        X = np.linspace(f[1], f[2], n)
-        Y = np.abs(f[0](X))
-        C = Y / Y.sum()
-
-        class MotionFrame(Frame):
-            def apply_frame(self, props):
-                d_theta = C[props.i] * theta
-
-                shape_name = props.shape_name
-
-                self.props(shape_name).properties.points = rotate(
-                    self.props(shape_name).points,
-                    origin,
-                    d_theta
-                )
-
-                props.i += 1
-
-        for _ in range(n):
-            scene.add_frame(MotionFrame())
+        scene.repeat_frame(
+            frame_num,
+            Curve.rotate_about_apply
+        )
 
         return scene
 

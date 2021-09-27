@@ -80,6 +80,7 @@ class Shape:
             easing_function = create_easing_function(frame_num)
 
         properties['easing_function'] = easing_function
+        properties['shape_name'] = self.shape_name
 
         scene = Scene(self.client, properties)
 
@@ -123,7 +124,6 @@ class Shape:
             target_color = hex_to_rgb(target_color)
 
         scene_properties = {
-            'shape_name': self.shape_name,
             'target_color': target_color
         }
 
@@ -182,8 +182,7 @@ class Shape:
             'cx': None,
             'cy': None,
             'final_x': point[0],
-            'final_y': point[1],
-            'shape_name': self.shape_name
+            'final_y': point[1]
         }
 
         scene, frame_num = self.create_scene(scene_properties,

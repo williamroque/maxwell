@@ -2,10 +2,18 @@ class Artist {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d');
+
+        this.DOMElements = [];
     }
 
 
     clear() {
+        for (const element of this.DOMElements) {
+            element.remove();
+        }
+
+        this.DOMElements = [];
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
@@ -16,7 +24,8 @@ class Artist {
             lineset: this.drawLineSet,
             arc: this.drawArc,
             image: this.drawImage,
-            text: (shape) => shape.markdown ? this.drawMarkdown(shape) : this.drawText(shape)
+            text: (shape) => shape.markdown ? this.drawMarkdown(shape) : this.drawText(shape),
+            latex: this.drawLatex
         };
 
         methodAssociation[shape.type].call(this, shape);
@@ -212,6 +221,23 @@ class Artist {
             currentX += partWidth;
         }
     }
+
+    drawLatex(args) {
+        const { source, point, fontSize, color } = args;
+
+        const latexContainer = document.createElement('div');
+        latexContainer.style.left = point[0] + 'px';
+        latexContainer.style.top = point[1] + 'px';
+        latexContainer.style.fontSize = fontSize;
+        latexContainer.style.color = color;
+        latexContainer.classList.add('latex-container');
+        document.body.appendChild(latexContainer);
+
+        this.DOMElements.push(latexContainer);
+
+        katex.render(source, latexContainer, {
+            throwOnError: false,
+            displayMode: true
+        });
+    }
 }
-
-

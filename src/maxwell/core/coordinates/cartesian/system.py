@@ -18,7 +18,7 @@ class CartesianSystem(System):
 
 
     def normalize(self, obj):
-        if isinstance(obj, (np.ndarray, list)):
+        if isinstance(obj, (np.ndarray, list, tuple)):
             obj = np.array(obj)
 
             points = obj * self.scale * np.array([1, -1]) + self.origin
@@ -26,11 +26,11 @@ class CartesianSystem(System):
         elif isinstance(obj, (int, float)):
             return obj * self.scale.sum()/2
 
-        raise TypeError(f'Argument should be ndarray, list, or scalar. Type used: {type(obj)}.')
+        raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(obj)}.')
 
 
     def from_normalized(self, obj):
-        if isinstance(obj, (np.ndarray, list)):
+        if isinstance(obj, (np.ndarray, list, tuple)):
             obj = np.array(obj)
 
             points = (obj - self.origin) / (self.scale * np.array([1, -1]))
@@ -38,4 +38,4 @@ class CartesianSystem(System):
         elif isinstance(obj, (int, float)):
             return obj / (self.scale.sum()/2)
 
-        raise TypeError(f'Argument should be ndarray, list, or scalar. Type used: {type(points)}.')
+        raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(points)}.')

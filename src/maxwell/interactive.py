@@ -13,11 +13,11 @@ from maxwell.shapes.measure import Measure, MeasureConfig
 from maxwell.shapes.text import Text, TextConfig
 from maxwell.shapes.vector import Vector, create_vector_field
 from maxwell.shapes.arc import Arc, ArcConfig
+from maxwell.shapes.latex import Latex, LatexConfig
 
 from maxwell.core.animation import AnimationConfig
 
 import maxwell.shapes.img as img
-import maxwell.shapes.latex as latex
 import maxwell.shapes.polygon as polygon
 import maxwell.shapes.rect as rect
 
@@ -70,7 +70,6 @@ try:
     Shape.DEFAULT_SYSTEM = system
 
     Image = partial(img.Image, client, group=global_group)
-    Latex = partial(latex.Latex, client, group=global_group)
     Polygon = partial(polygon.Polygon, client, system=system, group=global_group)
     Rect = partial(rect.Rect, client, system=system, group=global_group)
 

@@ -7,7 +7,7 @@ from maxwell.core.properties import Properties
 @dataclass
 class LatexConfig:
     font_size: int = 12
-    color: str = '#FFF'
+    color: str = '#789'
 
 
 class Latex(Shape):
@@ -28,7 +28,7 @@ class Latex(Shape):
             type = 'latex',
             source = source,
             point = point,
-            font_size = latex_config.font_size,
+            fontSize = latex_config.font_size,
             color = latex_config.color
         )
         self.properties.set_normalized('point')
