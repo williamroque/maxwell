@@ -23,13 +23,15 @@ class CurveConfig:
 class Curve(Shape):
     "A class for lines and a superclass for line-based shapes."
 
+    DEFAULT_CURVE_CONFIG = None
+
     def __init__(self, points, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         "A class for lines and a superclass for line-based shapes."
 
         super().__init__(shape_config)
 
         if curve_config is None:
-            curve_config = CurveConfig()
+            curve_config = self.default_config('curve_config', CurveConfig)
 
         if isinstance(points, Group):
             point_list = []

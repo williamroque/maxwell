@@ -88,11 +88,11 @@ sequence.show(original_top_measure.label)
 sequence.show(original_bottom_measure.label)
 
 ### Extend/contract section
-animation_config = AnimationConfig(duration=.8)
+Shape.set_default('animation_config', AnimationConfig(duration=.8))
 
-section_scene = curve.transform(target_curve, animation_config)
-top_measure_scene = original_top_measure.transform(target_top_measure, animation_config)
-bottom_measure_scene = original_bottom_measure.transform(target_bottom_measure, animation_config)
+section_scene = curve.transform(target_curve)
+top_measure_scene = original_top_measure.transform(target_top_measure)
+bottom_measure_scene = original_bottom_measure.transform(target_bottom_measure)
 
 sequence.add_scenes(
     section_scene,
@@ -106,7 +106,7 @@ sequence.wait(.5)
 
 ### Show ratio equations
 equation_config = TextConfig(x=100, color=BLUE, markdown=True)
-equation_shape_config = ShapeConfig(system=canvas_system)
+Text.set_default('shape_config', ShapeConfig(system=canvas_system))
 ratio_equation = partial('{} : {} = {}'.format)
 
 bottom_equation_parameters = [
@@ -126,21 +126,19 @@ top_equation = ratio_equation(*top_equation_parameters)
 
 bottom_ratio_text = Text(
     bottom_equation,
-    replace(equation_config, y = 50),
-    equation_shape_config
+    replace(equation_config, y = 50)
 )
 bottom_ratio_text.set_opacity(0)
 
 top_ratio_text = Text(
     top_equation,
-    replace(equation_config, y = 80),
-    equation_shape_config
+    replace(equation_config, y = 80)
 )
 top_ratio_text.set_opacity(0)
 
-animation_config = AnimationConfig(duration=.2)
-bottom_ratio_scene = bottom_ratio_text.show(animation_config)
-top_ratio_scene = top_ratio_text.show(animation_config)
+Shape.set_default('animation_config', AnimationConfig(duration=.2))
+bottom_ratio_scene = bottom_ratio_text.show()
+top_ratio_scene = top_ratio_text.show()
 
 sequence.add_scenes(bottom_ratio_scene, top_ratio_scene)
 
@@ -149,8 +147,8 @@ sequence.wait(3)
 
 
 ### Hide ratio equations
-bottom_ratio_scene = bottom_ratio_text.hide(animation_config)
-top_ratio_scene = top_ratio_text.hide(animation_config)
+bottom_ratio_scene = bottom_ratio_text.hide()
+top_ratio_scene = top_ratio_text.hide()
 
 sequence.add_scenes(bottom_ratio_scene, top_ratio_scene)
 
@@ -189,12 +187,11 @@ equation_lines = []
 for i, line in enumerate(lines):
     equation_line = Text(
         line,
-        replace(equation_config, x = 130, y = 50 + i*30),
-        equation_shape_config
+        replace(equation_config, x = 130, y = 50 + i*30)
     )
     equation_line.set_opacity(0)
 
-    line_scene = equation_line.show(animation_config)
+    line_scene = equation_line.show()
     line_scenes.append(line_scene)
 
     equation_lines.append(equation_line)
@@ -206,7 +203,7 @@ sequence.wait(5)
 
 line_scenes = []
 for equation_line in equation_lines:
-    line_scene = equation_line.hide(animation_config)
+    line_scene = equation_line.hide()
     line_scenes.append(line_scene)
 
 sequence.add_scenes(*line_scenes)
@@ -218,12 +215,11 @@ result_text = Text(
               bottom_equation_parameters[1] /
               bottom_equation_parameters[0], 2)
     ),
-    replace(equation_config, y = 50),
-    equation_shape_config
+    replace(equation_config, y = 50)
 )
 result_text.set_opacity(0)
 
-result_scene = result_text.show(animation_config)
+result_scene = result_text.show()
 sequence.add_scene(result_scene)
 
 

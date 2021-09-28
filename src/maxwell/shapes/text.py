@@ -21,13 +21,15 @@ class TextConfig:
 class Text(Shape):
     "A class for normal text."
 
+    DEFAULT_TEXT_CONFIG = None
+
     def __init__(self, text, text_config: TextConfig = None, shape_config: ShapeConfig = None):
         "A class for normal text."
 
         super().__init__(shape_config)
 
         if text_config is None:
-            text_config = TextConfig()
+            text_config = self.default_config('text_config', TextConfig)
 
         font_spec = ''
 

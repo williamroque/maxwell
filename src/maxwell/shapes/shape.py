@@ -25,23 +25,27 @@ class Shape:
 
     DEFAULT_CLIENT = None
     DEFAULT_SYSTEM = None
+    DEFAULT_SHAPE_CONFIG = None
+    DEFAULT_ANIMATION_CONFIG = None
 
     def __init__(self, shape_config: ShapeConfig = None):
         "The shape superclass."
 
         if shape_config is None:
-            shape_config = ShapeConfig()
+            shape_config = self.default_config('shape_config', ShapeConfig)
 
         self.client = shape_config.client
         if self.client is None:
-            if Shape.DEFAULT_CLIENT is None:
+            default_client = self.get_default('client')
+
+            if default_client is None:
                 raise ValueError("Client specification required. Consider setting DEFAULT_CLIENT.")
 
-            self.client = Shape.DEFAULT_CLIENT
+            self.client = default_client
 
         self.system = shape_config.system
         if self.system is None:
-            self.system = Shape.DEFAULT_SYSTEM
+            self.system = self.get_default('system')
 
         self.group = shape_config.group
 
@@ -53,6 +57,33 @@ class Shape:
             self.group.add_shape(self)
 
         self.access_hooks = []
+
+
+    def get_default(self, attribute):
+        "Get class default using short form of attribute."
+
+        expanded_attribute = 'DEFAULT_{}'.format(attribute.upper())
+
+        return getattr(self.__class__, expanded_attribute)
+
+
+    @classmethod
+    def set_default(cls, attribute, value):
+        "Set class default using short form of attribute."
+
+        expanded_attribute = 'DEFAULT_{}'.format(attribute.upper())
+
+        return setattr(cls, expanded_attribute, value)
+
+
+    def default_config(self, attribute, fallback):
+        "Pattern for getting default config."
+
+        default_config = self.get_default(attribute)
+
+        if default_config is None:
+            return fallback()
+        return default_config
 
 
     def add_access_hook(self, callback, *args):
@@ -70,13 +101,14 @@ class Shape:
 
     def create_scene(self, properties, animation_config: AnimationConfig = None):
         if animation_config is None:
-            animation_config = AnimationConfig()
+            animation_config = self.default_config('animation_config', AnimationConfig)
 
         frame_num = int(animation_config.duration * animation_config.fps)
 
-        easing_function = animation_config.easing_function
-        if easing_function is None:
-            easing_function = create_easing_function(frame_num)
+        easing_function = create_easing_function(
+            frame_num,
+            *animation_config.easing_function
+        )
 
         properties['easing_function'] = easing_function
         properties['shape_name'] = self.shape_name

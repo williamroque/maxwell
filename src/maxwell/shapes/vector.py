@@ -29,7 +29,7 @@ class Vector(Curve):
         points = [origin, endpoint]
 
         if curve_config is None:
-            curve_config = CurveConfig()
+            curve_config = self.default_config('curve_config', CurveConfig)
 
         curve_config.arrows = 1
 

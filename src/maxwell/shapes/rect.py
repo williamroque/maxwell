@@ -13,6 +13,8 @@ class RectConfig:
 
 
 class Rect(Shape):
+    DEFAULT_RECT_CONFIG = None
+
     def __init__(self, point=None, rect_config: RectConfig = None, shape_config: ShapeConfig = None):
         super().__init__(shape_config)
 
@@ -20,7 +22,7 @@ class Rect(Shape):
             point = [0, 0]
 
         if rect_config is None:
-            rect_config = RectConfig()
+            rect_config = self.default_config('rect_config', RectConfig)
 
         self.properties = Properties(
             type = 'rect',

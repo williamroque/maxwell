@@ -116,10 +116,11 @@ class Artist {
 
 
     drawArc(args) {
-        const { point, radius, theta_1, theta_2, fillColor, borderColor } = args;
+        const { point, radius, theta_1, theta_2, fillColor, borderColor, borderWidth } = args;
 
         this.ctx.fillStyle = fillColor;
         this.ctx.strokeStyle = borderColor;
+        this.ctx.lineWidth = borderWidth;
 
         this.ctx.beginPath();
 

@@ -27,7 +27,7 @@ from maxwell.core.frame import Frame
 from maxwell.core.group import Group
 from maxwell.core.camera import Camera
 
-from maxwell.core.coordinates.cartesian.system import CartesianSystem
+from maxwell.core.coordinates.cartesian.system import CartesianSystem, CartesianGridConfig, TRIG_CONFIG
 from maxwell.core.coordinates.system import System
 
 try:

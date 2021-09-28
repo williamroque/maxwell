@@ -17,9 +17,12 @@ class ArcConfig:
     theta_2: float = 2*np.pi
     color: str = '#fff'
     border_color: str = 'transparent'
+    border_width: int = 1
 
 
 class Arc(Shape):
+    DEFAULT_ARC_CONFIG = None
+
     def __init__(self, point=None, arc_config: ArcConfig = None, shape_config: ShapeConfig = None):
 
         if point is None:
@@ -28,7 +31,7 @@ class Arc(Shape):
         super().__init__(shape_config)
 
         if arc_config is None:
-            arc_config = ArcConfig()
+            arc_config = self.default_config('arc_config', ArcConfig)
 
         self.properties = Properties(
             type = 'arc',
@@ -38,6 +41,7 @@ class Arc(Shape):
             theta_2 = -arc_config.theta_2,
             fillColor = arc_config.color,
             borderColor = arc_config.border_color,
+            borderWidth = arc_config.border_width
         )
         self.properties.set_normalized('point')
 

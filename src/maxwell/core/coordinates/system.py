@@ -46,6 +46,18 @@ class System:
             self.scale = scale
 
 
+    def zoom(self, factor):
+        "Set relative scale."
+
+        self.set_scale(factor, True)
+
+
+    def translate(self, factor):
+        "Set relative origin."
+
+        self.origin += self.normalize(factor)
+
+
     def normalize(self, obj):
         """This is where the magic happens. Coordinate systems should
         override this to convert arrays and scalars into the canvas'

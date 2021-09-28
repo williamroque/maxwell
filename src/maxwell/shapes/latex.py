@@ -16,6 +16,8 @@ class LatexConfig:
 class Latex(Shape):
     "A class for Latex."
 
+    DEFAULT_LATEX_CONFIG = None
+
     def __init__(self, source, point=None, latex_config: LatexConfig = None, shape_config: ShapeConfig = None):
         "A class for Latex."
 
@@ -25,7 +27,7 @@ class Latex(Shape):
             point = [0, 0]
 
         if latex_config is None:
-            latex_config = LatexConfig()
+            latex_config = self.default_config('latex_config', LatexConfig)
 
         if latex_config.break_lines:
             source = source.replace('\n', r'\\')
