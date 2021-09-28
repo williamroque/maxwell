@@ -33,7 +33,7 @@ class Latex(Shape):
         self.properties = Properties(
             type = 'latex',
             source = source,
-            point = np.array(point),
+            point = point,
             fontSize = latex_config.font_size,
             color = latex_config.color
         )

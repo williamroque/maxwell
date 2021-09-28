@@ -38,10 +38,12 @@ class System:
     def set_scale(self, scale, relative=False):
         "Set scale."
 
+        scale = np.array(scale)
+
         if relative:
             self.scale *= scale
         else:
-            self.scale = np.array(scale)
+            self.scale = scale
 
 
     def normalize(self, obj):
@@ -50,10 +52,16 @@ class System:
         coordinate system.
         """
 
-        return np.array(obj) if isinstance(obj, (np.ndarray, list)) else obj
+        return np.array(obj) if isinstance(obj, (np.ndarray, list, tuple)) else obj
 
 
     def from_normalized(self, obj):
         "The inverse process of the above."
 
-        return np.array(obj) if isinstance(obj, (np.ndarray, list)) else obj
+        return np.array(obj) if isinstance(obj, (np.ndarray, list, tuple)) else obj
+
+
+    def get_grid(self):
+        "Create grid and axes. Specific to coordinate system."
+
+        raise NotImplementedError

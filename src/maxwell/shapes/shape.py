@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 from maxwell.client.client import Client
 from maxwell.client.message import Message
-from maxwell.core.coordinates.cartesian.system import System
 
 from maxwell.core.scene import Scene
 
@@ -16,7 +15,7 @@ from maxwell.core.util import rgb_to_hex, hex_to_rgb
 @dataclass
 class ShapeConfig:
     client: Client = None
-    system: System = None
+    system: 'System' = None
     group: 'Group' = None
     shape_name: str = None
 

@@ -27,7 +27,6 @@ from maxwell.core.frame import Frame
 from maxwell.core.group import Group
 from maxwell.core.camera import Camera
 
-import maxwell.core.coordinates.cartesian.shapes as shapes
 from maxwell.core.coordinates.cartesian.system import CartesianSystem
 from maxwell.core.coordinates.system import System
 

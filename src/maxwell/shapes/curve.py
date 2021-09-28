@@ -14,7 +14,7 @@ from maxwell.core.group import Group
 
 @dataclass
 class CurveConfig:
-    color: str = '#fff'
+    color: str = '#fdf4c1'
     width: int = 3
     arrows: int = 0
     arrow_size: float = 6
