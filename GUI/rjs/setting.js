@@ -5,6 +5,9 @@ function resizeCanvas(_, rerender=true) {
     backgroundCanvas.width = window.innerWidth;
     backgroundCanvas.height = window.innerHeight;
 
+    penCanvas.width = window.innerWidth;
+    penCanvas.height = window.innerHeight;
+
     if (rerender && sequence && sequence.isPlaying) {
         Properties.rerenderBackground = true;
     }

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+import numpy as np
+
 from maxwell.shapes.shape import Shape, ShapeConfig
 from maxwell.core.properties import Properties
 
@@ -31,7 +33,7 @@ class Latex(Shape):
         self.properties = Properties(
             type = 'latex',
             source = source,
-            point = point,
+            point = np.array(point),
             fontSize = latex_config.font_size,
             color = latex_config.color
         )
