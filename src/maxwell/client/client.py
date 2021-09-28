@@ -22,7 +22,7 @@ class Client():
     def connect(self):
         self.socket.connect((self.ip, self.port))
 
-    def change_server(self, ip, port):
+    def change_server(self, ip, port=1337):
         self.ip = ip
         self.port = port
 

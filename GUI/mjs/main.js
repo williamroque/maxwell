@@ -89,7 +89,7 @@ server.on('connection', socket => {
 });
 
 try {
-    server.listen(1337, '127.0.0.1');
+    server.listen(1337, '0.0.0.0');
 } catch(e) {
     console.log(e, message);
 }
