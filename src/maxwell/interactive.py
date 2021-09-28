@@ -8,23 +8,21 @@ from maxwell.core.util import partial
 from dataclasses import replace
 
 from maxwell.shapes.shape import Shape, ShapeConfig
-from maxwell.shapes.line import Curve, CurveConfig
+from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.measure import Measure, MeasureConfig
 from maxwell.shapes.text import Text, TextConfig
 from maxwell.shapes.vector import Vector, create_vector_field
 from maxwell.shapes.arc import Arc, ArcConfig
 from maxwell.shapes.latex import Latex, LatexConfig
+from maxwell.shapes.image import Image, ImageConfig
+from maxwell.shapes.rect import Rect, RectConfig
 
-from maxwell.core.animation import AnimationConfig
-
-import maxwell.shapes.img as img
-import maxwell.shapes.polygon as polygon
-import maxwell.shapes.rect as rect
+from maxwell.core.animation import AnimationConfig, create_easing_function, animate
 
 from maxwell.client.client import Client
 
 from maxwell.core.sequence import Sequence
-import maxwell.core.scene as scene
+from maxwell.core.scene import Scene
 from maxwell.core.frame import Frame
 from maxwell.core.group import Group
 from maxwell.core.camera import Camera
@@ -69,11 +67,7 @@ try:
     Shape.DEFAULT_CLIENT = client
     Shape.DEFAULT_SYSTEM = system
 
-    Image = partial(img.Image, client, group=global_group)
-    Polygon = partial(polygon.Polygon, client, system=system, group=global_group)
-    Rect = partial(rect.Rect, client, system=system, group=global_group)
-
-    Scene = partial(scene.Scene, client)
+    Scene.DEFAULT_CLIENT = client
 
     Sequence = partial(Sequence, client)
     Camera = partial(Camera, client)

@@ -4,6 +4,7 @@ class Frame():
         self.setup_callback = setup_callback
 
         self.scene = None
+        self.is_first = False
 
 
     def set_scene(self, scene):
@@ -16,6 +17,9 @@ class Frame():
 
     def apply_frame(self):
         props = self.scene.properties
+
+        if props.i == 0:
+            self.is_first = True
 
         if 'easing_function' in props.keys()\
            and props.i < len(props.easing_function):

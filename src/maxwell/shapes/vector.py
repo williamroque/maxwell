@@ -4,7 +4,7 @@ import colorsys
 import numpy as np
 
 from maxwell.shapes.shape import ShapeConfig
-from maxwell.shapes.line import Curve, CurveConfig
+from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.arc import Arc, ArcConfig
 from maxwell.core.group import Group
 

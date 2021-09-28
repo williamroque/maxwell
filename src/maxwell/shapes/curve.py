@@ -8,8 +8,6 @@ from maxwell.shapes.shape import Shape, ShapeConfig
 
 from maxwell.core.animation import AnimationConfig
 from maxwell.core.properties import Properties
-from maxwell.core.scene import Scene
-from maxwell.core.frame import Frame
 from maxwell.core.util import rotate
 from maxwell.core.group import Group
 
@@ -42,7 +40,7 @@ class Curve(Shape):
             points = point_list
 
         self.properties = Properties(
-            type = 'lineset',
+            type = 'curve',
             points = list(map(list, list(points))),
             color = curve_config.color,
             width = curve_config.width,

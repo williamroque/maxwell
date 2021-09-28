@@ -21,7 +21,7 @@ class Artist {
     draw(shape) {
         const methodAssociation = {
             rect: this.drawRect,
-            lineset: this.drawLineSet,
+            curve: this.drawCurve,
             arc: this.drawArc,
             image: this.drawImage,
             text: (shape) => shape.markdown ? this.drawMarkdown(shape) : this.drawText(shape),
@@ -33,13 +33,17 @@ class Artist {
 
 
     drawRect(args) {
-        const { x, y, cx, cy, fillColor, borderColor } = args;
+        const { point, width, height, fillColor, borderColor } = args;
+        let [ x, y ] = point;
+
+        x -= width / 2;
+        y -= height / 2;
 
         this.ctx.fillStyle = fillColor;
         this.ctx.strokeStyle = borderColor;
 
-        this.ctx.fillRect(x, y, cx, cy);
-        this.ctx.strokeRect(x, y, cx, cy);
+        this.ctx.fillRect(x, y, width, height);
+        this.ctx.strokeRect(x, y, width, height);
     }
 
 
@@ -72,7 +76,7 @@ class Artist {
     }
 
 
-    drawLineSet(args) {
+    drawCurve(args) {
         const { points, color, width, arrows, arrowSize } = args;
 
         if (points.length < 1) return;
@@ -131,11 +135,11 @@ class Artist {
 
         image.onload = () => {
             if (height === 0) {
-                height = this.naturalHeight;
+                height = image.naturalHeight;
             }
 
             if (width === 0) {
-                width = this.naturalWidth * height / this.naturalHeight;
+                width = image.naturalWidth * height / image.naturalHeight;
             }
 
             this.ctx.drawImage(image, x, y, width, height);
@@ -143,8 +147,6 @@ class Artist {
             if (isTemporary) {
                 spawn('rm', [src]);
             }
-
-            resolve();
         };
     }
 

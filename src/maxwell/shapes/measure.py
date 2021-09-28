@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from maxwell.shapes.shape import ShapeConfig
-from maxwell.shapes.line import Curve, CurveConfig
+from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.text import Text, TextConfig
 
 

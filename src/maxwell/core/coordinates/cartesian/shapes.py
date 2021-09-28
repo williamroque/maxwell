@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from maxwell.shapes.line import Curve
+from maxwell.shapes.curve import Curve
 from maxwell.shapes.text import Text
 from maxwell.core.group import Group
 

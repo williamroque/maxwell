@@ -1,3 +1,5 @@
+import os
+
 from dataclasses import dataclass
 
 from maxwell.shapes.shape import Shape, ShapeConfig
@@ -8,13 +10,13 @@ from maxwell.core.properties import Properties
 class ImageConfig:
     width: float = 0
     height: float = 0
-    is_temporary: bool = True
+    is_temporary: bool = False
 
 
 class Image(Shape):
     "Superclass for images."
 
-    def __init__(self, src, point, image_config: ImageConfig = None, shape_config: ShapeConfig = None):
+    def __init__(self, src, point=None, image_config: ImageConfig = None, shape_config: ShapeConfig = None):
         "Superclass for images."
 
         super().__init__(shape_config)
@@ -27,9 +29,10 @@ class Image(Shape):
 
         self.properties = Properties(
             type = 'image',
-            src = src,
+            src = os.path.expanduser(src),
             point = point,
             width = image_config.width,
             height = image_config.height,
             isTemporary = image_config.is_temporary
         )
+        self.properties.set_normalized('point')

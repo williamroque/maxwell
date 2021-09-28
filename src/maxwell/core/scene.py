@@ -4,16 +4,18 @@ from itertools import zip_longest
 
 import numpy as np
 
-from maxwell.core.util import clear, await_completion
 from maxwell.core.properties import Properties
 from maxwell.core.group import Group
 from maxwell.core.frame import Frame
 from maxwell.core.sequence import Sequence
-from maxwell.client.message import Message
 
 
 class Scene():
-    def __init__(self, client, properties={}, camera=None):
+    "The superclass for scenes."
+
+    DEFAULT_CLIENT = None
+
+    def __init__(self, client=None, properties={}, camera=None):
         self.frames = []
         self.current_frame = -1
 
@@ -26,6 +28,11 @@ class Scene():
         self.background = {}
 
         self.client = client
+        if self.client is None:
+            if Scene.DEFAULT_CLIENT is None:
+                raise ValueError("Client specification required. Consider setting DEFAULT_CLIENT.")
+
+            self.client = Scene.DEFAULT_CLIENT
 
 
     def add_frame(self, frame):
