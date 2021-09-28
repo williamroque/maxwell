@@ -13,11 +13,11 @@
                 justify-content: center;
             }
 
-            body {
+            .draggable {
                 -webkit-app-region: drag;
             }
 
-            body:active {
+            .draggable:active {
                 cursor: move;
             }
 
@@ -25,11 +25,7 @@
                 background: #fff0d1;
             }
 
-            #background-canvas {
-                position: absolute;
-            }
-
-            #python-canvas {
+            canvas {
                 position: absolute;
             }
 
@@ -38,20 +34,37 @@
                 height: min-content;
                 transform: translate(-50%, -50%);
             }
+
+            .hide {
+                display: none;
+            }
+
+            #pen-canvas {
+                cursor: crosshair;
+            }
+
+            #pen-preview-canvas {
+                bottom: 30px;
+                right: 30px;
+                border: solid 1px #6b5757;
+            }
         </style>
 
         <script src="../katex/katex.min.js"></script>
         <link rel="stylesheet" href="../katex/katex.min.css">
     </head>
-    <body>
+    <body class="draggable">
         <canvas id="background-canvas" width="600" height="500"></canvas>
         <canvas id="python-canvas" width="600" height="500"></canvas>
+        <canvas id="pen-canvas" class="hide" width="600" height="500"></canvas>
+        <canvas id="pen-preview-canvas" class="hide" width="50" height="50"></canvas>
         <script src="../rjs/draw.js"></script>
         <script src="../rjs/setting.js"></script>
         <script src="../rjs/properties.js"></script>
         <script src="../rjs/variables.js"></script>
         <script src="../rjs/events.js"></script>
         <script src="../rjs/sequence.js"></script>
+        <script src="../rjs/pen.js"></script>
         <script src="../rjs/index.js"></script>
     </body>
 </html>

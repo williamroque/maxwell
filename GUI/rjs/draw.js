@@ -7,14 +7,14 @@ class Artist {
     }
 
 
-    clear() {
+    clear(x=0, y=0, width=this.canvas.width, height=this.canvas.height) {
         for (const element of this.DOMElements) {
             element.remove();
         }
 
         this.DOMElements = [];
 
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(x, y, width, height);
     }
 
 
@@ -77,7 +77,7 @@ class Artist {
 
 
     drawCurve(args) {
-        const { points, color, width, arrows, arrowSize } = args;
+        const { points, color, width, arrows, arrowSize, fill } = args;
 
         if (points.length < 1) return;
 
@@ -94,6 +94,10 @@ class Artist {
         });
 
         this.ctx.stroke();
+
+        if (fill) {
+            this.ctx.fill();
+        }
 
         if (points.length === 2 && arrows > 0) {
             const dx = points[1][0] - points[0][0];
