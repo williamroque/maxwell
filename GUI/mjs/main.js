@@ -6,6 +6,8 @@ const Window = require('./window');
 const fixPath = require('fix-path');
 fixPath();
 
+const openToNetwork = false;
+
 let mainWindow;
 
 app.on('ready', () => {
@@ -18,7 +20,8 @@ app.on('ready', () => {
         minHeight: 300,
         resizable: true,
         fullscreen: false,
-        backgroundColor: '#171414',
+        fullscreenable: true,
+        backgroundColor: '#171414'
     }, 'index.html');
     
     mainWindow.createWindow();
@@ -89,7 +92,12 @@ server.on('connection', socket => {
 });
 
 try {
-    server.listen(1337, '0.0.0.0');
+    let ipAddress = '127.0.0.1';
+    if (openToNetwork) {
+        ipAddress =  '0.0.0.0';
+    }
+
+    server.listen(1337, ipAddress);
 } catch(e) {
     console.log(e, message);
 }

@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, remote } = require('electron');
 const fs = require('fs');
 const { spawn } = require('child_process');
 
@@ -36,5 +36,9 @@ const keymap = {
     'u': () => pen.enabled ? pen.history.travel(-1) : [],
     'r': () => pen.enabled ? pen.history.travel(1) : [],
     'Shift+>': () => pen.enabled ? pen.increaseSensitivity() : [],
-    'Shift+<': () => pen.enabled ? pen.decreaseSensitivity() : []
+    'Shift+<': () => pen.enabled ? pen.decreaseSensitivity() : [],
+    'Meta+Enter': () => {
+        const window = remote.getCurrentWindow();
+        window.setFullScreen(!window.isFullScreen());
+    }
 };

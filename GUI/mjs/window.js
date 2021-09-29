@@ -11,7 +11,8 @@ class Window {
         this.properties.webPreferences = {
             nodeIntegration: true,
             'page-visibility': true,
-            backgroundThrottling: false
+            backgroundThrottling: false,
+            enableRemoteModule: true
         };
 
         this.dispatchOnReady = dispatchOnReady;

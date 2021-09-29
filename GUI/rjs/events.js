@@ -11,7 +11,7 @@ function areEqual(setA, setB) {
 
 
 document.addEventListener('keydown', e => {
-    const potentialModifiers = ['Control', 'Shift'];
+    const potentialModifiers = ['Control', 'Shift', 'Meta'];
     const activeModifiers = new Set(potentialModifiers.filter(e.getModifierState.bind(e)));
 
     for (const binding in keymap) {
@@ -20,7 +20,7 @@ document.addEventListener('keydown', e => {
         const modifiers = new Set(components.slice(0, components.length - 1));
         const key = components[components.length - 1];
 
-        if (e.key.toLowerCase() === key && areEqual(modifiers, activeModifiers)) {
+        if (e.key.toLowerCase() === key.toLowerCase() && areEqual(modifiers, activeModifiers)) {
             keymap[binding]();
             break;
         }
