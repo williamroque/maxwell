@@ -11,18 +11,19 @@ from maxwell.core.group import Group
 from maxwell.core.util import pi_format
 from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.shape import ShapeConfig
-from maxwell.shapes.latex import Latex
+from maxwell.shapes.latex import Latex, LatexConfig
 
 
 @dataclass
 class CartesianGridConfig:
     step_x: float = 1
     step_y: float = 1
-    show_numbers: bool = False
+    show_numbers: bool = True
+    label_config: LatexConfig = LatexConfig(color='#555', font_size=8)
     x_label_format: Callable = None
     y_label_format: Callable = None
-    x_label_offset: tuple = (0, -10)
-    y_label_offset: tuple = (-20, 0)
+    x_label_offset: tuple = (0, -20)
+    y_label_offset: tuple = (-15, 15)
 
 
 class CartesianSystem(System):
@@ -78,7 +79,7 @@ class CartesianSystem(System):
         raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(points)}.')
 
 
-    def get_grid(self, grid_config: CartesianGridConfig = None):
+    def get_grid(self, grid_config: CartesianGridConfig = None, render=True):
         if grid_config is None:
             grid_config = CartesianGridConfig()
 
@@ -146,6 +147,7 @@ class CartesianSystem(System):
                 label_shape = Latex(
                     label,
                     np.array((0, i * grid_config.step_y)) + y_label_offset,
+                    latex_config=grid_config.label_config,
                     shape_config=shape_config
                 )
 
@@ -178,6 +180,7 @@ class CartesianSystem(System):
                 label_shape = Latex(
                     label,
                     np.array((i * grid_config.step_x, 0)) + x_label_offset,
+                    latex_config=grid_config.label_config,
                     shape_config=shape_config
                 )
 
@@ -187,6 +190,9 @@ class CartesianSystem(System):
         grid_group.merge_with(secondary_grid)
         grid_group.merge_with(x_labels)
         grid_group.merge_with(y_labels)
+
+        if render:
+            grid_group.render()
 
         return grid_group
 

@@ -203,7 +203,7 @@ class PolarSystem(System):
         return lines_group
 
 
-    def get_grid(self, grid_config: PolarGridConfig = None):
+    def get_grid(self, grid_config: PolarGridConfig = None, render=True):
         if grid_config is None:
             grid_config = PolarGridConfig()
 
@@ -234,5 +234,8 @@ class PolarSystem(System):
         grid_group.merge_with(
             self.get_radial_lines(max_length, max_radius, grid_config, shape_config)
         )
+
+        if render:
+            grid_group.render()
 
         return grid_group
