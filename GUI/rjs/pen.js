@@ -55,9 +55,11 @@ class Pen {
 
         this.isEraser = false;
         this.brushSize = 2;
+        this.eraserSize = 8;
 
         this.colorIndex = 0;
         this.colorOptions = ['#fdf4c1', '#6CA17A', '#cc6666', '#81a2be'];
+        this.previewArtist.canvas.style.borderColor = this.brushColor;
 
         this.sensitivity = 1;
 
@@ -88,6 +90,8 @@ class Pen {
     }
 
     planStroke(e) {
+        const brushSize = this.isEraser ? this.eraserSize : this.brushSize;
+
         if (this.brushPos) {
             const dx = Math.abs(e.pageX - this.brushPos[0]);
             const dy = Math.abs(e.pageY - this.brushPos[1]);
@@ -103,14 +107,14 @@ class Pen {
                 this.drawBrush(
                     ((gPosDiff ? dx / dy * i : i) || 0) * direction[0] + this.brushPos[0],
                     ((gPosDiff ? i : dy / dx * i) || 0) * direction[1] + this.brushPos[1],
-                    this.brushSize + Math.pow(this.brushSize * e.pressure, 1 + this.sensitivity)
+                    brushSize + Math.pow(brushSize * e.pressure, 1 + this.sensitivity)
                 );
             }
         } else {
             this.drawBrush(
                 e.pageX,
                 e.pageY,
-                this.brushSize + Math.pow(this.brushSize * e.pressure, 1 + this.sensitivity)
+                brushSize + Math.pow(brushSize * e.pressure, 1 + this.sensitivity)
             );
         }
 
@@ -155,12 +159,16 @@ class Pen {
         const y = this.previewArtist.canvas.height / 2;
 
         const scaleFactor = 2.5;
+        const size = (this.isEraser ? this.eraserSize : this.brushSize) * scaleFactor;
+        const fillColor = this.isEraser ? 'transparent' : this.brushColor;
+
+        this.previewArtist.canvas.style.borderColor = this.brushColor;
 
         const properties = {
             point: [x, y],
-            width: this.brushSize * scaleFactor,
-            height: this.brushSize * scaleFactor,
-            fillColor: this.isEraser ? 'transparent' : this.brushColor,
+            width: size,
+            height: size,
+            fillColor: fillColor,
             borderColor: this.brushColor
         };
 
@@ -186,12 +194,22 @@ class Pen {
     }
 
     increaseBrushSize() {
-        this.brushSize++;
+        if (this.isEraser) {
+            this.eraserSize++;
+        } else {
+            this.brushSize++;
+        }
+
         this.drawBrushPreview();
     }
 
     decreaseBrushSize() {
-        this.brushSize = Math.max(1, this.brushSize - 1);
+        if (this.isEraser) {
+            this.eraserSize = Math.max(1, this.eraserSize - 1);
+        } else {
+            this.brushSize = Math.max(1, this.brushSize - 1);
+        }
+
         this.drawBrushPreview();
     }
 
