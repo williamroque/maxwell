@@ -1,6 +1,6 @@
 import datetime
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from maxwell.client.client import Client
 from maxwell.client.message import Message
@@ -18,6 +18,7 @@ class ShapeConfig:
     system: 'System' = None
     group: 'Group' = None
     shape_name: str = None
+    render: bool = False
 
 
 class Shape:
@@ -25,14 +26,14 @@ class Shape:
 
     DEFAULT_CLIENT = None
     DEFAULT_SYSTEM = None
-    DEFAULT_SHAPE_CONFIG = None
-    DEFAULT_ANIMATION_CONFIG = None
+    DEFAULT_SHAPE_CONFIG = ShapeConfig()
+    DEFAULT_ANIMATION_CONFIG = AnimationConfig()
 
     def __init__(self, shape_config: ShapeConfig = None):
         "The shape superclass."
 
         if shape_config is None:
-            shape_config = self.default_config('shape_config', ShapeConfig)
+            shape_config = self.get_default('shape_config')
 
         self.client = shape_config.client
         if self.client is None:
@@ -56,6 +57,8 @@ class Shape:
         if self.group is not None:
             self.group.add_shape(self)
 
+        self.auto_render = shape_config.render
+
         self.access_hooks = []
 
 
@@ -76,14 +79,22 @@ class Shape:
         return setattr(cls, expanded_attribute, value)
 
 
-    def default_config(self, attribute, fallback):
-        "Pattern for getting default config."
+    @classmethod
+    def set_config(cls, config_id, **kwargs):
+        "Convenient way to set default config."
 
-        default_config = self.get_default(attribute)
+        expanded_attribute = 'DEFAULT_{}'.format(config_id.upper())
 
-        if default_config is None:
-            return fallback()
-        return default_config
+        config = getattr(cls, expanded_attribute)
+        setattr(cls, expanded_attribute, replace(config, **kwargs))
+
+
+    @classmethod
+    def auto(cls):
+        "Toggle auto-render shape on init."
+
+        default_config = cls.DEFAULT_SHAPE_CONFIG
+        cls.DEFAULT_SHAPE_CONFIG = replace(default_config, render=(not default_config.render))
 
 
     def add_access_hook(self, callback, *args):

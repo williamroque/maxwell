@@ -21,7 +21,7 @@ class TextConfig:
 class Text(Shape):
     "A class for normal text."
 
-    DEFAULT_TEXT_CONFIG = None
+    DEFAULT_TEXT_CONFIG = TextConfig()
 
     def __init__(self, text, text_config: TextConfig = None, shape_config: ShapeConfig = None):
         "A class for normal text."
@@ -29,7 +29,7 @@ class Text(Shape):
         super().__init__(shape_config)
 
         if text_config is None:
-            text_config = self.default_config('text_config', TextConfig)
+            text_config = self.get_default('text_config')
 
         font_spec = ''
 
@@ -51,3 +51,6 @@ class Text(Shape):
             background = False
         )
         self.properties.set_normalized(('x', 'y'))
+
+        if self.auto_render:
+            self.render()

@@ -16,7 +16,7 @@ class LatexConfig:
 class Latex(Shape):
     "A class for Latex."
 
-    DEFAULT_LATEX_CONFIG = None
+    DEFAULT_LATEX_CONFIG = LatexConfig()
 
     def __init__(self, source, point=None, latex_config: LatexConfig = None, shape_config: ShapeConfig = None):
         "A class for Latex."
@@ -27,7 +27,7 @@ class Latex(Shape):
             point = [0, 0]
 
         if latex_config is None:
-            latex_config = self.default_config('latex_config', LatexConfig)
+            latex_config = self.get_default('latex_config')
 
         if latex_config.break_lines:
             source = source.replace('\n', r'\\')
@@ -40,3 +40,6 @@ class Latex(Shape):
             color = latex_config.color
         )
         self.properties.set_normalized('point')
+
+        if self.auto_render:
+            self.render()

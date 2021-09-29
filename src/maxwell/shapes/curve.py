@@ -23,7 +23,7 @@ class CurveConfig:
 class Curve(Shape):
     "A class for lines and a superclass for line-based shapes."
 
-    DEFAULT_CURVE_CONFIG = None
+    DEFAULT_CURVE_CONFIG = CurveConfig()
 
     def __init__(self, points, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         "A class for lines and a superclass for line-based shapes."
@@ -31,7 +31,7 @@ class Curve(Shape):
         super().__init__(shape_config)
 
         if curve_config is None:
-            curve_config = self.default_config('curve_config', CurveConfig)
+            curve_config = self.get_default('curve_config')
 
         if isinstance(points, Group):
             point_list = []
@@ -50,6 +50,9 @@ class Curve(Shape):
             arrowSize = curve_config.arrow_size
         )
         self.properties.set_normalized('points')
+
+        if self.auto_render:
+            self.render()
 
 
     def set_points(self, points):

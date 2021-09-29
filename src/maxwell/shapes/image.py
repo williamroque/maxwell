@@ -16,7 +16,7 @@ class ImageConfig:
 class Image(Shape):
     "Superclass for images."
 
-    DEFAULT_IMAGE_CONFIG = None
+    DEFAULT_IMAGE_CONFIG = ImageConfig()
 
     def __init__(self, src, point=None, image_config: ImageConfig = None, shape_config: ShapeConfig = None):
         "Superclass for images."
@@ -27,7 +27,7 @@ class Image(Shape):
             point = [0, 0]
 
         if image_config is None:
-            image_config = self.default_config('image_config', ImageConfig)
+            image_config = self.get_default('image_config')
 
         self.properties = Properties(
             type = 'image',
@@ -38,3 +38,6 @@ class Image(Shape):
             isTemporary = image_config.is_temporary
         )
         self.properties.set_normalized('point')
+
+        if self.auto_render:
+            self.render()

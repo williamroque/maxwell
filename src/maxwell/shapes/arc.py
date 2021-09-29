@@ -21,7 +21,7 @@ class ArcConfig:
 
 
 class Arc(Shape):
-    DEFAULT_ARC_CONFIG = None
+    DEFAULT_ARC_CONFIG = ArcConfig()
 
     def __init__(self, point=None, arc_config: ArcConfig = None, shape_config: ShapeConfig = None):
 
@@ -31,7 +31,7 @@ class Arc(Shape):
         super().__init__(shape_config)
 
         if arc_config is None:
-            arc_config = self.default_config('arc_config', ArcConfig)
+            arc_config = self.get_default('arc_config')
 
         self.properties = Properties(
             type = 'arc',
@@ -44,6 +44,9 @@ class Arc(Shape):
             borderWidth = arc_config.border_width
         )
         self.properties.set_normalized('point')
+
+        if self.auto_render:
+            self.render()
 
 
     @staticmethod

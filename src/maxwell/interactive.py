@@ -73,6 +73,8 @@ try:
     Sequence = partial(Sequence, client)
     Camera = partial(Camera, client)
 
+    clear()
+
 ## Constants
     RED = '#DC5A5E'
     GREEN = '#A6B860'

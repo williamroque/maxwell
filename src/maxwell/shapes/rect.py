@@ -13,7 +13,7 @@ class RectConfig:
 
 
 class Rect(Shape):
-    DEFAULT_RECT_CONFIG = None
+    DEFAULT_RECT_CONFIG = RectConfig()
 
     def __init__(self, point=None, rect_config: RectConfig = None, shape_config: ShapeConfig = None):
         super().__init__(shape_config)
@@ -22,7 +22,7 @@ class Rect(Shape):
             point = [0, 0]
 
         if rect_config is None:
-            rect_config = self.default_config('rect_config', RectConfig)
+            rect_config = self.get_default('rect_config')
 
         self.properties = Properties(
             type = 'rect',
@@ -33,3 +33,6 @@ class Rect(Shape):
             borderColor = rect_config.border_color,
         )
         self.properties.set_normalized('point', 'width', 'height')
+
+        if self.auto_render:
+            self.render()

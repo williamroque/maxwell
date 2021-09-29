@@ -25,13 +25,13 @@ class MeasureConfig:
 class Measure(Curve):
     "Meaure shape."
 
-    DEFAULT_MEASURE_CONFIG = None
+    DEFAULT_MEASURE_CONFIG = MeasureConfig()
 
     def __init__(self, A, B, measure_config: MeasureConfig = None, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         "Create a measuring stick between points A and B."
 
         if measure_config is None:
-            measure_config = self.default_config('measure_config', MeasureConfig)
+            measure_config = self.get_default('measure_config')
 
         self.offset = measure_config.offset
         self.terminal_width = measure_config.terminal_width
@@ -41,7 +41,7 @@ class Measure(Curve):
         self.italic = measure_config.italic
 
         if curve_config is None:
-            curve_config = self.default_config('curve_config', CurveConfig)
+            curve_config = self.get_default('curve_config')
 
         curve_config.color = measure_config.color
 
