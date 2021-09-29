@@ -118,5 +118,5 @@ class Scene():
         return rendered_frames
 
 
-    def play(self):
-        Sequence(self.client, [self]).run()
+    def play(self, **kwargs):
+        Sequence(self.client, [self], **kwargs).run()

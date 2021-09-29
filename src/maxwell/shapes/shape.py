@@ -112,7 +112,7 @@ class Shape:
 
     def create_scene(self, properties, animation_config: AnimationConfig = None):
         if animation_config is None:
-            animation_config = self.default_config('animation_config', AnimationConfig)
+            animation_config = self.get_default('animation_config')
 
         frame_num = int(animation_config.duration * animation_config.fps)
 
