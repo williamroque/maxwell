@@ -54,7 +54,7 @@ class Pen {
         this.isDrawing = false;
 
         this.isEraser = false;
-        this.brushSize = 2;
+        this.brushSize = 1;
         this.eraserSize = 8;
 
         this.colorIndex = 0;
@@ -62,6 +62,9 @@ class Pen {
         this.previewArtist.canvas.style.borderColor = this.brushColor;
 
         this.sensitivity = 1;
+
+        this.drawingLine = false;
+        this.lineStart;
 
         this.brushPos;
 
@@ -142,7 +145,7 @@ class Pen {
             const properties = {
                 points: curve,
                 color: this.brushColor,
-                width: 0,
+                width: 1,
                 arrows: 0,
                 arrowSize: 0,
                 fill: true
@@ -183,13 +186,36 @@ class Pen {
         });
 
         this.artist.canvas.addEventListener('mousedown', e => {
-            this.isDrawing = true;
+            if (!this.drawingLine) {
+                this.isDrawing = true;
+            }
         });
 
         this.artist.canvas.addEventListener('mouseup', e => {
-            this.isDrawing = false;
-            this.brushPos = undefined;
-            this.history.takeSnapshot();
+            if (this.drawingLine) {
+                const point = [e.pageX, e.pageY]
+
+                if (this.lineStart) {
+                    this.artist.drawCurve({
+                        points: [this.lineStart, point],
+                        color: this.brushColor,
+                        width: this.brushSize * 2,
+                        arrows: 0,
+                        arrowSize: 0,
+                        fill: false
+                    });
+
+                    this.drawingLine = false;
+                    this.lineStart = undefined;
+                    this.history.takeSnapshot();
+                } else {
+                    this.lineStart = point;
+                }
+            } else {
+                this.isDrawing = false;
+                this.brushPos = undefined;
+                this.history.takeSnapshot();
+            }
         });
     }
 

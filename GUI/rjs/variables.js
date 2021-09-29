@@ -35,6 +35,11 @@ const keymap = {
     '[': () => pen.enabled ? pen.decreaseBrushSize() : [],
     'u': () => pen.enabled ? pen.history.travel(-1) : [],
     'r': () => pen.enabled ? pen.history.travel(1) : [],
+    'l': () => {
+        if (pen.enabled) {
+            pen.drawingLine = true;
+        }
+    },
     'Shift+>': () => pen.enabled ? pen.increaseSensitivity() : [],
     'Shift+<': () => pen.enabled ? pen.decreaseSensitivity() : [],
     'Meta+Enter': () => {
