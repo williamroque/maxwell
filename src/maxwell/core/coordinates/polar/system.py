@@ -9,20 +9,22 @@ from maxwell.core.group import Group
 from maxwell.core.util import pi_format
 from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.shape import ShapeConfig
-from maxwell.shapes.latex import Latex
+from maxwell.shapes.latex import Latex, LatexConfig
 
 
 @dataclass
 class PolarGridConfig:
     step_r: float = 1
-    initial_theta: float = np.pi/6
-    step_theta: float = np.pi/4
-    theta_offset: float = np.pi/12
+    primary_sections = 2
+    secondary_sections = 3
     show_radii: bool = True
-    show_angles: bool = False
-    skip_multiples: bool = True
-    ring_label_offset: tuple = (0, 17)
+    show_primary_angles: bool = True
+    show_secondary_angles: bool = False
+    ring_label_offset: tuple = (10, 17)
     line_label_offset: tuple = (0, 0)
+    ring_label_config: LatexConfig = LatexConfig(color='#444', font_size=8)
+    primary_label_config: LatexConfig = LatexConfig(color='#7685947d', font_size=11)
+    secondary_label_config: LatexConfig = LatexConfig(color='#414346', font_size=8)
 
 
 def near_multiple(a, b):
@@ -90,54 +92,18 @@ class PolarSystem(System):
         raise TypeError(f'Argument should be ndarray, list, or tuple. Type used: {type(points)}.')
 
 
-    def theta_label(self, point, offset):
-        shape_config = ShapeConfig(client=self.client, system=self)
-
-        label_shape = Latex(
-            pi_format(point[1]),
-            self.apply_offset(point, offset),
-            shape_config=shape_config
-        )
-        return label_shape
-
-
-    def get_grid(self, grid_config: PolarGridConfig = None):
-        if grid_config is None:
-            grid_config = PolarGridConfig()
-
-        shape_config = ShapeConfig(client=self.client, system=self)
-        axis_config = CurveConfig(width=2, color='#474747')
-
-        client_shape = self.client.get_shape()
-        left, top = self.origin / self.scale[1]
-        right, bottom = (client_shape - self.origin) / self.scale[1]
-
-        grid_group = Group()
-
-        x_axis = Curve(
-            [(left, np.pi), (right, 0)],
-            curve_config=axis_config,
-            shape_config=shape_config
-        )
-        grid_group.add_shape(x_axis, 'x-axis')
-
-        y_axis = Curve(
-            [(top, np.pi/2), (bottom, 3*np.pi/2)],
-            curve_config=axis_config,
-            shape_config=shape_config
-        )
-        grid_group.add_shape(y_axis, 'y-axis')
-
-        max_length = max(left, right, top, bottom)
+    def get_rings(self, max_length, grid_config: PolarGridConfig, shape_config: ShapeConfig):
         ring_count = int(max_length / grid_config.step_r + 2)
+
+        ring_group = Group()
+
+        primary_config = CurveConfig(width=2, color='#4447')
+        secondary_config = CurveConfig(width=1, color='#6664')
 
         primary_rings = Group()
         secondary_rings = Group()
 
         ring_labels = Group()
-
-        primary_config = CurveConfig(width=2, color='#4447')
-        secondary_config = CurveConfig(width=1, color='#6664')
 
         for i in range(ring_count):
             primary_radius = (i + 1) * grid_config.step_r
@@ -159,95 +125,114 @@ class PolarSystem(System):
                 label_shape = Latex(
                     str(primary_radius),
                     self.apply_offset((primary_radius, 0), grid_config.ring_label_offset),
+                    latex_config=grid_config.ring_label_config,
                     shape_config=shape_config
                 )
 
                 ring_labels.add_shape(label_shape, f'ring-label-{i}')
 
-        grid_group.merge_with(primary_rings)
-        grid_group.merge_with(secondary_rings)
-        grid_group.merge_with(ring_labels)
+        ring_group.merge_with(primary_rings)
+        ring_group.merge_with(secondary_rings)
+        ring_group.merge_with(ring_labels)
 
-        line_count = int(np.pi / grid_config.step_theta)
+        return ring_group
+
+
+    def get_radial_lines(self, max_length, max_radius, grid_config: PolarGridConfig, shape_config: ShapeConfig):
+        primary_config = CurveConfig(width=2, color='#4447')
+        secondary_config = CurveConfig(width=1, color='#6664')
+
+        lines_group = Group()
 
         primary_lines = Group()
         secondary_lines = Group()
         line_labels = Group()
 
-        for i in range(line_count):
-            theta = i * grid_config.step_theta + grid_config.initial_theta
-            minor_theta = theta - grid_config.theta_offset
-            major_theta = theta + grid_config.theta_offset
+        def create_section(theta, config, group, label_config, show_label):
+            line = Curve(
+                [
+                    (0, 0),
+                    (max_radius, theta)
+                ],
+                curve_config = config,
+                shape_config = shape_config
+            )
+            group.add_shape(line)
 
-            skip_line = near_multiple(theta, np.pi/2) and grid_config.skip_multiples
-            skip_minor = near_multiple(minor_theta, np.pi/2) and grid_config.skip_multiples
-            skip_major = near_multiple(major_theta, np.pi/2) and grid_config.skip_multiples
-
-            if not skip_line:
-                primary_line = Curve(
-                    [
-                        (-np.hypot(left, bottom), theta),
-                        (np.hypot(right, top), theta)
-                    ],
-                    curve_config = primary_config
+            if show_label:
+                label_shape = Latex(
+                    pi_format(theta),
+                    self.apply_offset((max_length / 2, theta), grid_config.line_label_offset),
+                    latex_config = label_config,
+                    shape_config = shape_config
                 )
-                primary_lines.add_shape(primary_line, f'primary-line-{i}')
+                group.add_shape(label_shape)
 
-            if not skip_minor:
-                minor_secondary_line = Curve(
-                    [
-                        (-np.hypot(left, bottom), minor_theta),
-                        (np.hypot(right, top), minor_theta)
-                    ],
-                    curve_config = secondary_config
+        for quadrant in range(4):
+            quadrant_theta = quadrant * np.pi/2
+            quadrant_size = np.pi/2
+            primary_section_size = quadrant_size / grid_config.primary_sections
+            secondary_section_size = primary_section_size / grid_config.secondary_sections
+
+            for primary_section in range(grid_config.primary_sections):
+                primary_theta = quadrant_theta + primary_section*primary_section_size
+
+                create_section(
+                    primary_theta,
+                    primary_config,
+                    primary_lines,
+                    grid_config.primary_label_config,
+                    grid_config.show_primary_angles
                 )
-                secondary_lines.add_shape(minor_secondary_line, f'minor-secondary-line-{i}')
 
-            if not skip_major:
-                major_secondary_line = Curve(
-                    [
-                        (-np.hypot(left, bottom), major_theta),
-                        (np.hypot(right, top), major_theta)
-                    ],
-                    curve_config = secondary_config
-                )
-                secondary_lines.add_shape(major_secondary_line, f'major-secondary-line-{i}')
+                for secondary_section in range(1, grid_config.secondary_sections):
+                    secondary_theta = primary_theta + secondary_section*secondary_section_size
 
-            line_label_radius = max_length / 2
-
-            if grid_config.show_angles:
-                if not skip_line:
-                    line_labels.add_shape(
-                        self.theta_label((line_label_radius, theta), grid_config.line_label_offset),
-                        f'line-label-{i}'
-                    )
-                    line_labels.add_shape(
-                        self.theta_label((line_label_radius, theta + np.pi), grid_config.line_label_offset),
-                        f'line-opposite-label-{i}'
+                    create_section(
+                        secondary_theta,
+                        secondary_config,
+                        secondary_lines,
+                        grid_config.secondary_label_config,
+                        grid_config.show_secondary_angles
                     )
 
-                if not skip_minor:
-                    line_labels.add_shape(
-                        self.theta_label((line_label_radius, minor_theta), grid_config.line_label_offset),
-                        f'minor-line-label-{i}'
-                    )
-                    line_labels.add_shape(
-                        self.theta_label((line_label_radius, minor_theta + np.pi), grid_config.line_label_offset),
-                        f'minor-line-opposite-label-{i}'
-                    )
+        lines_group.merge_with(primary_lines)
+        lines_group.merge_with(secondary_lines)
+        lines_group.merge_with(line_labels)
 
-                if not skip_major:
-                    line_labels.add_shape(
-                        self.theta_label((line_label_radius, major_theta), grid_config.line_label_offset),
-                        f'major-line-label-{i}'
-                    )
-                    line_labels.add_shape(
-                        self.theta_label((line_label_radius, major_theta + np.pi), grid_config.line_label_offset),
-                        f'major-line-opposite-label-{i}'
-                    )
+        return lines_group
 
-        grid_group.merge_with(primary_lines)
-        grid_group.merge_with(secondary_lines)
-        grid_group.merge_with(line_labels)
+
+    def get_grid(self, grid_config: PolarGridConfig = None):
+        if grid_config is None:
+            grid_config = PolarGridConfig()
+
+        shape_config = ShapeConfig(client=self.client, system=self)
+
+        client_shape = self.client.get_shape()
+        left, top = self.origin / self.scale[1]
+        right, bottom = (client_shape - self.origin) / self.scale[1]
+
+        grid_group = Group()
+
+        axis_config = CurveConfig(width=2, color='#474747')
+
+        polar_axis = Curve(
+            [(0, 0), (right, 0)],
+            curve_config=axis_config,
+            shape_config=shape_config
+        )
+        grid_group.add_shape(polar_axis, 'polar-axis')
+
+        max_length = max(left, right, top, bottom)
+        max_radius = np.hypot(right, top)
+
+        grid_group.merge_with(
+            self.get_rings(max_length, grid_config, shape_config)
+        )
+
+        grid_group.merge_with(
+            self.get_radial_lines(max_length, max_radius, grid_config, shape_config)
+        )
 
         return grid_group

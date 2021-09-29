@@ -235,7 +235,7 @@ class Artist {
         const latexContainer = document.createElement('div');
         latexContainer.style.left = point[0] + 'px';
         latexContainer.style.top = point[1] + 'px';
-        latexContainer.style.fontSize = fontSize;
+        latexContainer.style.fontSize = fontSize + 'pt';
         latexContainer.style.color = color;
         latexContainer.classList.add('latex-container');
         document.body.appendChild(latexContainer);

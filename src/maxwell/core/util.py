@@ -259,6 +259,9 @@ def check_type_name(obj, types):
 
 
 def pi_format(x):
+    if x == 0:
+        return '0'
+
     multiple = x / np.pi
     fraction = Fraction(multiple).limit_denominator(100)
     num = fraction.numerator

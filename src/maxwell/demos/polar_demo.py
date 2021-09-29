@@ -7,7 +7,7 @@ polar_system.set_origin()
 
 Shape.set_default('system', polar_system)
 
-grid = polar_system.get_grid(PolarGridConfig(show_angles=True))
+grid = polar_system.get_grid(PolarGridConfig(show_secondary_angles=True))
 grid.render()
 
 rose = polar_system.plot(lambda theta: 2*np.cos(2/7*theta), 0, 14*np.pi, 500)
