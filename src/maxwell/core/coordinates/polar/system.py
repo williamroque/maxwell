@@ -15,12 +15,20 @@ from maxwell.shapes.latex import Latex
 @dataclass
 class PolarGridConfig:
     step_r: float = 1
-    step_theta: float = np.pi/6
-    theta_offset: float = np.pi/4 - np.pi/6
+    initial_theta: float = np.pi/6
+    step_theta: float = np.pi/4
+    theta_offset: float = np.pi/12
     show_radii: bool = True
     show_angles: bool = False
+    skip_multiples: bool = True
     ring_label_offset: tuple = (0, 17)
     line_label_offset: tuple = (0, 0)
+
+
+def near_multiple(a, b):
+    div = a / b
+
+    return np.isclose(div - round(div), 0)
 
 
 class PolarSystem(System):
@@ -167,69 +175,76 @@ class PolarSystem(System):
         line_labels = Group()
 
         for i in range(line_count):
-            theta = i * grid_config.step_theta
+            theta = i * grid_config.step_theta + grid_config.initial_theta
             minor_theta = theta - grid_config.theta_offset
             major_theta = theta + grid_config.theta_offset
 
-            if np.isclose(theta % (np.pi/2), 0):
-                continue
+            skip_line = near_multiple(theta, np.pi/2) and grid_config.skip_multiples
+            skip_minor = near_multiple(minor_theta, np.pi/2) and grid_config.skip_multiples
+            skip_major = near_multiple(major_theta, np.pi/2) and grid_config.skip_multiples
 
-            primary_line = Curve(
-                [
-                    (-np.hypot(left, bottom), theta),
-                    (np.hypot(right, top), theta)
-                ],
-                curve_config = primary_config
-            )
-            primary_lines.add_shape(primary_line, f'primary-line-{i}')
+            if not skip_line:
+                primary_line = Curve(
+                    [
+                        (-np.hypot(left, bottom), theta),
+                        (np.hypot(right, top), theta)
+                    ],
+                    curve_config = primary_config
+                )
+                primary_lines.add_shape(primary_line, f'primary-line-{i}')
 
-            minor_secondary_line = Curve(
-                [
-                    (-np.hypot(left, bottom), minor_theta),
-                    (np.hypot(right, top), minor_theta)
-                ],
-                curve_config = secondary_config
-            )
-            secondary_lines.add_shape(minor_secondary_line, f'minor-secondary-line-{i}')
+            if not skip_minor:
+                minor_secondary_line = Curve(
+                    [
+                        (-np.hypot(left, bottom), minor_theta),
+                        (np.hypot(right, top), minor_theta)
+                    ],
+                    curve_config = secondary_config
+                )
+                secondary_lines.add_shape(minor_secondary_line, f'minor-secondary-line-{i}')
 
-            major_secondary_line = Curve(
-                [
-                    (-np.hypot(left, bottom), major_theta),
-                    (np.hypot(right, top), major_theta)
-                ],
-                curve_config = secondary_config
-            )
-            secondary_lines.add_shape(major_secondary_line, f'major-secondary-line-{i}')
+            if not skip_major:
+                major_secondary_line = Curve(
+                    [
+                        (-np.hypot(left, bottom), major_theta),
+                        (np.hypot(right, top), major_theta)
+                    ],
+                    curve_config = secondary_config
+                )
+                secondary_lines.add_shape(major_secondary_line, f'major-secondary-line-{i}')
 
             line_label_radius = max_length / 2
 
             if grid_config.show_angles:
-                line_labels.add_shape(
-                    self.theta_label((line_label_radius, theta), grid_config.line_label_offset),
-                    f'line-label-{i}'
-                )
-                line_labels.add_shape(
-                    self.theta_label((line_label_radius, theta + np.pi), grid_config.line_label_offset),
-                    f'line-opposite-label-{i}'
-                )
+                if not skip_line:
+                    line_labels.add_shape(
+                        self.theta_label((line_label_radius, theta), grid_config.line_label_offset),
+                        f'line-label-{i}'
+                    )
+                    line_labels.add_shape(
+                        self.theta_label((line_label_radius, theta + np.pi), grid_config.line_label_offset),
+                        f'line-opposite-label-{i}'
+                    )
 
-                line_labels.add_shape(
-                    self.theta_label((line_label_radius, minor_theta), grid_config.line_label_offset),
-                    f'minor-line-label-{i}'
-                )
-                line_labels.add_shape(
-                    self.theta_label((line_label_radius, minor_theta + np.pi), grid_config.line_label_offset),
-                    f'minor-line-opposite-label-{i}'
-                )
+                if not skip_minor:
+                    line_labels.add_shape(
+                        self.theta_label((line_label_radius, minor_theta), grid_config.line_label_offset),
+                        f'minor-line-label-{i}'
+                    )
+                    line_labels.add_shape(
+                        self.theta_label((line_label_radius, minor_theta + np.pi), grid_config.line_label_offset),
+                        f'minor-line-opposite-label-{i}'
+                    )
 
-                line_labels.add_shape(
-                    self.theta_label((line_label_radius, major_theta), grid_config.line_label_offset),
-                    f'major-line-label-{i}'
-                )
-                line_labels.add_shape(
-                    self.theta_label((line_label_radius, major_theta + np.pi), grid_config.line_label_offset),
-                    f'major-line-opposite-label-{i}'
-                )
+                if not skip_major:
+                    line_labels.add_shape(
+                        self.theta_label((line_label_radius, major_theta), grid_config.line_label_offset),
+                        f'major-line-label-{i}'
+                    )
+                    line_labels.add_shape(
+                        self.theta_label((line_label_radius, major_theta + np.pi), grid_config.line_label_offset),
+                        f'major-line-opposite-label-{i}'
+                    )
 
         grid_group.merge_with(primary_lines)
         grid_group.merge_with(secondary_lines)
