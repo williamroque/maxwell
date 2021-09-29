@@ -55,7 +55,7 @@ class System:
     def translate(self, factor):
         "Set relative origin."
 
-        self.origin += self.normalize(factor)
+        self.origin += self.scale * np.array(factor) * np.array([1, -1])
 
 
     def normalize(self, obj):
@@ -71,6 +71,13 @@ class System:
         "The inverse process of the above."
 
         return np.array(obj) if isinstance(obj, (np.ndarray, list, tuple)) else obj
+
+
+    def apply_offset(self, point, offset):
+        point = np.array(point)
+        offset = np.array(offset)
+
+        return self.from_normalized(self.normalize(point) + offset)
 
 
     def get_grid(self):

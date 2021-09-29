@@ -2,6 +2,8 @@ import os
 import json
 from copy import deepcopy
 
+from fractions import Fraction
+
 import inspect
 import colorsys
 
@@ -254,3 +256,20 @@ def check_type_name(obj, types):
         types = (types,)
 
     return any(candidate.__name__ in types for candidate in type(obj).__mro__)
+
+
+def pi_format(x):
+    multiple = x / np.pi
+    fraction = Fraction(multiple).limit_denominator(100)
+    num = fraction.numerator
+    den = fraction.denominator
+
+    if abs(num) == 1:
+        num = ''
+
+    if den == 1:
+        return  '{} \\pi'.format(num)
+
+    return '\\frac{{ {} \\pi }}{{ {} }}'.format(num, den)
+
+

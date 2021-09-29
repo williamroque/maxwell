@@ -52,23 +52,6 @@ class Curve(Shape):
         self.properties.set_normalized('points')
 
 
-    @classmethod
-    def from_function(cls, func, start, end, point_num, **kwargs):
-        "Create a `Curve` instance from a mathematical function."
-
-        x_values = np.linspace(start, end, point_num)
-        y_values = func(x_values)
-
-        return cls(zip(x_values, y_values), **kwargs)
-
-
-    @staticmethod
-    def from_functions(funcs, *args, **kwargs):
-        "Create several `Curve` instances from mathematical functions."
-
-        return [Curve.from_function(func, *args, **kwargs) for func in funcs]
-
-
     def set_points(self, points):
         "Change the curve's points."
 

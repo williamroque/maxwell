@@ -4,12 +4,11 @@ from dataclasses import dataclass
 
 from typing import Callable
 
-from fractions import Fraction
-
 import numpy as np
 
 from maxwell.core.coordinates.system import System
 from maxwell.core.group import Group
+from maxwell.core.util import pi_format
 from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.shape import ShapeConfig
 from maxwell.shapes.latex import Latex
@@ -19,7 +18,7 @@ from maxwell.shapes.latex import Latex
 class CartesianGridConfig:
     step_x: float = 1
     step_y: float = 1
-    show_numbers: int = False
+    show_numbers: bool = False
     x_label_format: Callable = None
     y_label_format: Callable = None
     x_label_offset: tuple = (0, -10)
@@ -36,6 +35,23 @@ class CartesianSystem(System):
         max_point = np.amax(np.abs(curve), axis=0)
 
         self.scale = quadrant_size / max_point
+
+
+    def plot(self, func, start, end, point_num=400, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+        if shape_config is None:
+            shape_config = ShapeConfig()
+
+        shape_config.system = self
+
+        x_values = np.linspace(start, end, point_num)
+        y_values = func(x_values)
+
+        curve = Curve(zip(x_values, y_values), curve_config, shape_config)
+
+        if render:
+            curve.render()
+
+        return curve
 
 
     def normalize(self, obj):
@@ -73,8 +89,8 @@ class CartesianSystem(System):
         left, top = self.from_normalized((0, 0))
         right, bottom = self.from_normalized((width, height))
 
-        x_label_offset = grid_config.x_label_offset/self.scale
-        y_label_offset = grid_config.y_label_offset/self.scale
+        x_label_offset = np.array(grid_config.x_label_offset)/self.scale
+        y_label_offset = np.array(grid_config.y_label_offset)/self.scale
 
         x_count = int(np.ceil((abs(left) + abs(right)) / grid_config.step_y))
         y_count = int(np.ceil((abs(top) + abs(bottom)) / grid_config.step_x))
@@ -173,21 +189,6 @@ class CartesianSystem(System):
         grid_group.merge_with(y_labels)
 
         return grid_group
-
-
-def pi_format(x):
-    multiple = x / np.pi
-    fraction = Fraction(multiple).limit_denominator(100)
-    num = fraction.numerator
-    den = fraction.denominator
-
-    if abs(num) == 1:
-        num = ''
-
-    if den == 1:
-        return  '{} \\pi'.format(num)
-
-    return '\\frac{{ {} \\pi }}{{ {} }}'.format(num, den)
 
 
 TRIG_CONFIG = CartesianGridConfig(

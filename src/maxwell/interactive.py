@@ -28,6 +28,7 @@ from maxwell.core.group import Group
 from maxwell.core.camera import Camera
 
 from maxwell.core.coordinates.cartesian.system import CartesianSystem, CartesianGridConfig, TRIG_CONFIG
+from maxwell.core.coordinates.polar.system import PolarSystem, PolarGridConfig
 from maxwell.core.coordinates.system import System
 
 try:
@@ -44,6 +45,7 @@ try:
 
     system = CartesianSystem(client, scale, origin)
     canvas_system = System(client)
+    polar_system = PolarSystem(client, scale, origin)
 
 ## client/system currying
 
