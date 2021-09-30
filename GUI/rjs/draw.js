@@ -18,6 +18,22 @@ class Artist {
     }
 
 
+    capture(canvas, sourceX, sourceY, targetX=0, targetY=0) {
+        const width = Math.min(canvas.width, this.canvas.width);
+        const height = Math.min(canvas.height, this.canvas.height);
+
+        this.ctx.drawImage(
+            canvas,
+            sourceX, sourceY,
+            width,
+            height,
+            targetX, targetY,
+            width,
+            height
+        );
+    }
+
+
     draw(shape) {
         const methodAssociation = {
             rect: this.drawRect,

@@ -6,11 +6,13 @@ const canvas = document.querySelector('#python-canvas');
 const backgroundCanvas = document.querySelector('#background-canvas');
 const penCanvas = document.querySelector('#pen-canvas');
 const penPreviewCanvas = document.querySelector('#pen-preview-canvas');
+const selectionCanvas = document.querySelector('#selection-canvas');
 
 const artist = new Artist(canvas);
 const backgroundArtist = new Artist(backgroundCanvas);
 const penArtist = new Artist(penCanvas);
 const penPreviewArtist = new Artist(penPreviewCanvas);
+const selectionArtist = new Artist(selectionCanvas);
 
 let sequence;
 
@@ -38,6 +40,21 @@ const keymap = {
     'l': () => {
         if (pen.enabled) {
             pen.drawingLine = true;
+        }
+    },
+    's': () => {
+        if (pen.enabled) {
+            pen.isSelecting = true;
+        }
+    },
+    'Backspace': () => {
+        if (pen.enabled) {
+            pen.deleteSelection();
+        }
+    },
+    'd': () => {
+        if (pen.enabled) {
+            pen.deleteSelection();
         }
     },
     'Shift+>': () => pen.enabled ? pen.increaseSensitivity() : [],

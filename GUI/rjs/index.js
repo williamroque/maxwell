@@ -1,4 +1,4 @@
-const pen = new Pen(penArtist, penPreviewArtist);
+const pen = new Pen(penArtist, penPreviewArtist, selectionArtist);
 
 
 function awaitEvent(args) {

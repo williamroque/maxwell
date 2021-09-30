@@ -1,0 +1,52 @@
+html, body {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #171414;
+    display: flex;
+    justify-content: center;
+}
+
+.draggable {
+    -webkit-app-region: drag;
+}
+
+.draggable:active {
+    cursor: move;
+}
+
+.light-body {
+    background: #fff0d1;
+}
+
+canvas {
+    position: absolute;
+}
+
+.latex-container {
+    position: absolute;
+    height: min-content;
+    transform: translate(-50%, -50%);
+}
+
+.hide {
+    display: none;
+}
+
+#pen-canvas {
+    cursor: crosshair;
+}
+
+#pen-preview-canvas {
+    bottom: 30px;
+    right: 30px;
+    border: solid 1px #fdf4c1;
+}
+
+#selection-canvas {
+    position: absolute;
+    box-shadow: inset 0 0 0 1px #6f6f6f, inset 0 0 0 2px #0000004f;
+    pointer-events: none;
+    background: #4a46460f;
+}

@@ -45,9 +45,10 @@ class History {
 
 
 class Pen {
-    constructor(artist, previewArtist) {
+    constructor(artist, previewArtist, selectionArtist) {
         this.artist = artist;
         this.previewArtist = previewArtist;
+        this.selectionArtist = selectionArtist;
 
         this.enabled = false;
 
@@ -65,6 +66,10 @@ class Pen {
 
         this.drawingLine = false;
         this.lineStart;
+
+        this.isSelecting = false;
+        this.movingSelecting = false;
+        this.selectionStart;
 
         this.brushPos;
 
@@ -178,15 +183,116 @@ class Pen {
         this.previewArtist.drawRect(properties);
     }
 
+    startSelection(e) {
+        this.selectionStart = [e.pageX|0, e.pageY|0];
+
+        this.selectionArtist.canvas.style.top = (e.pageY|0) + 'px';
+        this.selectionArtist.canvas.style.left = (e.pageX|0) + 'px';
+
+        this.selectionArtist.canvas.width = 0;
+        this.selectionArtist.canvas.height = 0;
+
+        this.selectionArtist.canvas.classList.remove('hide');
+    }
+
+    changeSelection(e) {
+        const x = e.pageX|0;
+        const y = e.pageY|0;
+
+        const dx = x - this.selectionStart[0];
+        const dy = y - this.selectionStart[1];
+
+        this.selectionArtist.canvas.width = Math.abs(dx);
+        this.selectionArtist.canvas.height = Math.abs(dy);
+
+        if (dx <= 0) {
+            this.selectionArtist.canvas.style.left = x + 'px';
+        }
+
+        if (dy <= 0) {
+            this.selectionArtist.canvas.style.top = y + 'px';
+        }
+    }
+
+    endSelection(e) {
+        this.isSelecting = false;
+
+        let x = this.selectionArtist.canvas.style.left;
+        x = x.slice(0, x.length - 2);
+        x |= 0;
+
+        let y = this.selectionArtist.canvas.style.top;
+        y = y.slice(0, y.length - 2)
+        y |= 0;
+
+        const width = this.selectionArtist.canvas.width;
+        const height = this.selectionArtist.canvas.height;
+
+        this.selectionArtist.capture(this.artist.canvas, x, y);
+        this.artist.clear(x, y, width, height);
+
+        this.selectionEnd = [e.pageX|0, e.pageY|0];
+        this.movingSelection = true;
+    }
+
+    getSelectionHandle(e) {
+        const x = e.pageX|0;
+        const y = e.pageY|0;
+        const dx = this.selectionEnd[0] - this.selectionStart[0];
+        const dy = this.selectionEnd[1] - this.selectionStart[1];
+
+        return [dx > 0 ? x - dx : x, dy > 0 ? y - dy : y];
+    }
+
+    moveSelection(e) {
+        const [x, y] = this.getSelectionHandle(e);
+
+        this.selectionArtist.canvas.style.left = x + 'px';
+        this.selectionArtist.canvas.style.top = y + 'px';
+    }
+
+    applySelection(e) {
+        const [x, y] = this.getSelectionHandle(e);
+
+        this.artist.capture(
+            this.selectionArtist.canvas,
+            0, 0,
+            x, y
+        );
+        this.selectionArtist.clear();
+        this.selectionArtist.canvas.classList.add('hide');
+
+        this.movingSelection = false;
+        this.selectionStart = undefined;
+        this.selectionEnd = undefined;
+    }
+
+    deleteSelection() {
+        if (this.moveSelection) {
+            this.selectionArtist.clear();
+            this.selectionArtist.canvas.classList.add('hide');
+
+            this.movingSelection = false;
+            this.selectionStart = undefined;
+            this.selectionEnd = undefined;
+        }
+    }
+
     bind() {
         document.addEventListener('pointermove', e => {
-            if (this.isDrawing && this.enabled) {
+            if (this.selectionStart && this.isSelecting) {
+                this.changeSelection(e);
+            } else if (this.movingSelection) {
+                this.moveSelection(e);
+            } else if (this.isDrawing && this.enabled) {
                 this.planStroke(e);
             }
         });
 
         this.artist.canvas.addEventListener('mousedown', e => {
-            if (!this.drawingLine) {
+            if (this.isSelecting) {
+                this.startSelection(e);
+            } else if (!(this.drawingLine || this.movingSelection)) {
                 this.isDrawing = true;
             }
         });
@@ -211,6 +317,10 @@ class Pen {
                 } else {
                     this.lineStart = point;
                 }
+            } else if (this.isSelecting) {
+                this.endSelection(e);
+            } else if (this.movingSelection) {
+                this.applySelection(e);
             } else {
                 this.isDrawing = false;
                 this.brushPos = undefined;
