@@ -47,6 +47,12 @@ const keymap = {
             pen.isSelecting = true;
         }
     },
+    'y': () => {
+        if (pen.enabled) {
+            pen.copyMode = true;
+            pen.isSelecting = true;
+        }
+    },
     'Backspace': () => {
         if (pen.enabled) {
             pen.deleteSelection();

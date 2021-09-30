@@ -69,6 +69,7 @@ class Pen {
 
         this.isSelecting = false;
         this.movingSelecting = false;
+        this.copyMode = false;
         this.selectionStart;
 
         this.brushPos;
@@ -234,7 +235,11 @@ class Pen {
         y |= 0;
 
         this.selectionArtist.capture(this.artist.canvas, x, y);
-        this.artist.clear(x, y, width, height);
+
+        if (!this.copyMode) {
+            this.artist.clear(x, y, width, height);
+        }
+        this.copyMode = false;
 
         this.selectionEnd = [e.pageX|0, e.pageY|0];
         this.movingSelection = true;
