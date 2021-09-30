@@ -57,6 +57,16 @@ const keymap = {
             pen.deleteSelection();
         }
     },
+    'Escape': () => {
+        if (pen.enabled) {
+            pen.cancelSelection();
+        }
+    },
+    'Control+[': () => {
+        if (pen.enabled) {
+            pen.cancelSelection();
+        }
+    },
     'Shift+>': () => pen.enabled ? pen.increaseSensitivity() : [],
     'Shift+<': () => pen.enabled ? pen.decreaseSensitivity() : [],
     'Meta+Enter': () => {

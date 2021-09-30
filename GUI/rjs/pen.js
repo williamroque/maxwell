@@ -217,6 +217,14 @@ class Pen {
     endSelection(e) {
         this.isSelecting = false;
 
+        const width = this.selectionArtist.canvas.width;
+        const height = this.selectionArtist.canvas.height;
+
+        if (!width || !height) {
+            this.cancelSelection();
+            return;
+        }
+
         let x = this.selectionArtist.canvas.style.left;
         x = x.slice(0, x.length - 2);
         x |= 0;
@@ -224,9 +232,6 @@ class Pen {
         let y = this.selectionArtist.canvas.style.top;
         y = y.slice(0, y.length - 2)
         y |= 0;
-
-        const width = this.selectionArtist.canvas.width;
-        const height = this.selectionArtist.canvas.height;
 
         this.selectionArtist.capture(this.artist.canvas, x, y);
         this.artist.clear(x, y, width, height);
@@ -265,6 +270,8 @@ class Pen {
         this.movingSelection = false;
         this.selectionStart = undefined;
         this.selectionEnd = undefined;
+
+        this.history.takeSnapshot();
     }
 
     deleteSelection() {
@@ -275,7 +282,24 @@ class Pen {
             this.movingSelection = false;
             this.selectionStart = undefined;
             this.selectionEnd = undefined;
+
+            this.history.takeSnapshot();
         }
+    }
+
+    cancelSelection() {
+        this.selectionArtist.clear();
+        this.selectionArtist.canvas.classList.add('hide');
+
+        if (this.movingSelection) {
+            this.history.takeSnapshot();
+            this.history.travel(-1);
+        }
+
+        this.isSelecting = false;
+        this.movingSelection = false;
+        this.selectionStart = undefined;
+        this.selectionEnd = undefined;
     }
 
     bind() {
