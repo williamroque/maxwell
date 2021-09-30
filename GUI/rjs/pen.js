@@ -302,14 +302,28 @@ class Pen {
         }
 
         this.isSelecting = false;
+        this.copyMode = false;
         this.movingSelection = false;
         this.selectionStart = undefined;
         this.selectionEnd = undefined;
     }
 
     bind() {
-        document.addEventListener('pointermove', e => {
-            if (this.selectionStart && this.isSelecting) {
+        window.addEventListener('pointermove', e => {
+            if (this.lineStart) {
+                const point = [e.pageX, e.pageY]
+
+                this.history.travel(0);
+
+                this.artist.drawCurve({
+                    points: [this.lineStart, point],
+                    color: this.brushColor,
+                    width: this.brushSize * 2,
+                    arrows: 0,
+                    arrowSize: 0,
+                    fill: false
+                });
+            } else if (this.selectionStart && this.isSelecting) {
                 this.changeSelection(e);
             } else if (this.movingSelection) {
                 this.moveSelection(e);
@@ -318,34 +332,21 @@ class Pen {
             }
         });
 
-        this.artist.canvas.addEventListener('mousedown', e => {
+        window.addEventListener('mousedown', e => {
             if (this.isSelecting) {
                 this.startSelection(e);
-            } else if (!(this.drawingLine || this.movingSelection)) {
+            } else if (this.drawingLine) {
+                this.lineStart = [e.pageX, e.pageY];
+            } else if (!this.movingSelection) {
                 this.isDrawing = true;
             }
         });
 
-        this.artist.canvas.addEventListener('mouseup', e => {
-            if (this.drawingLine) {
-                const point = [e.pageX, e.pageY]
-
-                if (this.lineStart) {
-                    this.artist.drawCurve({
-                        points: [this.lineStart, point],
-                        color: this.brushColor,
-                        width: this.brushSize * 2,
-                        arrows: 0,
-                        arrowSize: 0,
-                        fill: false
-                    });
-
-                    this.drawingLine = false;
-                    this.lineStart = undefined;
-                    this.history.takeSnapshot();
-                } else {
-                    this.lineStart = point;
-                }
+        window.addEventListener('mouseup', e => {
+            if (this.lineStart) {
+                this.drawingLine = false;
+                this.lineStart = undefined;
+                this.history.takeSnapshot();
             } else if (this.isSelecting) {
                 this.endSelection(e);
             } else if (this.movingSelection) {

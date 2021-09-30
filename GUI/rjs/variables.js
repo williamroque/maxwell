@@ -36,7 +36,7 @@ const keymap = {
     ']': () => pen.enabled ? pen.increaseBrushSize() : [],
     '[': () => pen.enabled ? pen.decreaseBrushSize() : [],
     'u': () => pen.enabled ? pen.history.travel(-1) : [],
-    'r': () => pen.enabled ? pen.history.travel(1) : [],
+    'Control+r': () => pen.enabled ? pen.history.travel(1) : [],
     'l': () => {
         if (pen.enabled) {
             pen.drawingLine = true;
