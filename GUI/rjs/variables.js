@@ -1,4 +1,4 @@
-const { ipcRenderer, remote } = require('electron');
+const { ipcRenderer, remote, webFrame } = require('electron');
 const fs = require('fs');
 const { spawn } = require('child_process');
 
@@ -13,6 +13,8 @@ const backgroundArtist = new Artist(backgroundCanvas);
 const penArtist = new Artist(penCanvas);
 const penPreviewArtist = new Artist(penPreviewCanvas);
 const selectionArtist = new Artist(selectionCanvas);
+
+let isZoom = false;
 
 let sequence;
 
@@ -78,5 +80,8 @@ const keymap = {
     'Meta+Enter': () => {
         const window = remote.getCurrentWindow();
         window.setFullScreen(!window.isFullScreen());
-    }
+    },
+    '=': () => pen.enabled ? zoom(.2) : [],
+    '-': () => pen.enabled ? zoom(-.2) : [],
+    '0': () => pen.enabled ? zoom(1, false) : [],
 };

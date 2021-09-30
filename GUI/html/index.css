@@ -22,6 +22,8 @@ html, body {
 
 canvas {
     position: absolute;
+    left: 0;
+    top: 0;
 }
 
 .latex-container {
@@ -39,9 +41,15 @@ canvas {
 }
 
 #pen-preview-canvas {
-    bottom: 30px;
-    right: 30px;
-    border: solid 1px #fdf4c1;
+    left: auto;
+    top: auto;
+    bottom: 5vw;
+    right: 5vw;
+    position: fixed;
+    pointer-events: none;
+    width: 10vw;
+    height: 10vw;
+    border: solid .1vw #fdf4c1;
 }
 
 #selection-canvas {
@@ -49,4 +57,8 @@ canvas {
     box-shadow: inset 0 0 0 1px #6f6f6f, inset 0 0 0 2px #0000004f;
     pointer-events: none;
     background: #4a46460f;
+}
+
+::-webkit-scrollbar {
+    display: none;
 }

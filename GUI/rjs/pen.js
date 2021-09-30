@@ -87,15 +87,19 @@ class Pen {
 
     clear() {
         this.artist.clear();
-        this.history.reset();
+
+        if (this.enabled) {
+            this.history.takeSnapshot();
+        }
     }
 
     toggle() {
+        this.clear();
         this.enabled = !this.enabled;
         this.artist.canvas.classList.toggle('hide');
         this.previewArtist.canvas.classList.toggle('hide');
         document.body.classList.toggle('draggable');
-        this.clear();
+        zoom(1, false);
     }
 
     planStroke(e) {
@@ -116,7 +120,7 @@ class Pen {
                 this.drawBrush(
                     ((gPosDiff ? dx / dy * i : i) || 0) * direction[0] + this.brushPos[0],
                     ((gPosDiff ? i : dy / dx * i) || 0) * direction[1] + this.brushPos[1],
-                    brushSize + Math.pow(brushSize * e.pressure, 1 + this.sensitivity)
+                    brushSize + this.sensitivity * (1/(1 + Math.exp(-3*e.pressure)) - 1/2)
                 );
             }
         } else {
@@ -380,11 +384,11 @@ class Pen {
     }
 
     increaseSensitivity() {
-        this.sensitivity++;
+        this.sensitivity += 2;
     }
 
     decreaseSensitivity() {
-        this.sensitivity--;
+        this.sensitivity = Math.max(1, this.sensitivity - 2);
     }
 
     nextColor() {
