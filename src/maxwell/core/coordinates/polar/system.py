@@ -92,8 +92,8 @@ class PolarSystem(System):
         raise TypeError(f'Argument should be ndarray, list, or tuple. Type used: {type(points)}.')
 
 
-    def get_rings(self, max_length, grid_config: PolarGridConfig, shape_config: ShapeConfig):
-        ring_count = int(max_length / grid_config.step_r + 2)
+    def get_rings(self, max_radius, grid_config: PolarGridConfig, shape_config: ShapeConfig):
+        ring_count = int(max_radius / grid_config.step_r + 1)
 
         ring_group = Group()
 
@@ -228,7 +228,7 @@ class PolarSystem(System):
         max_radius = np.hypot(right, top)
 
         grid_group.merge_with(
-            self.get_rings(max_length, grid_config, shape_config)
+            self.get_rings(max_radius, grid_config, shape_config)
         )
 
         grid_group.merge_with(
