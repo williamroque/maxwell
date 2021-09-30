@@ -68,6 +68,7 @@ class Pen {
         this.lineStart;
 
         this.isSelecting = false;
+        this.selectionMode = false;
         this.movingSelecting = false;
         this.copyMode = false;
         this.selectionStart;
@@ -281,6 +282,10 @@ class Pen {
         this.selectionEnd = undefined;
 
         this.history.takeSnapshot();
+
+        if (this.selectionMode) {
+            this.isSelecting = true;
+        }
     }
 
     deleteSelection() {
@@ -293,6 +298,10 @@ class Pen {
             this.selectionEnd = undefined;
 
             this.history.takeSnapshot();
+
+            if (this.selectionMode) {
+                this.isSelecting = true;
+            }
         }
     }
 
@@ -306,6 +315,7 @@ class Pen {
         }
 
         this.isSelecting = false;
+        this.selectionMode = false;
         this.copyMode = false;
         this.movingSelection = false;
         this.selectionStart = undefined;

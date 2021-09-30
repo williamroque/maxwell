@@ -49,6 +49,17 @@ const keymap = {
             pen.isSelecting = true;
         }
     },
+    'Shift+s': () => {
+        if (pen.enabled) {
+            if (pen.selectionMode) {
+                pen.selectionMode = false;
+                pen.isSelecting = false;
+            } else {
+                pen.isSelecting = true;
+                pen.selectionMode = true;
+            }
+        }
+    },
     'y': () => {
         if (pen.enabled) {
             pen.copyMode = true;
