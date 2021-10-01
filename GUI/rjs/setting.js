@@ -5,7 +5,14 @@ function zoom(factor, relative=true) {
         factor = factor + webFrame.getZoomFactor();
     }
 
+    pen.drawBrushPreview();
+
     webFrame.setZoomFactor(Math.max(1, factor));
+}
+
+
+function compensateViewport(length) {
+    return length/window.innerWidth*defaultWidth;
 }
 
 
@@ -14,6 +21,12 @@ function resizeCanvas(_, rerender=true) {
         isZoom = false;
         return;
     }
+
+    penPreviewCanvas.style.right = compensateViewport(5) + 'vw';
+    penPreviewCanvas.style.bottom = compensateViewport(5) + 'vw';
+
+    penPreviewCanvas.style.width = compensateViewport(10) + 'vw';
+    penPreviewCanvas.style.height = compensateViewport(10) + 'vw';
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;

@@ -69,7 +69,7 @@ class Pen {
 
         this.isSelecting = false;
         this.selectionMode = false;
-        this.movingSelecting = false;
+        this.movingSelection = false;
         this.copyMode = false;
         this.selectionStart;
 
@@ -189,6 +189,12 @@ class Pen {
         this.previewArtist.drawRect(properties);
     }
 
+    activateSelection() {
+        if (this.enabled && !this.movingSelection && !this.selectionStart && !this.isDrawing) {
+            pen.isSelecting = true;
+        }
+    }
+
     startSelection(e) {
         this.selectionStart = [e.pageX|0, e.pageY|0];
 
@@ -244,7 +250,10 @@ class Pen {
         if (!this.copyMode) {
             this.artist.clear(x, y, width, height);
         }
-        this.copyMode = false;
+
+        if (!this.selectionMode) {
+            this.copyMode = false;
+        }
 
         this.selectionEnd = [e.pageX|0, e.pageY|0];
         this.movingSelection = true;
@@ -260,6 +269,11 @@ class Pen {
     }
 
     moveSelection(e) {
+        if (!this.selectionStart || !this.selectionEnd) {
+            this.cancelSelection();
+            return;
+        }
+
         const [x, y] = this.getSelectionHandle(e);
 
         this.selectionArtist.canvas.style.left = x + 'px';
@@ -267,6 +281,11 @@ class Pen {
     }
 
     applySelection(e) {
+        if (!this.selectionStart || !this.selectionEnd) {
+            this.cancelSelection();
+            return;
+        }
+
         const [x, y] = this.getSelectionHandle(e);
 
         this.artist.capture(
@@ -289,7 +308,7 @@ class Pen {
     }
 
     deleteSelection() {
-        if (this.moveSelection) {
+        if (this.movingSelection) {
             this.selectionArtist.clear();
             this.selectionArtist.canvas.classList.add('hide');
 

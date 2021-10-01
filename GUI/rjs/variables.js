@@ -14,6 +14,8 @@ const penArtist = new Artist(penCanvas);
 const penPreviewArtist = new Artist(penPreviewCanvas);
 const selectionArtist = new Artist(selectionCanvas);
 
+const defaultWidth = window.innerWidth;
+
 let isZoom = false;
 
 let sequence;
@@ -40,31 +42,26 @@ const keymap = {
     'u': () => pen.enabled ? pen.history.travel(-1) : [],
     'Control+r': () => pen.enabled ? pen.history.travel(1) : [],
     'l': () => {
-        if (pen.enabled) {
+        if (pen.enabled && !pen.movingSelection && !pen.selectionStart) {
             pen.drawingLine = true;
         }
     },
     's': () => {
-        if (pen.enabled) {
-            pen.isSelecting = true;
-        }
+        pen.activateSelection();
     },
     'Shift+s': () => {
         if (pen.enabled) {
             if (pen.selectionMode) {
-                pen.selectionMode = false;
-                pen.isSelecting = false;
+                pen.cancelSelection();
             } else {
-                pen.isSelecting = true;
                 pen.selectionMode = true;
+                pen.activateSelection();
             }
         }
     },
     'y': () => {
-        if (pen.enabled) {
-            pen.copyMode = true;
-            pen.isSelecting = true;
-        }
+        pen.copyMode = true;
+        pen.activateSelection();
     },
     'Backspace': () => {
         if (pen.enabled) {
@@ -91,6 +88,7 @@ const keymap = {
     'Meta+Enter': () => {
         const window = remote.getCurrentWindow();
         window.setFullScreen(!window.isFullScreen());
+        resizeCanvas();
     },
     '=': () => pen.enabled ? zoom(.2) : [],
     '-': () => pen.enabled ? zoom(-.2) : [],
