@@ -157,8 +157,8 @@ class Pen {
                 points: curve,
                 color: this.brushColor,
                 width: 1,
-                arrows: 0,
-                arrowSize: 0,
+                arrow: false,
+                arrowHead: [],
                 fill: true
             };
 
