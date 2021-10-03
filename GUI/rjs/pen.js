@@ -352,8 +352,8 @@ class Pen {
                     points: [this.lineStart, point],
                     color: this.brushColor,
                     width: this.brushSize * 2,
-                    arrows: 0,
-                    arrowSize: 0,
+                    arrow: false,
+                    arrowHead: [],
                     fill: false
                 });
             } else if (this.selectionStart && this.isSelecting) {

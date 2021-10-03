@@ -267,4 +267,3 @@ class Shape:
         message.send()
 
         return self
-

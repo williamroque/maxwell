@@ -1,5 +1,5 @@
 from json import dumps, JSONEncoder
-from numpy import ndarray, int64, float64
+from numpy import ndarray, isinf
 
 
 class PropertiesEncoder(JSONEncoder):
@@ -9,7 +9,7 @@ class PropertiesEncoder(JSONEncoder):
 
         if isinstance(obj, ndarray):
             return obj.tolist()
-        elif isinstance(obj, (Shape, Scene)):
+        if isinstance(obj, (Shape, Scene)):
             out = {}
 
             if 'get_props' in dir(obj):

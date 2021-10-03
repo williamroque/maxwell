@@ -94,8 +94,22 @@ class Artist {
 
         this.ctx.moveTo(...points[0]);
 
+        let discontinuity = false;
+
         points.slice(1).forEach(point => {
-            this.ctx.lineTo(...point);
+            if (point[0] === 'Infinity' || point[1] === 'Infinity') {
+                if (!discontinuity) {
+                    this.ctx.stroke();
+                }
+                discontinuity = true;
+            } else {
+                if (discontinuity) {
+                    this.ctx.moveTo(...point);
+                    discontinuity = false;
+                }
+
+                this.ctx.lineTo(...point);
+            }
         });
 
         this.ctx.stroke();

@@ -19,8 +19,8 @@ class CartesianGridConfig:
     step_x: float = 1
     step_y: float = 1
     show_numbers: bool = True
-    x_label_config: LatexConfig = LatexConfig(color='#555', font_size=8)
-    y_label_config: LatexConfig = LatexConfig(color='#555', font_size=8, align='right')
+    x_label_config: LatexConfig = LatexConfig(color='#555', font_size=9)
+    y_label_config: LatexConfig = LatexConfig(color='#555', font_size=9, align='right')
     x_label_format: Callable = None
     y_label_format: Callable = None
     x_label_offset: tuple = (0, -20)
@@ -28,9 +28,9 @@ class CartesianGridConfig:
 
 
 def default_formatter(x):
-    if isinstance(x, float):
-        return '{:.2f}'.format(x)
-    return str(x)
+    if np.isclose(x, int(x)):
+        return str(int(x))
+    return '{:.2f}'.format(x)
 
 
 
@@ -46,14 +46,18 @@ class CartesianSystem(System):
         self.scale = quadrant_size / max_point
 
 
-    def plot(self, func, start, end, point_num=400, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def plot(self, func, start, end, point_num=400, clip_factor=10, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         if shape_config is None:
             shape_config = ShapeConfig()
 
         shape_config.system = self
 
         x_values = np.linspace(start, end, point_num)
-        y_values = func(x_values)
+        y_values = np.vectorize(func)(x_values)
+
+        frame_height = abs(self.from_normalized(self.client.get_shape())[1])
+
+        y_values[np.abs(y_values) > frame_height * clip_factor] = np.inf
 
         curve = Curve(zip(x_values, y_values), curve_config, shape_config)
 

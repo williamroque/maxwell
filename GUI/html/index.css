@@ -29,6 +29,7 @@ canvas {
 .latex-container {
     position: absolute;
     height: min-content;
+    pointer-events: none;
 }
 
 .latex-align-center {

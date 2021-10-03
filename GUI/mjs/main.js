@@ -37,8 +37,6 @@ server.on('connection', socket => {
     ipcMain.on('send-results', (event, data) => {
         socket.write(JSON.stringify(data));
 
-        console.log(data);
-
         event.returnValue = '';
     });
 
@@ -57,6 +55,9 @@ server.on('connection', socket => {
 
         data.forEach(message => {
             try {
+                message = message.replaceAll('-Infinity', 'Infinity');
+                message = message.replaceAll('Infinity', '"Infinity"');
+
                 let parsedMessage = JSON.parse(message);
 
                 if (parsedMessage.command === 'resizeWindow') {

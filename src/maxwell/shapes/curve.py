@@ -18,6 +18,7 @@ class CurveConfig:
     width: int = 3
     arrow: bool = False
     arrow_size: float = .07
+    clip: np.typing.ArrayLike = (-1, -1)
 
 
 class Curve(Shape):
@@ -54,9 +55,10 @@ class Curve(Shape):
             points = list(map(list, list(points))),
             color = curve_config.color,
             width = curve_config.width,
-            arrowHead = arrow_head
+            arrowHead = arrow_head,
+            clip = curve_config.clip
         )
-        self.properties.set_normalized('points', 'arrowHead')
+        self.properties.set_normalized('points', 'arrowHead', 'clip')
 
         if self.auto_render:
             self.render()
