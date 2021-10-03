@@ -29,7 +29,14 @@ canvas {
 .latex-container {
     position: absolute;
     height: min-content;
+}
+
+.latex-align-center {
     transform: translate(-50%, -50%);
+}
+
+.latex-align-right {
+    transform: translate(-100%, -50%);
 }
 
 .hide {

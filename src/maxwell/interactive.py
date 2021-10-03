@@ -80,6 +80,10 @@ try:
     GREEN = '#A6B860'
     BLUE = '#7AA1C0'
 
+    RED_CURVE = CurveConfig(color=RED)
+    GREEN_CURVE = CurveConfig(color=GREEN)
+    BLUE_CURVE = CurveConfig(color=BLUE)
+
 ## For when the server might not be up
     def run(callback):
         callback()

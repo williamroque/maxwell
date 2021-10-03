@@ -78,13 +78,8 @@ class Group:
                     target_shape,
                     animation_config = animation_config
                 )
-                color_scene = shape.change_color(
-                    target_shape.properties.color,
-                    animation_config = animation_config
-                )
 
                 scenes.append(transform_scene)
-                scenes.append(color_scene)
 
         scene, *other_scenes = scenes
 

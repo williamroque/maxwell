@@ -11,6 +11,7 @@ class LatexConfig:
     font_size: int = 12
     color: str = '#789'
     break_lines: bool = True
+    align: str = 'center'
 
 
 class Latex(Shape):
@@ -37,7 +38,8 @@ class Latex(Shape):
             source = source,
             point = point,
             fontSize = latex_config.font_size,
-            color = latex_config.color
+            color = latex_config.color,
+            align = latex_config.align
         )
         self.properties.set_normalized('point')
 

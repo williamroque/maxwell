@@ -29,9 +29,9 @@ class Vector(Curve):
         points = [origin, endpoint]
 
         if curve_config is None:
-            curve_config = self.get_default('curve_config', CurveConfig)
+            curve_config = self.get_default('curve_config')
 
-        curve_config.arrows = 1
+        curve_config.arrow = True
 
         super().__init__(points, curve_config, shape_config)
 

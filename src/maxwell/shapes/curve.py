@@ -16,8 +16,8 @@ from maxwell.core.group import Group
 class CurveConfig:
     color: str = '#fdf4c1'
     width: int = 3
-    arrows: int = 0
-    arrow_size: float = 6
+    arrow: bool = False
+    arrow_size: float = .07
 
 
 class Curve(Shape):
@@ -41,18 +41,48 @@ class Curve(Shape):
 
             points = point_list
 
+        self.arrow = curve_config.arrow
+        self.arrow_size = curve_config.arrow_size
+
+        if curve_config.arrow:
+            arrow_head = self.compute_arrow_head(points[-2], points[-1])
+        else:
+            arrow_head = []
+
         self.properties = Properties(
             type = 'curve',
             points = list(map(list, list(points))),
             color = curve_config.color,
             width = curve_config.width,
-            arrows = curve_config.arrows,
-            arrowSize = curve_config.arrow_size
+            arrowHead = arrow_head
         )
-        self.properties.set_normalized('points')
+        self.properties.set_normalized('points', 'arrowHead')
 
         if self.auto_render:
             self.render()
+
+
+    def compute_arrow_head(self, penultimate, ultimate):
+        penultimate = np.array(penultimate)
+        ultimate = np.array(ultimate)
+
+        alpha = 2*np.pi/3
+        difference = ultimate - penultimate
+        r = np.linalg.norm(difference)
+        x, y = difference
+        theta = np.arctan2(y, x)
+
+        points = []
+
+        for i in range(3):
+            point = np.array([
+                np.cos(theta + i*alpha) - np.cos(theta),
+                np.sin(theta + i*alpha) - np.sin(theta)
+            ])
+
+            points.append((self.arrow_size*point + ultimate).tolist())
+
+        return points
 
 
     def set_points(self, points):
@@ -166,11 +196,25 @@ class Curve(Shape):
             props.points[j][0] += x_change
             props.points[j][1] += y_change
 
+        shape = frame.scene.shapes[props.shape_name]
+
+        if shape.arrow:
+            frame.props(props.shape_name).arrowHead = shape.compute_arrow_head(
+                props.points[-2],
+                props.points[-1]
+            )
+
 
     def transform(self, target_curve, animation_config: AnimationConfig = None):
         "Create a scene transforming the curve into another one."
 
+        color_scene = None
+
         if isinstance(target_curve, Curve):
+            color_scene = self.change_color(
+                target_curve.properties.color,
+                animation_config = animation_config
+            )
             target_curve = target_curve.properties.points
 
         target_curve = list(target_curve)
@@ -180,6 +224,7 @@ class Curve(Shape):
             'cy': [],
             'points': self.properties.points,
             'target_curve': target_curve,
+            'shape_name': self.shape_name
         }
 
         scene, frame_num = self.create_scene(
@@ -192,5 +237,8 @@ class Curve(Shape):
             Curve.transform_apply,
             Curve.transform_setup
         )
+
+        if color_scene is not None:
+            scene.link_scene(color_scene)
 
         return scene

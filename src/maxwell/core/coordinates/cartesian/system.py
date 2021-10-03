@@ -19,11 +19,19 @@ class CartesianGridConfig:
     step_x: float = 1
     step_y: float = 1
     show_numbers: bool = True
-    label_config: LatexConfig = LatexConfig(color='#555', font_size=8)
+    x_label_config: LatexConfig = LatexConfig(color='#555', font_size=8)
+    y_label_config: LatexConfig = LatexConfig(color='#555', font_size=8, align='right')
     x_label_format: Callable = None
     y_label_format: Callable = None
     x_label_offset: tuple = (0, -20)
     y_label_offset: tuple = (-15, 15)
+
+
+def default_formatter(x):
+    if isinstance(x, float):
+        return '{:.2f}'.format(x)
+    return str(x)
+
 
 
 class CartesianSystem(System):
@@ -56,6 +64,9 @@ class CartesianSystem(System):
 
 
     def normalize(self, obj):
+        if obj == []:
+            return np.array(obj)
+
         if isinstance(obj, (np.ndarray, list, tuple)):
             obj = np.array(obj)
 
@@ -68,6 +79,9 @@ class CartesianSystem(System):
 
 
     def from_normalized(self, obj):
+        if obj == []:
+            return np.array(obj)
+
         if isinstance(obj, (np.ndarray, list, tuple)):
             obj = np.array(obj)
 
@@ -79,9 +93,19 @@ class CartesianSystem(System):
         raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(points)}.')
 
 
-    def get_grid(self, grid_config: CartesianGridConfig = None, render=True):
+    def get_grid(self, zoom_factor=None, grid_config: CartesianGridConfig = None, render=True):
         if grid_config is None:
             grid_config = CartesianGridConfig()
+
+        if zoom_factor is not None:
+            self.zoom(zoom_factor)
+
+            if isinstance(zoom_factor, (tuple, list, np.ndarray)):
+                grid_config.step_x = 1/zoom_factor[0]
+                grid_config.step_y = 1/zoom_factor[1]
+            else:
+                grid_config.step_x = 1/zoom_factor
+                grid_config.step_y = 1/zoom_factor
 
         shape_config = ShapeConfig(client=self.client, system=self)
         axis_config = CurveConfig(width=2, color='#474747')
@@ -93,10 +117,10 @@ class CartesianSystem(System):
         x_label_offset = np.array(grid_config.x_label_offset)/self.scale
         y_label_offset = np.array(grid_config.y_label_offset)/self.scale
 
-        x_count = int(np.ceil((abs(left) + abs(right)) / grid_config.step_y))
-        y_count = int(np.ceil((abs(top) + abs(bottom)) / grid_config.step_x))
+        x_count = int(np.ceil((abs(top) + abs(bottom)) / grid_config.step_y))
+        y_count = int(np.ceil((abs(left) + abs(right)) / grid_config.step_x))
 
-        grid_group = Group()
+        grid_group = Group(background=True)
 
         x_axis = Curve(
             [(left, 0), (right, 0)],
@@ -139,15 +163,17 @@ class CartesianSystem(System):
             primary_grid.add_shape(x_primary, f'x-primary-({i})')
 
             if grid_config.show_numbers:
+                y = i * grid_config.step_y
+
                 if grid_config.y_label_format is None:
-                    label = str(i * grid_config.step_y)
+                    label = default_formatter(y)
                 else:
-                    label = grid_config.y_label_format(i * grid_config.step_y)
+                    label = grid_config.y_label_format(y)
 
                 label_shape = Latex(
                     label,
                     np.array((0, i * grid_config.step_y)) + y_label_offset,
-                    latex_config=grid_config.label_config,
+                    latex_config=grid_config.y_label_config,
                     shape_config=shape_config
                 )
 
@@ -172,15 +198,17 @@ class CartesianSystem(System):
             primary_grid.add_shape(y_primary, f'y-primary-({i})')
 
             if grid_config.show_numbers:
+                x = i * grid_config.step_x
+
                 if grid_config.x_label_format is None:
-                    label = str(i * grid_config.step_x)
+                    label = default_formatter(x)
                 else:
-                    label = grid_config.x_label_format(i * grid_config.step_x)
+                    label = grid_config.x_label_format(x)
 
                 label_shape = Latex(
                     label,
                     np.array((i * grid_config.step_x, 0)) + x_label_offset,
-                    latex_config=grid_config.label_config,
+                    latex_config=grid_config.x_label_config,
                     shape_config=shape_config
                 )
 

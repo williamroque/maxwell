@@ -63,18 +63,7 @@ class Artist {
     }
 
 
-    drawArrowHead(r, theta, origin) {
-        const alpha = 2*Math.PI/3;
-
-        let points = [];
-
-        for (let i = 0; i < 3; i++) {
-            points.push([
-                r * (Math.cos(theta + i * alpha) - Math.cos(theta)) + origin[0],
-                r * (Math.sin(theta + i * alpha) - Math.sin(theta)) + origin[1]
-            ]);
-        }
-
+    drawArrowHead(points) {
         this.ctx.beginPath();
 
         let firstPoint = points.pop();
@@ -93,7 +82,7 @@ class Artist {
 
 
     drawCurve(args) {
-        const { points, color, width, arrows, arrowSize, fill } = args;
+        const { points, color, width, arrowHead, fill } = args;
 
         if (points.length < 1) return;
 
@@ -115,18 +104,8 @@ class Artist {
             this.ctx.fill();
         }
 
-        if (points.length === 2 && arrows > 0) {
-            const dx = points[1][0] - points[0][0];
-            const dy = points[1][1] - points[0][1];
-            const theta = Math.atan2(dy, dx);
-
-            if (arrows & 1) {
-                this.drawArrowHead(arrowSize, theta, points[1]);
-            }
-
-            if (arrows & 2) {
-                this.drawArrowHead(-arrowSize, theta, points[0]);
-            }
+        if (arrowHead.length > 0) {
+            this.drawArrowHead(arrowHead);
         }
     }
 
@@ -246,7 +225,7 @@ class Artist {
     }
 
     drawLatex(args) {
-        const { source, point, fontSize, color } = args;
+        const { source, point, fontSize, color, align } = args;
 
         const latexContainer = document.createElement('div');
         latexContainer.style.left = point[0] + 'px';
@@ -254,6 +233,13 @@ class Artist {
         latexContainer.style.fontSize = fontSize + 'pt';
         latexContainer.style.color = color;
         latexContainer.classList.add('latex-container');
+
+        if (align === 'center') {
+            latexContainer.classList.add('latex-align-center');
+        } else if (align === 'right') {
+            latexContainer.classList.add('latex-align-right');
+        }
+
         document.body.appendChild(latexContainer);
 
         this.DOMElements.push(latexContainer);

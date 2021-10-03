@@ -10,12 +10,10 @@ def preview_field(f):
     x = np.linspace(-5, 5, 15)
     y = np.linspace(-5, 5, 15)
 
-    vector_config = CurveConfig(arrow_size = 3)
     null_vector_config = ArcConfig(radius = 5)
 
     vector_group = create_vector_field(
         f, x, y,
-        curve_config = vector_config,
         arc_config = null_vector_config,
         cmap='cw'
     )
