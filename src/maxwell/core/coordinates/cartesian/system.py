@@ -46,7 +46,7 @@ class CartesianSystem(System):
         self.scale = quadrant_size / max_point
 
 
-    def plot(self, func, start, end, point_num=400, clip_factor=10, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def plot(self, func, start, end, point_num=400, clip_factor=3, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         if shape_config is None:
             shape_config = ShapeConfig()
 
