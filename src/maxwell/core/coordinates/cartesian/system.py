@@ -121,8 +121,10 @@ class CartesianSystem(System):
         x_count = int(np.ceil((abs(top) + abs(bottom)) / grid_config.step_y))
         y_count = int(np.ceil((abs(left) + abs(right)) / grid_config.step_x))
 
-        if translation is not None:
-            self.translate(translation)
+        if translation is None:
+            translation = (0, 0)
+
+        self.translate(translation)
 
         left, top = self.from_normalized((0, 0))
         right, bottom = self.from_normalized((width, height))
