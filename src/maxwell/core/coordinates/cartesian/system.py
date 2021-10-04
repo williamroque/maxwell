@@ -97,7 +97,7 @@ class CartesianSystem(System):
         raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(points)}.')
 
 
-    def get_grid(self, zoom_factor=None, grid_config: CartesianGridConfig = None, render=True):
+    def get_grid(self, zoom_factor=None, translation=None, grid_config: CartesianGridConfig = None, render=True):
         if grid_config is None:
             grid_config = CartesianGridConfig()
 
@@ -118,11 +118,17 @@ class CartesianSystem(System):
         left, top = self.from_normalized((0, 0))
         right, bottom = self.from_normalized((width, height))
 
-        x_label_offset = np.array(grid_config.x_label_offset)/self.scale
-        y_label_offset = np.array(grid_config.y_label_offset)/self.scale
-
         x_count = int(np.ceil((abs(top) + abs(bottom)) / grid_config.step_y))
         y_count = int(np.ceil((abs(left) + abs(right)) / grid_config.step_x))
+
+        if translation is not None:
+            self.translate(translation)
+
+        left, top = self.from_normalized((0, 0))
+        right, bottom = self.from_normalized((width, height))
+
+        x_label_offset = np.array(grid_config.x_label_offset)/self.scale
+        y_label_offset = np.array(grid_config.y_label_offset)/self.scale
 
         grid_group = Group(background=True)
 
@@ -148,9 +154,17 @@ class CartesianSystem(System):
         x_labels = Group()
         y_labels = Group()
 
-        for i in range(-x_count, x_count + 1):
+        offset_x = int(translation[0]/grid_config.step_x)
+        offset_y = int(translation[1]/grid_config.step_y)
+
+        for i in range(-x_count + offset_y, x_count + offset_y + 1):
+            y = i * grid_config.step_y
+
             x_secondary = Curve(
-                [(left, (i - 1/2) * grid_config.step_y), (right, (i - 1/2) * grid_config.step_y)],
+                [
+                    (left, y - grid_config.step_y/2),
+                    (right, y - grid_config.step_y/2)
+                ],
                 curve_config=secondary_config,
                 shape_config=shape_config
             )
@@ -160,7 +174,7 @@ class CartesianSystem(System):
                 continue
 
             x_primary = Curve(
-                [(left, i * grid_config.step_y), (right, i * grid_config.step_y)],
+                [(left, y), (right, y)],
                 curve_config=primary_config,
                 shape_config=shape_config
             )
@@ -183,9 +197,14 @@ class CartesianSystem(System):
 
                 y_labels.add_shape(label_shape, f'y-label-{i}')
 
-        for i in range(-y_count, y_count + 1):
+        for i in range(-y_count + offset_x, y_count + offset_x + 1):
+            x = i * grid_config.step_x
+
             y_secondary = Curve(
-                [((i - 1/2) * grid_config.step_x, top), ((i - 1/2) * grid_config.step_x, bottom)],
+                [
+                    (x - grid_config.step_x/2, top),
+                    (x - grid_config.step_x/2, bottom)
+                ],
                 curve_config=secondary_config,
                 shape_config=shape_config
             )
@@ -195,7 +214,7 @@ class CartesianSystem(System):
                 continue
 
             y_primary = Curve(
-                [(i * grid_config.step_x, top), (i * grid_config.step_x, bottom)],
+                [(x, top), (x, bottom)],
                 curve_config=primary_config,
                 shape_config=shape_config
             )

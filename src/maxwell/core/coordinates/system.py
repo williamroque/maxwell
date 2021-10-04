@@ -55,7 +55,7 @@ class System:
     def translate(self, factor):
         "Set relative origin."
 
-        self.origin += self.scale * np.array(factor) * np.array([1, -1])
+        self.origin -= self.scale * np.array(factor) * np.array([1, -1])
 
 
     def normalize(self, obj):
