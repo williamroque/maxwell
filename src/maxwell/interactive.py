@@ -1,4 +1,5 @@
 from time import sleep
+import os
 
 import numpy as np
 
@@ -83,6 +84,30 @@ try:
     RED_CURVE = CurveConfig(color=RED)
     GREEN_CURVE = CurveConfig(color=GREEN)
     BLUE_CURVE = CurveConfig(color=BLUE)
+
+## Convenience functions
+    def screenshot(render=True, is_temporary=True, clears=True):
+        image_directory = os.path.expanduser('~/Desktop')
+        directory_files = os.listdir(image_directory)
+        image_path = os.path.join(
+            image_directory,
+            next(filter(lambda x: x.endswith('.png'), directory_files))
+        )
+
+        image_config = ImageConfig(is_temporary=is_temporary)
+
+        point = system.from_normalized(await_click())
+
+        if clears:
+            clear()
+
+        image = Image(image_path, point, image_config=image_config)
+
+        if render:
+            image.render()
+
+        return image
+
 
 ## For when the server might not be up
     def run(callback):

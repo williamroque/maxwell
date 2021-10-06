@@ -57,6 +57,7 @@ class CartesianSystem(System):
 
         frame_height = abs(self.from_normalized(self.client.get_shape())[1])
 
+        y_values[np.isnan(y_values)] = np.inf
         y_values[np.abs(y_values) > frame_height * clip_factor] = np.inf
 
         curve = Curve(zip(x_values, y_values), curve_config, shape_config)
