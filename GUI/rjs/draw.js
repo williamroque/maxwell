@@ -49,7 +49,7 @@ class Artist {
 
 
     drawRect(args) {
-        const { point, width, height, fillColor, borderColor } = args;
+        const { point, width, height, fillColor, borderColor, borderWidth } = args;
         let [ x, y ] = point;
 
         x -= width / 2;
@@ -57,6 +57,7 @@ class Artist {
 
         this.ctx.fillStyle = fillColor;
         this.ctx.strokeStyle = borderColor;
+        this.ctx.lineWidth = borderWidth;
 
         this.ctx.fillRect(x, y, width, height);
         this.ctx.strokeRect(x, y, width, height);
@@ -136,7 +137,10 @@ class Artist {
         this.ctx.arc(...point, radius, theta_1, theta_2, true);
 
         this.ctx.fill();
-        this.ctx.stroke();
+
+        if (borderWidth > 0) {
+            this.ctx.stroke();
+        }
     }
 
 

@@ -165,7 +165,8 @@ class Pen {
         const y = this.previewArtist.canvas.height / 2;
 
         const scaleFactor = 4;
-        const size = (this.isEraser ? this.eraserSize : this.brushSize) * scaleFactor;
+        const scaleOffset = 2;
+        const size = (this.isEraser ? this.eraserSize : this.brushSize) * scaleFactor + scaleOffset;
         const fillColor = this.isEraser ? 'transparent' : this.brushColor;
 
         this.previewArtist.canvas.style.borderColor = this.brushColor;
@@ -175,7 +176,8 @@ class Pen {
             width: size | 0,
             height: size | 0,
             fillColor: fillColor,
-            borderColor: this.brushColor
+            borderColor: this.brushColor,
+            borderWidth: 2
         };
 
         this.previewArtist.drawRect(properties);
@@ -345,7 +347,7 @@ class Pen {
                 this.artist.drawCurve({
                     points: [this.lineStart, point],
                     color: this.brushColor,
-                    width: this.brushSize * 4,
+                    width: this.brushSize * 2,
                     arrow: false,
                     arrowHead: [],
                     fill: false

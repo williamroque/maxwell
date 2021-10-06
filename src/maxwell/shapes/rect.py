@@ -10,6 +10,7 @@ class RectConfig:
     height: float = 1/2
     fill_color: str = '#FFF'
     border_color: str = '#FFF'
+    border_width: int = 0
 
 
 class Rect(Shape):
@@ -31,6 +32,7 @@ class Rect(Shape):
             height = rect_config.height,
             fillColor = rect_config.fill_color,
             borderColor = rect_config.border_color,
+            borderWidth = rect_config.border_width
         )
         self.properties.set_normalized('point', 'width', 'height')
 
