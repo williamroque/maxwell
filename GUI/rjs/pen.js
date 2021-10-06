@@ -65,6 +65,7 @@ class Pen {
         this.sensitivity = 1;
 
         this.drawingLine = false;
+        this.lineMode = false;
         this.lineStart;
 
         this.isSelecting = false;
@@ -183,9 +184,15 @@ class Pen {
         this.previewArtist.drawRect(properties);
     }
 
+    activateLine() {
+        if (this.enabled && !this.movingSelection && !this.selectionStart && !this.isDrawing) {
+            this.drawingLine = true;
+        }
+    }
+
     activateSelection() {
         if (this.enabled && !this.movingSelection && !this.selectionStart && !this.isDrawing) {
-            pen.isSelecting = true;
+            this.isSelecting = true;
         }
     }
 
@@ -227,7 +234,7 @@ class Pen {
         const height = this.selectionArtist.canvas.height;
 
         if (!width || !height) {
-            this.cancelSelection();
+            this.cancel();
             return;
         }
 
@@ -264,7 +271,7 @@ class Pen {
 
     moveSelection(e) {
         if (!this.selectionStart || !this.selectionEnd) {
-            this.cancelSelection();
+            this.cancel();
             return;
         }
 
@@ -276,7 +283,7 @@ class Pen {
 
     applySelection(e) {
         if (!this.selectionStart || !this.selectionEnd) {
-            this.cancelSelection();
+            this.cancel();
             return;
         }
 
@@ -318,11 +325,11 @@ class Pen {
         }
     }
 
-    cancelSelection() {
+    cancel() {
         this.selectionArtist.clear();
         this.selectionArtist.canvas.classList.add('hide');
 
-        if (this.movingSelection) {
+        if (this.movingSelection || this.lineStart) {
             this.history.takeSnapshot();
             this.history.travel(-1);
         }
@@ -333,6 +340,9 @@ class Pen {
         this.movingSelection = false;
         this.selectionStart = undefined;
         this.selectionEnd = undefined;
+        this.lineMode = false;
+        this.drawingLine = false;
+        this.lineStart = undefined;
     }
 
     bind() {
@@ -377,7 +387,10 @@ class Pen {
             if (awaitingEvent || e.which > 1) return;
 
             if (this.lineStart) {
-                this.drawingLine = false;
+                if (!this.lineMode) {
+                    this.drawingLine = false;
+                }
+
                 this.lineStart = undefined;
                 this.history.takeSnapshot();
             } else if (this.isSelecting) {

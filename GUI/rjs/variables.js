@@ -44,8 +44,16 @@ const keymap = {
     'u Meta+z': () => pen.enabled ? pen.history.travel(-1) : [],
     'r Control+r Meta+Shift+z': () => pen.enabled ? pen.history.travel(1) : [],
     'l': () => {
-        if (pen.enabled && !pen.movingSelection && !pen.selectionStart) {
-            pen.drawingLine = true;
+        pen.activateLine();
+    },
+    'Shift+l': () => {
+        if (pen.enabled) {
+            if (pen.lineMode) {
+                pen.cancel();
+            } else {
+                pen.lineMode = true;
+                pen.activateLine();
+            }
         }
     },
     's': () => {
@@ -54,7 +62,7 @@ const keymap = {
     'Shift+s': () => {
         if (pen.enabled) {
             if (pen.selectionMode) {
-                pen.cancelSelection();
+                pen.cancel();
             } else {
                 pen.selectionMode = true;
                 pen.activateSelection();
@@ -72,12 +80,12 @@ const keymap = {
     },
     'Escape': () => {
         if (pen.enabled) {
-            pen.cancelSelection();
+            pen.cancel();
         }
     },
     'Control+[': () => {
         if (pen.enabled) {
-            pen.cancelSelection();
+            pen.cancel();
         }
     },
     'Shift+>': () => pen.enabled ? pen.increaseSensitivity() : [],
