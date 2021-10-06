@@ -337,7 +337,7 @@ class Pen {
 
     bind() {
         window.addEventListener('pointermove', e => {
-            if (awaitingEvent) return;
+            if (awaitingEvent || e.which > 1) return;
 
             if (this.lineStart) {
                 const point = [e.pageX, e.pageY]
@@ -347,7 +347,7 @@ class Pen {
                 this.artist.drawCurve({
                     points: [this.lineStart, point],
                     color: this.brushColor,
-                    width: this.brushSize * 2,
+                    width: this.brushSize * 4,
                     arrow: false,
                     arrowHead: [],
                     fill: false
@@ -362,7 +362,7 @@ class Pen {
         });
 
         window.addEventListener('mousedown', e => {
-            if (awaitingEvent) return;
+            if (awaitingEvent || e.which > 1) return;
 
             if (this.isSelecting) {
                 this.startSelection(e);
@@ -374,7 +374,7 @@ class Pen {
         });
 
         window.addEventListener('mouseup', e => {
-            if (awaitingEvent) return;
+            if (awaitingEvent || e.which > 1) return;
 
             if (this.lineStart) {
                 this.drawingLine = false;

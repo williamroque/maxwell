@@ -14,15 +14,37 @@ document.addEventListener('keydown', e => {
     const potentialModifiers = ['Control', 'Shift', 'Meta'];
     const activeModifiers = new Set(potentialModifiers.filter(e.getModifierState.bind(e)));
 
-    for (const binding in keymap) {
-        const components = binding.split('+');
+    for (const bindingGroup in keymap) {
+        const bindings = bindingGroup.split(' ');
 
-        const modifiers = new Set(components.slice(0, components.length - 1));
-        const key = components[components.length - 1];
+        for (const binding of bindings) {
+            const components = binding.split('+');
 
-        if (e.key.toLowerCase() === key.toLowerCase() && areEqual(modifiers, activeModifiers)) {
-            keymap[binding]();
-            break;
+            const modifiers = new Set(components.slice(0, components.length - 1));
+            const key = components[components.length - 1];
+
+            if (e.key.toLowerCase() === key.toLowerCase() && areEqual(modifiers, activeModifiers)) {
+                keymap[bindingGroup]();
+                break;
+            }
         }
     }
 }, false)
+
+
+// Temporary events for while Wacom doesn't support Monterey
+
+
+document.addEventListener('auxclick', e => {
+    if (e.which === 2) {
+        pen.activateSelection();
+    } else if (e.which === 3) {
+        if (pen.enabled) {
+            pen.deleteSelection();
+        }
+    } else if (e.which === 4) {
+        if (pen.enabled && !pen.movingSelection && !pen.selectionStart) {
+            pen.drawingLine = true;
+        }
+    }
+});

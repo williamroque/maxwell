@@ -41,8 +41,8 @@ const keymap = {
     'p': () => pen.enabled ? pen.previousColor() : [],
     ']': () => pen.enabled ? pen.increaseBrushSize() : [],
     '[': () => pen.enabled ? pen.decreaseBrushSize() : [],
-    'u': () => pen.enabled ? pen.history.travel(-1) : [],
-    'Control+r': () => pen.enabled ? pen.history.travel(1) : [],
+    'u Meta+z': () => pen.enabled ? pen.history.travel(-1) : [],
+    'r Control+r Meta+Shift+z': () => pen.enabled ? pen.history.travel(1) : [],
     'l': () => {
         if (pen.enabled && !pen.movingSelection && !pen.selectionStart) {
             pen.drawingLine = true;
@@ -65,12 +65,7 @@ const keymap = {
         pen.copyMode = true;
         pen.activateSelection();
     },
-    'Backspace': () => {
-        if (pen.enabled) {
-            pen.deleteSelection();
-        }
-    },
-    'd': () => {
+    'd Backspace': () => {
         if (pen.enabled) {
             pen.deleteSelection();
         }
