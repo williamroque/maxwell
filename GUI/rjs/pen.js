@@ -55,7 +55,7 @@ class Pen {
         this.isDrawing = false;
 
         this.isEraser = false;
-        this.brushSize = 1;
+        this.brushSize = 1/2;
         this.eraserSize = 8;
 
         this.colorIndex = 0;
@@ -144,25 +144,17 @@ class Pen {
                 adjustedBrushSize
             );
         } else {
-            const offset = 1;
-
-            const curve = [
-                [x, y],
-                [x + adjustedBrushSize, y - offset],
-                [x + adjustedBrushSize, y + adjustedBrushSize - offset],
-                [x, y + adjustedBrushSize]
-            ]
-
             const properties = {
-                points: curve,
-                color: this.brushColor,
-                width: 1,
-                arrow: false,
-                arrowHead: [],
-                fill: true
+                point: [x, y],
+                radius: adjustedBrushSize,
+                theta_1: 0,
+                theta_2: 2*Math.PI,
+                fillColor: this.brushColor,
+                borderColor: this.brushColor,
+                borderWidth: 0
             };
 
-            this.artist.drawCurve(properties);
+            this.artist.drawArc(properties);
         }
     }
 
@@ -172,7 +164,7 @@ class Pen {
         const x = this.previewArtist.canvas.width / 2;
         const y = this.previewArtist.canvas.height / 2;
 
-        const scaleFactor = 2.5;
+        const scaleFactor = 4;
         const size = (this.isEraser ? this.eraserSize : this.brushSize) * scaleFactor;
         const fillColor = this.isEraser ? 'transparent' : this.brushColor;
 
@@ -180,8 +172,8 @@ class Pen {
 
         const properties = {
             point: [x, y],
-            width: size,
-            height: size,
+            width: size | 0,
+            height: size | 0,
             fillColor: fillColor,
             borderColor: this.brushColor
         };
@@ -396,7 +388,7 @@ class Pen {
         if (this.isEraser) {
             this.eraserSize++;
         } else {
-            this.brushSize++;
+            this.brushSize += 1/2;
         }
 
         this.drawBrushPreview();
@@ -406,7 +398,7 @@ class Pen {
         if (this.isEraser) {
             this.eraserSize = Math.max(1, this.eraserSize - 1);
         } else {
-            this.brushSize = Math.max(1, this.brushSize - 1);
+            this.brushSize = Math.max(1/2, this.brushSize - 1/2);
         }
 
         this.drawBrushPreview();
