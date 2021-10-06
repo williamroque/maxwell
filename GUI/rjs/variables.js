@@ -18,6 +18,8 @@ const defaultWidth = window.innerWidth;
 
 let isZoom = false;
 
+let awaitingEvent = false;
+
 let sequence;
 
 function clearCanvas(background=true) {

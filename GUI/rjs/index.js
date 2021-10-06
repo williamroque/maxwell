@@ -8,9 +8,13 @@ function awaitEvent(args) {
         document.removeEventListener(type, temporaryEventListener);
 
         ipcRenderer.sendSync('send-results', dataKeys.map(k => e[k]));
+
+        awaitingEvent = false;
     }
 
     document.addEventListener(type, temporaryEventListener);
+
+    awaitingEvent = true;
 }
 
 
