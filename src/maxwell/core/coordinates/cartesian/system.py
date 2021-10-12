@@ -46,7 +46,41 @@ class CartesianSystem(System):
         self.scale = quadrant_size / max_point
 
 
-    def plot(self, func, start, end, color=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, subtract_area=None, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def normalize(self, obj):
+        if obj == []:
+            return np.array(obj)
+
+        if isinstance(obj, (np.ndarray, list, tuple)):
+            obj = np.array(obj)
+
+            points = obj * self.scale * np.array([1, -1]) + self.origin
+            return points
+        elif isinstance(obj, (int, float)):
+            return obj * self.scale.sum()/2
+
+        raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(obj)}.')
+
+
+    def from_normalized(self, obj):
+        if obj == []:
+            return np.array(obj)
+
+        if isinstance(obj, (np.ndarray, list, tuple)):
+            obj = np.array(obj)
+
+            points = (obj - self.origin) / (self.scale * np.array([1, -1]))
+            return points
+        elif isinstance(obj, (int, float)):
+            return obj / (self.scale.sum()/2)
+
+        raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(points)}.')
+
+
+    def plot(self, func, start, end, color=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, subtract_area=None, render=True, invert=False, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+        if isinstance(func, (float, int)):
+            constant = func
+            func = lambda x: constant
+
         if shape_config is None:
             shape_config = ShapeConfig()
 
@@ -59,7 +93,10 @@ class CartesianSystem(System):
         shape_config.system = self
 
         x_values = np.linspace(start, end, point_num, endpoint=bool(endpoint & 2))[int(not endpoint & 1):]
-        y_values = np.vectorize(func)(x_values)
+        y_values = np.vectorize(func)(x_values).astype(float)
+
+        if invert:
+            x_values, y_values = y_values, x_values
 
         frame_height = abs(self.from_normalized(self.client.get_shape())[1])
 
@@ -75,6 +112,9 @@ class CartesianSystem(System):
             point_num = int((shade[1] - shade[0]) / (end - start) * point_num)
             x_values = np.linspace(shade[0], shade[1], point_num, endpoint=bool(endpoint & 2))[int(not endpoint & 1):]
             y_values = np.vectorize(func)(x_values)
+
+            if invert:
+                x_values, y_values = y_values, x_values
 
             shade_points = list(zip(x_values, y_values))
 
@@ -108,36 +148,6 @@ class CartesianSystem(System):
             return curve, shade_curve
 
         return curve
-
-
-    def normalize(self, obj):
-        if obj == []:
-            return np.array(obj)
-
-        if isinstance(obj, (np.ndarray, list, tuple)):
-            obj = np.array(obj)
-
-            points = obj * self.scale * np.array([1, -1]) + self.origin
-            return points
-        elif isinstance(obj, (int, float)):
-            return obj * self.scale.sum()/2
-
-        raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(obj)}.')
-
-
-    def from_normalized(self, obj):
-        if obj == []:
-            return np.array(obj)
-
-        if isinstance(obj, (np.ndarray, list, tuple)):
-            obj = np.array(obj)
-
-            points = (obj - self.origin) / (self.scale * np.array([1, -1]))
-            return points
-        elif isinstance(obj, (int, float)):
-            return obj / (self.scale.sum()/2)
-
-        raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(points)}.')
 
 
     def get_grid(self, zoom_factor=None, translation=None, grid_config: CartesianGridConfig = None, render=True):
