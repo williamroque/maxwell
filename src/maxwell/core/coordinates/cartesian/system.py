@@ -116,16 +116,27 @@ class CartesianSystem(System):
             if invert:
                 x_values, y_values = y_values, x_values
 
-            shade_points = list(zip(x_values, y_values))
+                shade_points = list(zip(x_values, y_values))
 
-            if subtract_area is None:
-                shade_points.append((x_values[-1], 0))
-                shade_points.append((x_values[0], 0))
+                if subtract_area is None:
+                    shade_points.append((0, shade[1]))
+                    shade_points.append((0, shade[0]))
+                else:
+                    shade_points += list(zip(
+                        np.vectorize(subtract_area)(y_values),
+                        y_values
+                    ))[::-1]
             else:
-                shade_points += list(zip(
-                    x_values,
-                    np.vectorize(subtract_area)(x_values)
-                ))[::-1]
+                shade_points = list(zip(x_values, y_values))
+
+                if subtract_area is None:
+                    shade_points.append((shade[1], 0))
+                    shade_points.append((shade[0], 0))
+                else:
+                    shade_points += list(zip(
+                        x_values,
+                        np.vectorize(subtract_area)(x_values)
+                    ))[::-1]
 
             shade_points.append((x_values[0], y_values[0]))
 
