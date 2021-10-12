@@ -8,7 +8,7 @@ import numpy as np
 
 from maxwell.core.coordinates.system import System
 from maxwell.core.group import Group
-from maxwell.core.util import pi_format
+from maxwell.core.util import pi_format, fraction_format
 from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.shape import ShapeConfig
 from maxwell.shapes.latex import Latex, LatexConfig
@@ -46,7 +46,7 @@ class CartesianSystem(System):
         self.scale = quadrant_size / max_point
 
 
-    def plot(self, func, start, end, color=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def plot(self, func, start, end, color=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, subtract_area=None, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         if shape_config is None:
             shape_config = ShapeConfig()
 
@@ -77,8 +77,16 @@ class CartesianSystem(System):
             y_values = np.vectorize(func)(x_values)
 
             shade_points = list(zip(x_values, y_values))
-            shade_points.append((x_values[-1], 0))
-            shade_points.append((x_values[0], 0))
+
+            if subtract_area is None:
+                shade_points.append((x_values[-1], 0))
+                shade_points.append((x_values[0], 0))
+            else:
+                shade_points += list(zip(
+                    x_values,
+                    np.vectorize(subtract_area)(x_values)
+                ))[::-1]
+
             shade_points.append((x_values[0], y_values[0]))
 
             color = curve_config.color
@@ -285,10 +293,18 @@ class CartesianSystem(System):
         return grid_group
 
 
-TRIG_CONFIG = CartesianGridConfig(
+TRIG = CartesianGridConfig(
     step_x = np.pi/4,
     step_y = 1,
     show_numbers = True,
     x_label_format=pi_format,
     x_label_offset=(0, -30)
+)
+
+
+FRACTION = CartesianGridConfig(
+    show_numbers = True,
+    x_label_format=fraction_format,
+    x_label_offset=(0, -30),
+    y_label_format=fraction_format
 )

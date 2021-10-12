@@ -29,7 +29,7 @@ from maxwell.core.frame import Frame
 from maxwell.core.group import Group
 from maxwell.core.camera import Camera
 
-from maxwell.core.coordinates.cartesian.system import CartesianSystem, CartesianGridConfig, TRIG_CONFIG
+from maxwell.core.coordinates.cartesian.system import CartesianSystem, CartesianGridConfig, TRIG, FRACTION
 from maxwell.core.coordinates.polar.system import PolarSystem, PolarGridConfig
 from maxwell.core.coordinates.system import System
 
@@ -81,10 +81,7 @@ try:
     RED = '#DC5A5E'
     GREEN = '#A6B860'
     BLUE = '#7AA1C0'
-
-    RED_CURVE = CurveConfig(color=RED)
-    GREEN_CURVE = CurveConfig(color=GREEN)
-    BLUE_CURVE = CurveConfig(color=BLUE)
+    WHITE = '#FDF4C1'
 
 ## Convenience functions
     def screenshot(render=True, is_temporary=True, clears=True):

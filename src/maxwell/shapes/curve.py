@@ -113,6 +113,14 @@ class Curve(Shape):
         props.point[0] += x_change
         props.point[1] += y_change
 
+        shape = frame.scene.shapes[props.shape_name]
+
+        if shape.arrow:
+            frame.props(props.shape_name).arrowHead = shape.compute_arrow_head(
+                shape.properties.points[-2],
+                shape.properties.points[-1]
+            )
+
 
     def move_point(self, point_i, ending_point, animation_config: AnimationConfig = None):
         "Create a scene moving a specific point."

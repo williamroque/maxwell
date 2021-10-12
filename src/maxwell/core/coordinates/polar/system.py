@@ -59,7 +59,7 @@ class PolarSystem(System):
         shape_config.system = self
 
         theta = np.linspace(start, end, point_num)
-        r = func(theta)
+        r = np.vectorize(func)(theta)
 
         curve = Curve(zip(r, theta), curve_config, shape_config)
 
@@ -70,6 +70,9 @@ class PolarSystem(System):
 
 
     def normalize(self, obj):
+        if obj == []:
+            return np.array(obj)
+
         if isinstance(obj, (np.ndarray, list, tuple)):
             obj = np.array(obj)
             obj = np.apply_along_axis(PolarSystem.to_cartesian, -1, obj)
@@ -81,6 +84,9 @@ class PolarSystem(System):
 
 
     def from_normalized(self, obj):
+        if obj == []:
+            return np.array(obj)
+
         if isinstance(obj, (np.ndarray, list, tuple)):
             obj = np.array(obj)
 

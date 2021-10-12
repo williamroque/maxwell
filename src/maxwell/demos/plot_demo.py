@@ -1,11 +1,9 @@
 from maxwell import *
 
-clear()
-
 
 Latex.set_default('shape_config', ShapeConfig(system=canvas_system))
-Latex(r'y = \sin x', (100, 50)).render()
+Latex(r'y = \sin x', (100, 50))
 
-system.get_grid(TRIG_CONFIG).render()
+system.get_grid(grid_config=TRIG)
 
-Curve.from_function(np.sin, -5, 5, 300).render()
+system.plot(np.sin, -5, 5)

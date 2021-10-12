@@ -276,6 +276,20 @@ def pi_format(x):
     return '\\frac{{ {} \\pi }}{{ {} }}'.format(num, den)
 
 
+def fraction_format(x):
+    if x == 0:
+        return '0'
+
+    fraction = Fraction(x).limit_denominator(100)
+    num = fraction.numerator
+    den = fraction.denominator
+
+    if den == 1:
+        return str(num)
+
+    return '{} \\frac{{ {} }}{{ {} }}'.format('-' if x < 0 else '', abs(num), den)
+
+
 def series(a_n, n, start=0):
     return sum(a_n(i) for i in range(start, n + 1))
 

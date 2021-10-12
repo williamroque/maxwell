@@ -120,6 +120,7 @@ class Artist {
         }
 
         if (arrowHead.length > 0) {
+            this.ctx.fillStyle = color;
             this.drawArrowHead(arrowHead);
         }
     }
