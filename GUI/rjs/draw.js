@@ -246,6 +246,8 @@ class Artist {
     drawLatex(args) {
         const { source, point, fontSize, color, align } = args;
 
+        if (point[0] >= this.canvas.width || point[1] >= this.canvas.height) return;
+
         const latexContainer = document.createElement('div');
         latexContainer.style.left = point[0] + 'px';
         latexContainer.style.top = point[1] + 'px';
