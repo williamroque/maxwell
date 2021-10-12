@@ -76,7 +76,41 @@ class CartesianSystem(System):
         raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(points)}.')
 
 
-    def plot(self, func, start, end, color=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, subtract_area=None, render=True, invert=False, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def get_edges(self, edges):
+        edges = edges.split()
+
+        width, height = self.client.get_shape()
+        left, top = self.from_normalized((0, 0))
+        right, bottom = self.from_normalized((width, height))
+
+        edge_key = {
+            'left': left,
+            'top': top,
+            'right': right,
+            'bottom': bottom
+        }
+
+        edges = [edge_key[edge] for edge in edges if edge in edge_key]
+
+        if len(edges) > 1:
+            return edges
+        return edges[0]
+
+
+    def plot(self, func, start=None, end=None, color=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, subtract_area=None, render=True, invert=False, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+        if invert:
+            if start is None:
+                start = self.get_edges('bottom')
+
+            if end is None:
+                end = self.get_edges('top')
+        else:
+            if start is None:
+                start = self.get_edges('left')
+
+            if end is None:
+                end = self.get_edges('right')
+
         if isinstance(func, (float, int)):
             constant = func
             func = lambda x: constant
