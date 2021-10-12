@@ -19,6 +19,7 @@ class CurveConfig:
     arrow: bool = False
     arrow_size: float = .07
     clip: np.typing.ArrayLike = (-1, -1)
+    fill_color: str = 'transparent'
 
 
 class Curve(Shape):
@@ -56,7 +57,8 @@ class Curve(Shape):
             color = curve_config.color,
             width = curve_config.width,
             arrowHead = arrow_head,
-            clip = curve_config.clip
+            clip = curve_config.clip,
+            fillColor = curve_config.fill_color
         )
         self.properties.set_normalized('points', 'arrowHead', 'clip')
 

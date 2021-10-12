@@ -2,9 +2,10 @@ from time import sleep
 import os
 
 import numpy as np
+from math import factorial as fact
 
 import maxwell.core.util as util
-from maxwell.core.util import partial
+from maxwell.core.util import partial, series, taylor
 
 from dataclasses import replace
 

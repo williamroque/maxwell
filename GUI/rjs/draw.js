@@ -83,12 +83,12 @@ class Artist {
 
 
     drawCurve(args) {
-        const { points, color, width, arrowHead, fill } = args;
+        const { points, color, width, arrowHead, fillColor } = args;
 
         if (points.length < 1) return;
 
         this.ctx.strokeStyle = color;
-        this.ctx.fillStyle = color;
+        this.ctx.fillStyle = fillColor;
         this.ctx.lineWidth = width;
 
         this.ctx.beginPath();
@@ -115,7 +115,7 @@ class Artist {
 
         this.ctx.stroke();
 
-        if (fill) {
+        if (fillColor !== 'transparent') {
             this.ctx.fill();
         }
 

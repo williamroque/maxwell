@@ -46,13 +46,19 @@ class CartesianSystem(System):
         self.scale = quadrant_size / max_point
 
 
-    def plot(self, func, start, end, point_num=400, clip_factor=np.inf, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def plot(self, func, start, end, color=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         if shape_config is None:
             shape_config = ShapeConfig()
 
+        if curve_config is None:
+            curve_config = CurveConfig()
+
+            if color is not None:
+                curve_config.color = color
+
         shape_config.system = self
 
-        x_values = np.linspace(start, end, point_num)
+        x_values = np.linspace(start, end, point_num, endpoint=bool(endpoint & 2))[int(not endpoint & 1):]
         y_values = np.vectorize(func)(x_values)
 
         frame_height = abs(self.from_normalized(self.client.get_shape())[1])
@@ -64,6 +70,34 @@ class CartesianSystem(System):
 
         if render:
             curve.render()
+
+        if shade is not None:
+            point_num = int((shade[1] - shade[0]) / (end - start) * point_num)
+            x_values = np.linspace(shade[0], shade[1], point_num, endpoint=bool(endpoint & 2))[int(not endpoint & 1):]
+            y_values = np.vectorize(func)(x_values)
+
+            shade_points = list(zip(x_values, y_values))
+            shade_points.append((x_values[-1], 0))
+            shade_points.append((x_values[0], 0))
+            shade_points.append((x_values[0], y_values[0]))
+
+            color = curve_config.color
+            if len(color) < 7:
+                color = ''.join(sum(zip(color, color), ()))
+
+            color = color.ljust(9, '1')
+
+            shade_config = CurveConfig(
+                color='transparent',
+                fill_color=color
+            )
+
+            shade_curve = Curve(shade_points, shade_config, shape_config)
+
+            if render:
+                shade_curve.render()
+
+            return curve, shade_curve
 
         return curve
 

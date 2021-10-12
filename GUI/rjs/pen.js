@@ -360,7 +360,7 @@ class Pen {
                     width: this.brushSize * 4,
                     arrow: false,
                     arrowHead: [],
-                    fill: false
+                    fillColor: 'transparent'
                 });
             } else if (this.selectionStart && this.isSelecting) {
                 this.changeSelection(e);

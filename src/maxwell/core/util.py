@@ -276,3 +276,9 @@ def pi_format(x):
     return '\\frac{{ {} \\pi }}{{ {} }}'.format(num, den)
 
 
+def series(a_n, n, start=0):
+    return sum(a_n(i) for i in range(start, n + 1))
+
+
+def taylor(a_n, n, start=0):
+    return lambda x: sum(a_n(i, x) for i in range(start, n + 1))
