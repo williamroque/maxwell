@@ -1,6 +1,7 @@
 "A cartesian coordinate system."
 
 from dataclasses import dataclass
+from copy import deepcopy
 
 from typing import Callable
 
@@ -119,7 +120,7 @@ class CartesianSystem(System):
             shape_config = ShapeConfig()
 
         if curve_config is None:
-            curve_config = CurveConfig()
+            curve_config = deepcopy(Curve.DEFAULT_CURVE_CONFIG)
 
             if color is not None:
                 curve_config.color = color
