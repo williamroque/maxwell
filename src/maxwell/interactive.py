@@ -107,6 +107,10 @@ try:
         return image
 
 
+    def neg(func):
+        return lambda x: -func(x)
+
+
 ## For when the server might not be up
     def run(callback):
         callback()

@@ -15,8 +15,9 @@ from maxwell.shapes.latex import Latex, LatexConfig
 @dataclass
 class PolarGridConfig:
     step_r: float = 1
-    primary_sections = 2
-    secondary_sections = 3
+    primary_sections: int = 2
+    secondary_sections: int = 3
+    show_axis: bool = True
     show_radii: bool = True
     show_primary_angles: bool = True
     show_secondary_angles: bool = False
@@ -221,14 +222,15 @@ class PolarSystem(System):
 
         grid_group = Group()
 
-        axis_config = CurveConfig(width=2, color='#474747')
+        if grid_config.show_axis:
+            axis_config = CurveConfig(width=2, color='#474747')
 
-        polar_axis = Curve(
-            [(0, 0), (right, 0)],
-            curve_config=axis_config,
-            shape_config=shape_config
-        )
-        grid_group.add_shape(polar_axis, 'polar-axis')
+            polar_axis = Curve(
+                [(0, 0), (right, 0)],
+                curve_config=axis_config,
+                shape_config=shape_config
+            )
+            grid_group.add_shape(polar_axis, 'polar-axis')
 
         max_length = max(left, right, top, bottom)
         max_radius = np.hypot(right, top)
