@@ -11,6 +11,7 @@ function areEqual(setA, setB) {
 
 
 let currentOperator;
+const operatorLabels = { ' ': 'Space' }
 
 document.addEventListener('keydown', e => {
     const potentialModifiers = ['Control', 'Shift', 'Meta'];
@@ -29,8 +30,15 @@ document.addEventListener('keydown', e => {
                 const isOperator = keymap[bindingGroup][0]();
 
                 if (isOperator) {
+                    const operatorKey = bindingGroup[1];
+
                     currentOperator = keymap[bindingGroup][1];
-                    keyPrompt.innerText = bindingGroup[1];
+
+                    if (operatorKey in operatorLabels) {
+                        keyPrompt.innerText = operatorLabels[operatorKey];
+                    } else {
+                        keyPrompt.innerText = operatorKey;
+                    }
                 }
             }
         } else {

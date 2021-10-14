@@ -107,7 +107,7 @@ const keymap = {
         snippetLibrary.record.bind(snippetLibrary),
         snippetLibrary.record.bind(snippetLibrary)
     ],
-    '~,': [
+    '~ ': [
         () => pen.enabled,
         snippetLibrary.play.bind(snippetLibrary)
     ]
