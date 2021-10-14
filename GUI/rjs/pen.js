@@ -3,6 +3,8 @@ class History {
         this.artist = artist;
         this.maxSnapshots = maxSnapshots;
 
+        this.isFrozen = false;
+
         this.reset();
     }
 
@@ -13,6 +15,8 @@ class History {
     }
 
     takeSnapshot() {
+        if (this.isFrozen) return;
+
         const bufferCanvas = document.createElement('canvas');
         const bufferCtx = bufferCanvas.getContext('2d');
 
@@ -31,6 +35,8 @@ class History {
     }
 
     travel(count) {
+        if (this.isFrozen) return;
+
         const relativeSnap = this.currentSnapshot + count;
 
         if (relativeSnap < this.snapshots.length && relativeSnap >= 0) {
@@ -40,6 +46,15 @@ class History {
 
             this.artist.ctx.drawImage(this.snapshots[this.currentSnapshot], 0, 0);
         }
+    }
+
+    freeze() {
+        this.isFrozen = true;
+    }
+
+    thaw() {
+        this.isFrozen = false;
+        this.travel(0);
     }
 }
 
@@ -59,6 +74,7 @@ class Pen {
         this.eraserSize = 8;
 
         this.colorIndex = 0;
+        this.previousColorIndex = 0;
         this.colorOptions = ['#fdf4c1', '#6CA17A', '#cc6666', '#81a2be'];
         this.previewArtist.canvas.style.borderColor = this.brushColor;
 
@@ -75,6 +91,11 @@ class Pen {
         this.selectionStart;
 
         this.brushPos;
+
+        this.isRecording = false;
+        this.recording = [];
+
+        this.currentPoint;
 
         this.bind();
 
@@ -93,6 +114,21 @@ class Pen {
         if (this.enabled) {
             this.history.takeSnapshot();
         }
+    }
+
+    startRecording() {
+        this.isRecording = true;
+        this.recording = [];
+
+        this.colorIndex = 2;
+        this.drawBrushPreview();
+    }
+
+    stopRecording() {
+        this.isRecording = false;
+
+        this.colorIndex = this.previousColorIndex;
+        this.drawBrushPreview();
     }
 
     toggle() {
@@ -156,6 +192,10 @@ class Pen {
             };
 
             this.artist.drawArc(properties);
+        }
+
+        if (this.isRecording) {
+            this.recording.push([x, y, adjustedBrushSize, this.isEraser]);
         }
     }
 
@@ -347,6 +387,8 @@ class Pen {
 
     bind() {
         window.addEventListener('pointermove', e => {
+            this.currentPoint = [e.pageX, e.pageY];
+
             if (awaitingEvent || e.which > 1) return;
 
             if (this.lineStart) {
@@ -435,6 +477,7 @@ class Pen {
 
     nextColor() {
         this.colorIndex = (this.colorIndex + 1) % this.colorOptions.length;
+        this.previousColorIndex = this.colorIndex;
         this.drawBrushPreview();
     }
 
@@ -442,6 +485,7 @@ class Pen {
         const colorCount = this.colorOptions.length;
 
         this.colorIndex = (this.colorIndex + colorCount - 1) % colorCount;
+        this.previousColorIndex = this.colorIndex;
         this.drawBrushPreview();
     }
 

@@ -1,5 +1,6 @@
 const { ipcRenderer, remote, webFrame } = require('electron');
 const fs = require('fs');
+const path = require('path');
 const { spawn } = require('child_process');
 
 const canvas = document.querySelector('#python-canvas');
@@ -8,11 +9,18 @@ const penCanvas = document.querySelector('#pen-canvas');
 const penPreviewCanvas = document.querySelector('#pen-preview-canvas');
 const selectionCanvas = document.querySelector('#selection-canvas');
 
+const keyPrompt = document.querySelector('#key-prompt');
+
 const artist = new Artist(canvas);
 const backgroundArtist = new Artist(backgroundCanvas);
 const penArtist = new Artist(penCanvas);
 const penPreviewArtist = new Artist(penPreviewCanvas);
 const selectionArtist = new Artist(selectionCanvas);
+
+const pen = new Pen(penArtist, penPreviewArtist, selectionArtist);
+
+const snippetPath = path.join(process.env.HOME, '.maxwell_snippets.json');
+const snippetLibrary = new SnippetLibrary(pen, snippetPath);
 
 const defaultWidth = window.innerWidth;
 
@@ -34,7 +42,7 @@ const keymap = {
     'Control+c': () => sequence.stop(),
     'Control+u': clearCanvas,
     'Control+b': toggleBackground,
-    'Control+p': () => pen.toggle(),
+    'Control+p': pen.toggle.bind(pen),
     'e': () => pen.enabled ? pen.toggleEraser() : [],
     'c': () => pen.enabled ? pen.clear() : [],
     'n': () => pen.enabled ? pen.nextColor() : [],
@@ -78,12 +86,9 @@ const keymap = {
             pen.deleteSelection();
         }
     },
-    'Escape': () => {
-        if (pen.enabled) {
-            pen.cancel();
-        }
-    },
-    'Control+[': () => {
+    'Escape Control+[': () => {
+        snippetLibrary.isRecording = false;
+
         if (pen.enabled) {
             pen.cancel();
         }
@@ -98,4 +103,12 @@ const keymap = {
     '=': () => pen.enabled ? zoom(.2) : [],
     '-': () => pen.enabled ? zoom(-.2) : [],
     '0': () => pen.enabled ? zoom(1, false) : [],
+    '~q': [
+        snippetLibrary.record.bind(snippetLibrary),
+        snippetLibrary.record.bind(snippetLibrary)
+    ],
+    '~,': [
+        () => pen.enabled,
+        snippetLibrary.play.bind(snippetLibrary)
+    ]
 };

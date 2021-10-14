@@ -10,22 +10,42 @@ function areEqual(setA, setB) {
 }
 
 
+let currentOperator;
+
 document.addEventListener('keydown', e => {
     const potentialModifiers = ['Control', 'Shift', 'Meta'];
     const activeModifiers = new Set(potentialModifiers.filter(e.getModifierState.bind(e)));
 
+    if (currentOperator !== undefined) {
+        currentOperator(e.key);
+        currentOperator = undefined;
+        keyPrompt.innerText = '';
+        return;
+    }
+
     for (const bindingGroup in keymap) {
-        const bindings = bindingGroup.split(' ');
+        if (bindingGroup[0] === '~') {
+            if (e.key.toLowerCase() === bindingGroup[1].toLowerCase()) {
+                const isOperator = keymap[bindingGroup][0]();
 
-        for (const binding of bindings) {
-            const components = binding.split('+');
+                if (isOperator) {
+                    currentOperator = keymap[bindingGroup][1];
+                    keyPrompt.innerText = bindingGroup[1];
+                }
+            }
+        } else {
+            const bindings = bindingGroup.split(' ');
 
-            const modifiers = new Set(components.slice(0, components.length - 1));
-            const key = components[components.length - 1];
+            for (const binding of bindings) {
+                const components = binding.split('+');
 
-            if (e.key.toLowerCase() === key.toLowerCase() && areEqual(modifiers, activeModifiers)) {
-                keymap[bindingGroup]();
-                break;
+                const modifiers = new Set(components.slice(0, components.length - 1));
+                const key = components[components.length - 1];
+
+                if (e.key.toLowerCase() === key.toLowerCase() && areEqual(modifiers, activeModifiers)) {
+                    keymap[bindingGroup]();
+                    break;
+                }
             }
         }
     }

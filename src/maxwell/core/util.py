@@ -296,3 +296,11 @@ def series(a_n, n, start=0):
 
 def taylor(a_n, n, start=0):
     return lambda x: sum(a_n(i, x) for i in range(start, n + 1))
+
+
+def rationalize(x, max_den=None):
+    if max_den is None:
+        max_den = np.math.ceil(1/x)
+
+    return str(Fraction(x).limit_denominator(max_den))
+

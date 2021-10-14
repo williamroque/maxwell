@@ -1,6 +1,3 @@
-const pen = new Pen(penArtist, penPreviewArtist, selectionArtist);
-
-
 function awaitEvent(args) {
     const { type, dataKeys } = args;
 

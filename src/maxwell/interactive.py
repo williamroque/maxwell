@@ -5,7 +5,7 @@ import numpy as np
 from math import factorial as fact
 
 import maxwell.core.util as util
-from maxwell.core.util import partial, series, taylor
+from maxwell.core.util import partial, series, taylor, rationalize
 
 from dataclasses import replace
 
