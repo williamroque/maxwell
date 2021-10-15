@@ -60,7 +60,7 @@ document.addEventListener('keydown', e => {
 }, false)
 
 
-// Temporary events for while Wacom doesn't support Monterey
+// Temporary events until Wacom supports Monterey
 
 
 document.addEventListener('auxclick', e => {
