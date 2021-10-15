@@ -26,7 +26,7 @@ document.addEventListener('keydown', e => {
 
     for (const bindingGroup in keymap) {
         if (bindingGroup[0] === '~') {
-            if (e.key.toLowerCase() === bindingGroup[1].toLowerCase()) {
+            if (activeModifiers.size === 0 && e.key.toLowerCase() === bindingGroup[1].toLowerCase()) {
                 const isOperator = keymap[bindingGroup][0]();
 
                 if (isOperator) {

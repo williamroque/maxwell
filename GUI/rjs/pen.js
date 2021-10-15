@@ -59,6 +59,44 @@ class History {
 }
 
 
+class Clipboard {
+    constructor(pen, selectionArtist) {
+        this.pen = pen;
+        this.selectionArtist = selectionArtist;
+
+        this.items = [];
+    }
+
+    store() {
+        const bufferCanvas = document.createElement('canvas');
+        const bufferCtx = bufferCanvas.getContext('2d');
+
+        bufferCanvas.width = this.selectionArtist.canvas.width;
+        bufferCanvas.height = this.selectionArtist.canvas.height;
+
+        bufferCtx.drawImage(this.selectionArtist.canvas, 0, 0);
+
+        this.items.unshift(bufferCanvas);
+        this.items.splice(10);
+    }
+
+    paste(key) {
+        const index = key === 'p' ? 0 : parseInt(key);
+
+        if (index < this.items.length && this.pen.currentPoint) {
+            const [ x, y ] = this.pen.currentPoint;
+
+            this.pen.artist.capture(
+                this.items[index],
+                0, 0,
+                x, y
+            );
+            this.pen.history.takeSnapshot();
+        }
+    }
+}
+
+
 class Pen {
     constructor(artist, previewArtist, selectionArtist) {
         this.artist = artist;
@@ -89,6 +127,9 @@ class Pen {
         this.movingSelection = false;
         this.copyMode = false;
         this.selectionStart;
+        this.yankMode = false;
+
+        this.clipboard = new Clipboard(this, this.selectionArtist);
 
         this.brushPos;
 
@@ -225,7 +266,7 @@ class Pen {
     }
 
     activateLine() {
-        if (this.enabled && !this.movingSelection && !this.selectionStart && !this.isDrawing) {
+        if (this.enabled && !this.movingSelection && !this.selectionStart && !this.isDrawing && !this.yankMode) {
             this.drawingLine = true;
         }
     }
@@ -288,7 +329,7 @@ class Pen {
 
         this.selectionArtist.capture(this.artist.canvas, x, y);
 
-        if (!this.copyMode) {
+        if (!(this.copyMode || this.yankMode)) {
             this.artist.clear(x, y, width, height);
         }
 
@@ -297,7 +338,16 @@ class Pen {
         }
 
         this.selectionEnd = [e.pageX|0, e.pageY|0];
-        this.movingSelection = true;
+
+        if (this.yankMode) {
+            this.clipboard.store();
+            this.selectionArtist.clear();
+            this.selectionArtist.canvas.classList.add('hide');
+            this.selectionStart = undefined;
+            this.selectionEnd = undefined;
+        } else {
+            this.movingSelection = true;
+        }
     }
 
     getSelectionHandle(e) {
@@ -365,6 +415,13 @@ class Pen {
         }
     }
 
+    yank() {
+        if (this.enabled && !this.movingSelection && !this.selectionStart && !this.isDrawing) {
+            this.yankMode = true;
+            this.isSelecting = true;
+        }
+    }
+
     cancel() {
         this.selectionArtist.clear();
         this.selectionArtist.canvas.classList.add('hide');
@@ -377,6 +434,7 @@ class Pen {
         this.isSelecting = false;
         this.selectionMode = false;
         this.copyMode = false;
+        this.yankMode = false;
         this.movingSelection = false;
         this.selectionStart = undefined;
         this.selectionEnd = undefined;

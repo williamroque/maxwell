@@ -45,8 +45,8 @@ const keymap = {
     'Control+p': pen.toggle.bind(pen),
     'e': () => pen.enabled ? pen.toggleEraser() : [],
     'c': () => pen.enabled ? pen.clear() : [],
-    'n': () => pen.enabled ? pen.nextColor() : [],
-    'p': () => pen.enabled ? pen.previousColor() : [],
+    'Shift+n': () => pen.enabled ? pen.nextColor() : [],
+    'Shift+p': () => pen.enabled ? pen.previousColor() : [],
     ']': () => pen.enabled ? pen.increaseBrushSize() : [],
     '[': () => pen.enabled ? pen.decreaseBrushSize() : [],
     'u Meta+z': () => pen.enabled ? pen.history.travel(-1) : [],
@@ -110,5 +110,10 @@ const keymap = {
     '~ ': [
         () => pen.enabled,
         snippetLibrary.play.bind(snippetLibrary)
+    ],
+    'Shift+y': pen.yank.bind(pen),
+    '~p': [
+        () => pen.enabled,
+        pen.clipboard.paste.bind(pen.clipboard)
     ]
 };
