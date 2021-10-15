@@ -95,6 +95,23 @@ class Clipboard {
         }
     }
 
+    sendSelection(canvas, x, y) {
+        this.pen.selectionArtist.canvas.style.top = y + 'px';
+        this.pen.selectionArtist.canvas.style.left = x + 'px';
+
+        this.pen.selectionArtist.canvas.width = canvas.width;
+        this.pen.selectionArtist.canvas.height = canvas.height;
+
+        this.pen.selectionArtist.canvas.classList.remove('hide');
+
+        this.pen.selectionArtist.capture(canvas, 0, 0);
+
+        this.pen.selectionStart = [x + canvas.width, y + canvas.height];
+        this.pen.selectionEnd = [x, y];
+
+        this.pen.movingSelection = true;
+    }
+
     paste(key) {
         const index = key === 'p' ? 0 : parseInt(key);
 
@@ -102,18 +119,10 @@ class Clipboard {
             const [ x, y ] = this.pen.currentPoint;
 
             if (isNaN(key) && key in this.registry && key !== 'p') {
-                this.pen.artist.capture(
-                    this.registry[key],
-                    0, 0,
-                    x, y
-                );
+                this.sendSelection(this.registry[key], x, y);
                 this.pen.history.takeSnapshot();
             } else if (index < this.items.length) {
-                this.pen.artist.capture(
-                    this.items[index],
-                    0, 0,
-                    x, y
-                );
+                this.sendSelection(this.items[index], x, y);
                 this.pen.history.takeSnapshot();
             }
         }
@@ -166,6 +175,8 @@ class Pen {
         this.history = new History(this.artist, 50);
 
         this.drawBrushPreview();
+
+        this.skipEvent = false;
     }
 
     get brushColor() {
@@ -503,7 +514,10 @@ class Pen {
         });
 
         window.addEventListener('mouseup', e => {
-            if (awaitingEvent || e.which > 1) return;
+            if (awaitingEvent || e.which > 1 || this.skipEvent) {
+                this.skipEvent = false;
+                return;
+            };
 
             if (this.lineStart) {
                 if (!this.lineMode) {
