@@ -65,9 +65,10 @@ class Clipboard {
         this.selectionArtist = selectionArtist;
 
         this.items = [];
+        this.registry = {};
     }
 
-    store() {
+    createBuffer() {
         const bufferCanvas = document.createElement('canvas');
         const bufferCtx = bufferCanvas.getContext('2d');
 
@@ -76,22 +77,45 @@ class Clipboard {
 
         bufferCtx.drawImage(this.selectionArtist.canvas, 0, 0);
 
+        return bufferCanvas;
+    }
+
+    store() {
+        const bufferCanvas = this.createBuffer();
+
         this.items.unshift(bufferCanvas);
         this.items.splice(10);
+    }
+
+    register(key) {
+        if (key) {
+            this.registry[key] = this.createBuffer();
+            this.store();
+            this.pen.cancel();
+        }
     }
 
     paste(key) {
         const index = key === 'p' ? 0 : parseInt(key);
 
-        if (index < this.items.length && this.pen.currentPoint) {
+        if (this.pen.currentPoint) {
             const [ x, y ] = this.pen.currentPoint;
 
-            this.pen.artist.capture(
-                this.items[index],
-                0, 0,
-                x, y
-            );
-            this.pen.history.takeSnapshot();
+            if (isNaN(key) && key in this.registry && key !== 'p') {
+                this.pen.artist.capture(
+                    this.registry[key],
+                    0, 0,
+                    x, y
+                );
+                this.pen.history.takeSnapshot();
+            } else if (index < this.items.length) {
+                this.pen.artist.capture(
+                    this.items[index],
+                    0, 0,
+                    x, y
+                );
+                this.pen.history.takeSnapshot();
+            }
         }
     }
 }
@@ -127,7 +151,6 @@ class Pen {
         this.movingSelection = false;
         this.copyMode = false;
         this.selectionStart;
-        this.yankMode = false;
 
         this.clipboard = new Clipboard(this, this.selectionArtist);
 
@@ -266,7 +289,7 @@ class Pen {
     }
 
     activateLine() {
-        if (this.enabled && !this.movingSelection && !this.selectionStart && !this.isDrawing && !this.yankMode) {
+        if (this.enabled && !this.movingSelection && !this.selectionStart && !this.isDrawing) {
             this.drawingLine = true;
         }
     }
@@ -329,7 +352,7 @@ class Pen {
 
         this.selectionArtist.capture(this.artist.canvas, x, y);
 
-        if (!(this.copyMode || this.yankMode)) {
+        if (!this.copyMode) {
             this.artist.clear(x, y, width, height);
         }
 
@@ -339,15 +362,7 @@ class Pen {
 
         this.selectionEnd = [e.pageX|0, e.pageY|0];
 
-        if (this.yankMode) {
-            this.clipboard.store();
-            this.selectionArtist.clear();
-            this.selectionArtist.canvas.classList.add('hide');
-            this.selectionStart = undefined;
-            this.selectionEnd = undefined;
-        } else {
-            this.movingSelection = true;
-        }
+        this.movingSelection = true;
     }
 
     getSelectionHandle(e) {
@@ -400,6 +415,8 @@ class Pen {
 
     deleteSelection() {
         if (this.movingSelection) {
+            this.clipboard.store();
+
             this.selectionArtist.clear();
             this.selectionArtist.canvas.classList.add('hide');
 
@@ -417,8 +434,11 @@ class Pen {
 
     yank() {
         if (this.enabled && !this.movingSelection && !this.selectionStart && !this.isDrawing) {
-            this.yankMode = true;
-            this.isSelecting = true;
+            this.copyMode = true;
+            this.activateSelection();
+        } else if (this.movingSelection) {
+            this.clipboard.store();
+            this.cancel();
         }
     }
 
@@ -434,7 +454,6 @@ class Pen {
         this.isSelecting = false;
         this.selectionMode = false;
         this.copyMode = false;
-        this.yankMode = false;
         this.movingSelection = false;
         this.selectionStart = undefined;
         this.selectionEnd = undefined;

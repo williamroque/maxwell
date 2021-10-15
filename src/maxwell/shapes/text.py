@@ -14,7 +14,7 @@ class TextConfig:
     font_family: str = 'CMU Serif'
     italic: bool = False
     markdown: bool = False
-    color: str = '#fff'
+    color: str = '#FDF4C1'
     stroked: bool = False
 
 

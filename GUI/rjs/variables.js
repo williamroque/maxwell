@@ -77,10 +77,7 @@ const keymap = {
             }
         }
     },
-    'y': () => {
-        pen.copyMode = true;
-        pen.activateSelection();
-    },
+    'y': pen.yank.bind(pen),
     'd Backspace': () => {
         if (pen.enabled) {
             pen.deleteSelection();
@@ -111,9 +108,12 @@ const keymap = {
         () => pen.enabled,
         snippetLibrary.play.bind(snippetLibrary)
     ],
-    'Shift+y': pen.yank.bind(pen),
     '~p': [
         () => pen.enabled,
         pen.clipboard.paste.bind(pen.clipboard)
+    ],
+    '~w': [
+        () => pen.enabled,
+        pen.clipboard.register.bind(pen.clipboard)
     ]
 };
