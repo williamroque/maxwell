@@ -5,7 +5,7 @@ function zoom(factor, relative=true) {
         factor = factor + webFrame.getZoomFactor();
     }
 
-    pen.drawBrushPreview();
+    currentPen.drawBrushPreview();
 
     webFrame.setZoomFactor(Math.max(1, factor));
 }
@@ -37,7 +37,7 @@ function resizeCanvas(_, rerender=true) {
     penCanvas.width = window.innerWidth;
     penCanvas.height = window.innerHeight;
 
-    pen.history.travel(0);
+    currentPen.history.travel(0);
 
     if (rerender && sequence && sequence.isPlaying) {
         Properties.rerenderBackground = true;

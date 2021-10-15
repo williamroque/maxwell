@@ -86,6 +86,14 @@ class SnippetLibrary {
         this.load();
     }
 
+    changePen(pen) {
+        this.pen = pen;
+
+        for (const key in this.snippets) {
+            this.snippets[key].pen = pen;
+        }
+    }
+
     record(key) {
         if (!this.pen.enabled) {
             this.pen.toggle();

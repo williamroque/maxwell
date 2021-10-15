@@ -131,7 +131,9 @@ class Clipboard {
 
 
 class Pen {
-    constructor(artist, previewArtist, selectionArtist) {
+    constructor(artist, previewArtist, selectionArtist, key) {
+        this.key = key
+
         this.artist = artist;
         this.previewArtist = previewArtist;
         this.selectionArtist = selectionArtist;
@@ -473,69 +475,73 @@ class Pen {
         this.lineStart = undefined;
     }
 
+    moveBinding(e) {
+        this.currentPoint = [e.pageX, e.pageY];
+
+        if (awaitingEvent || e.which > 1 || !this.enabled) return;
+
+        if (this.lineStart) {
+            const point = [e.pageX, e.pageY]
+
+            this.history.travel(0);
+
+            this.artist.drawCurve({
+                points: [this.lineStart, point],
+                color: this.brushColor,
+                width: this.brushSize * 4,
+                arrow: false,
+                arrowHead: [],
+                fillColor: 'transparent'
+            });
+        } else if (this.selectionStart && this.isSelecting) {
+            this.changeSelection(e);
+        } else if (this.movingSelection) {
+            this.moveSelection(e);
+        } else if (this.isDrawing && this.enabled) {
+            this.planStroke(e);
+        }
+    }
+
+    downBinding(e) {
+        if (awaitingEvent || e.which > 1 || !this.enabled) return;
+
+        if (this.isSelecting) {
+            this.startSelection(e);
+        } else if (this.drawingLine) {
+            this.lineStart = [e.pageX, e.pageY];
+        } else if (!this.movingSelection) {
+            this.isDrawing = true;
+        }
+    }
+
+    upBinding(e) {
+        if (awaitingEvent || e.which > 1 || this.skipEvent || !this.enabled) {
+            this.skipEvent = false;
+            return;
+        };
+
+        if (this.lineStart) {
+            if (!this.lineMode) {
+                this.drawingLine = false;
+            }
+
+            this.lineStart = undefined;
+            this.history.takeSnapshot();
+        } else if (this.isSelecting) {
+            this.endSelection(e);
+        } else if (this.movingSelection) {
+            this.applySelection(e);
+        } else {
+            this.isDrawing = false;
+            this.brushPos = undefined;
+            this.history.takeSnapshot();
+        }
+    }
+
     bind() {
-        window.addEventListener('pointermove', e => {
-            this.currentPoint = [e.pageX, e.pageY];
-
-            if (awaitingEvent || e.which > 1) return;
-
-            if (this.lineStart) {
-                const point = [e.pageX, e.pageY]
-
-                this.history.travel(0);
-
-                this.artist.drawCurve({
-                    points: [this.lineStart, point],
-                    color: this.brushColor,
-                    width: this.brushSize * 4,
-                    arrow: false,
-                    arrowHead: [],
-                    fillColor: 'transparent'
-                });
-            } else if (this.selectionStart && this.isSelecting) {
-                this.changeSelection(e);
-            } else if (this.movingSelection) {
-                this.moveSelection(e);
-            } else if (this.isDrawing && this.enabled) {
-                this.planStroke(e);
-            }
-        });
-
-        window.addEventListener('mousedown', e => {
-            if (awaitingEvent || e.which > 1) return;
-
-            if (this.isSelecting) {
-                this.startSelection(e);
-            } else if (this.drawingLine) {
-                this.lineStart = [e.pageX, e.pageY];
-            } else if (!this.movingSelection) {
-                this.isDrawing = true;
-            }
-        });
-
-        window.addEventListener('mouseup', e => {
-            if (awaitingEvent || e.which > 1 || this.skipEvent) {
-                this.skipEvent = false;
-                return;
-            };
-
-            if (this.lineStart) {
-                if (!this.lineMode) {
-                    this.drawingLine = false;
-                }
-
-                this.lineStart = undefined;
-                this.history.takeSnapshot();
-            } else if (this.isSelecting) {
-                this.endSelection(e);
-            } else if (this.movingSelection) {
-                this.applySelection(e);
-            } else {
-                this.isDrawing = false;
-                this.brushPos = undefined;
-                this.history.takeSnapshot();
-            }
-        });
+        window.addEventListener('pointermove', this.moveBinding.bind(this));
+        window.addEventListener('mousedown', this.downBinding.bind(this));
+        window.addEventListener('mouseup', this.upBinding.bind(this));
     }
 
     increaseBrushSize() {

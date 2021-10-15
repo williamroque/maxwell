@@ -65,14 +65,14 @@ document.addEventListener('keydown', e => {
 
 document.addEventListener('auxclick', e => {
     if (e.which === 2) {
-        pen.activateSelection();
+        currentPen.activateSelection();
     } else if (e.which === 3) {
-        if (pen.enabled) {
-            pen.deleteSelection();
+        if (currentPen.enabled) {
+            currentPen.deleteSelection();
         }
     } else if (e.which === 4) {
-        if (pen.enabled && !pen.movingSelection && !pen.selectionStart) {
-            pen.drawingLine = true;
+        if (currentPen.enabled && !currentPen.movingSelection && !currentPen.selectionStart) {
+            currentPen.drawingLine = true;
         }
     }
 });

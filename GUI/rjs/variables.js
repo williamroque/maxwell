@@ -17,10 +17,13 @@ const penArtist = new Artist(penCanvas);
 const penPreviewArtist = new Artist(penPreviewCanvas);
 const selectionArtist = new Artist(selectionCanvas);
 
-const pen = new Pen(penArtist, penPreviewArtist, selectionArtist);
+let pens = {
+    'm': new Pen(penArtist, penPreviewArtist, selectionArtist, 'm')
+};
+let currentPen = pens['m'];
 
 const snippetPath = path.join(process.env.HOME, '.maxwell_snippets.json');
-const snippetLibrary = new SnippetLibrary(pen, snippetPath);
+const snippetLibrary = new SnippetLibrary(currentPen, snippetPath);
 
 const defaultWidth = window.innerWidth;
 
@@ -42,78 +45,101 @@ const keymap = {
     'Control+c': () => sequence ? sequence.stop() : [],
     'Control+u': clearCanvas,
     'Control+b': toggleBackground,
-    'Control+p': pen.toggle.bind(pen),
-    'e': () => pen.enabled ? pen.toggleEraser() : [],
-    'c': () => pen.enabled ? pen.clear() : [],
-    'Shift+n': () => pen.enabled ? pen.nextColor() : [],
-    'Shift+p': () => pen.enabled ? pen.previousColor() : [],
-    ']': () => pen.enabled ? pen.increaseBrushSize() : [],
-    '[': () => pen.enabled ? pen.decreaseBrushSize() : [],
-    'u Meta+z': () => pen.enabled ? pen.history.travel(-1) : [],
-    'Control+r Meta+Shift+z': () => pen.enabled ? pen.history.travel(1) : [],
+    'Control+p': () => currentPen.toggle(),
+    'e': () => currentPen.enabled ? currentPen.toggleEraser() : [],
+    'c': () => currentPen.enabled ? currentPen.clear() : [],
+    'Shift+n': () => currentPen.enabled ? currentPen.nextColor() : [],
+    'Shift+p': () => currentPen.enabled ? currentPen.previousColor() : [],
+    ']': () => currentPen.enabled ? currentPen.increaseBrushSize() : [],
+    '[': () => currentPen.enabled ? currentPen.decreaseBrushSize() : [],
+    'u Meta+z': () => currentPen.enabled ? currentPen.history.travel(-1) : [],
+    'Control+r Meta+Shift+z': () => currentPen.enabled ? currentPen.history.travel(1) : [],
     'l': () => {
-        pen.activateLine();
+        currentPen.activateLine();
     },
     'Shift+l': () => {
-        if (pen.enabled) {
-            if (pen.lineMode) {
-                pen.cancel();
+        if (currentPen.enabled) {
+            if (currentPen.lineMode) {
+                currentPen.cancel();
             } else {
-                pen.lineMode = true;
-                pen.activateLine();
+                currentPen.lineMode = true;
+                currentPen.activateLine();
             }
         }
     },
     's': () => {
-        pen.activateSelection();
+        currentPen.activateSelection();
     },
     'Shift+s': () => {
-        if (pen.enabled) {
-            if (pen.selectionMode) {
-                pen.cancel();
+        if (currentPen.enabled) {
+            if (currentPen.selectionMode) {
+                currentPen.cancel();
             } else {
-                pen.selectionMode = true;
-                pen.activateSelection();
+                currentPen.selectionMode = true;
+                currentPen.activateSelection();
             }
         }
     },
-    'y': pen.yank.bind(pen),
+    'y': () => currentPen.yank(),
     'd Backspace': () => {
-        if (pen.enabled) {
-            pen.deleteSelection();
+        if (currentPen.enabled) {
+            currentPen.deleteSelection();
         }
     },
     'Escape Control+[': () => {
         snippetLibrary.isRecording = false;
 
-        if (pen.enabled) {
-            pen.cancel();
+        if (currentPen.enabled) {
+            currentPen.cancel();
         }
     },
-    'Shift+>': () => pen.enabled ? pen.increaseSensitivity() : [],
-    'Shift+<': () => pen.enabled ? pen.decreaseSensitivity() : [],
+    'Shift+>': () => currentPen.enabled ? currentPen.increaseSensitivity() : [],
+    'Shift+<': () => currentPen.enabled ? currentPen.decreaseSensitivity() : [],
     'Meta+Enter': () => {
         const window = remote.getCurrentWindow();
         window.setFullScreen(!window.isFullScreen());
         resizeCanvas();
     },
-    '=': () => pen.enabled ? zoom(.2) : [],
-    '-': () => pen.enabled ? zoom(-.2) : [],
-    '0': () => pen.enabled ? zoom(1, false) : [],
+    '=': () => currentPen.enabled ? zoom(.2) : [],
+    '-': () => currentPen.enabled ? zoom(-.2) : [],
+    '0': () => currentPen.enabled ? zoom(1, false) : [],
     '~q': [
-        snippetLibrary.record.bind(snippetLibrary),
-        snippetLibrary.record.bind(snippetLibrary)
+        () => snippetLibrary.record(),
+        key => snippetLibrary.record(key),
     ],
     '~ ': [
-        () => pen.enabled,
-        snippetLibrary.play.bind(snippetLibrary)
+        () => currentPen.enabled,
+        key => snippetLibrary.play(key)
     ],
     '~p': [
-        () => pen.enabled,
-        pen.clipboard.paste.bind(pen.clipboard)
+        () => currentPen.enabled,
+        key => currentPen.clipboard.paste(key)
     ],
     '~w': [
-        () => pen.enabled,
-        pen.clipboard.register.bind(pen.clipboard)
+        () => currentPen.enabled,
+        key => currentPen.clipboard.register(key)
+    ],
+    '~\'': [
+        () => currentPen.enabled,
+        key => {
+            if (key && key !== 'Escape') {
+                if (!(key in pens)) {
+                    pens[key] = new Pen(penArtist, penPreviewArtist, selectionArtist, key);
+                    pens[key].history.currentSnapshot = -1;
+                    pens[key].clear();
+                }
+
+                currentPen.enabled = false;
+
+                currentPen = pens[key];
+                snippetLibrary.changePen(currentPen);
+
+                currentPen.enabled = true;
+
+                currentPen.artist.clear();
+                currentPen.drawBrushPreview();
+                currentPen.history.travel(0);
+            }
+        }
     ]
 };
