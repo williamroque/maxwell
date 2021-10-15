@@ -50,7 +50,7 @@ const keymap = {
     ']': () => pen.enabled ? pen.increaseBrushSize() : [],
     '[': () => pen.enabled ? pen.decreaseBrushSize() : [],
     'u Meta+z': () => pen.enabled ? pen.history.travel(-1) : [],
-    'r Control+r Meta+Shift+z': () => pen.enabled ? pen.history.travel(1) : [],
+    'Control+r Meta+Shift+z': () => pen.enabled ? pen.history.travel(1) : [],
     'l': () => {
         pen.activateLine();
     },
