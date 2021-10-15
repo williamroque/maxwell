@@ -39,7 +39,7 @@ function clearCanvas(background=true) {
 }
 
 const keymap = {
-    'Control+c': () => sequence.stop(),
+    'Control+c': () => sequence ? sequence.stop() : [],
     'Control+u': clearCanvas,
     'Control+b': toggleBackground,
     'Control+p': pen.toggle.bind(pen),

@@ -270,4 +270,24 @@ class Artist {
             displayMode: true
         });
     }
+
+    drawSVG(args) {
+        const { data, x, y, transform, fillColor } = args;
+
+        this.ctx.fillStyle = fillColor;
+
+        this.ctx.setTransform(
+            transform[0],
+            0, 0,
+            transform[1],
+            transform[2] + x,
+            transform[3] + y
+        )
+
+        const path = new Path2D(data);
+
+        this.ctx.fill(path);
+
+        this.ctx.setTransform();
+    }
 }

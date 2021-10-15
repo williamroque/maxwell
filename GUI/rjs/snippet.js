@@ -1,6 +1,18 @@
 class Snippet {
-    constructor(points, pen) {
-        this.points = this.adjustPoints(points);
+    constructor(data, pen) {
+        this.type = data['type'];
+
+        switch (this.type) {
+        case 'points':
+            this.data = this.adjustPoints(data['data']);
+            break;
+        case 'svg':
+            this.data = data['data'];
+            break;
+        default:
+            throw 'Snippet should be of either "points" or "svg" type.';
+        }
+
         this.pen = pen;
     }
 
@@ -27,19 +39,36 @@ class Snippet {
     }
 
     draw(x, y) {
-        const eraserState = this.pen.isEraser;
+        if (this.type === 'points') {
+            const eraserState = this.pen.isEraser;
 
-        for (const point of this.points) {
-            this.pen.isEraser = point[3];
+            for (const point of this.data) {
+                this.pen.isEraser = point[3];
 
-            this.pen.drawBrush(
-                point[0] + x,
-                point[1] + y,
-                point[2]
-            );
+                this.pen.drawBrush(
+                    point[0] + x,
+                    point[1] + y,
+                    point[2]
+                );
+            }
+
+            this.pen.isEraser = eraserState;
+        } else if (this.type === 'svg') {
+            this.pen.artist.drawSVG({
+                data: this.data[0],
+                x: x,
+                y: y,
+                transform: this.data.slice(1),
+                fillColor: this.pen.brushColor
+            });
         }
+    }
 
-        this.pen.isEraser = eraserState;
+    toJSON() {
+        return {
+            type: this.type,
+            data: this.data
+        };
     }
 }
 
@@ -65,7 +94,10 @@ class SnippetLibrary {
         if (this.isRecording) {
             this.isRecording = false;
             this.snippets[this.currentKey] = new Snippet(
-                this.pen.recording,
+                {
+                    type: 'points',
+                    data: this.pen.recording
+                },
                 this.pen
             );
             this.pen.stopRecording();
@@ -108,9 +140,7 @@ class SnippetLibrary {
     save() {
         fs.writeFileSync(
             this.path,
-            JSON.stringify(
-                Object.fromEntries(
-                    Object.entries(this.snippets)
-                        .map(([key, snippet]) => [key, snippet.points]))));
+            JSON.stringify(this.snippets)
+        );
     }
 }
