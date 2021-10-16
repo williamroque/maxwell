@@ -25,7 +25,7 @@ let currentPen = pens['m'];
 const globalClipboard = new Clipboard(currentPen, selectionArtist);
 
 function clipboardFor(key) {
-    if (key === key.toUpperCase())
+    if (isNaN(key) && key === key.toUpperCase())
         return globalClipboard;
     return currentPen.clipboard;
 }
