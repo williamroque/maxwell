@@ -67,6 +67,13 @@ const keymap = {
     },
     'e': () => currentPen.enabled ? currentPen.toggleEraser() : [],
     'c': () => currentPen.enabled ? currentPen.clear() : [],
+    'Shift+c': () => {
+        clearCanvas();
+        for (const penName in pens) {
+            pens[penName].artist.clear();
+            pens[penName].history.takeSnapshot();
+        }
+    },
     '.': () => currentPen.enabled ? currentPen.nextColor() : [],
     ',': () => currentPen.enabled ? currentPen.previousColor() : [],
     ']': () => currentPen.enabled ? currentPen.increaseBrushSize() : [],
