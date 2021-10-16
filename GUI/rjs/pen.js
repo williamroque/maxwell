@@ -95,7 +95,6 @@ class Clipboard {
         if (key) {
             this.registry[key] = this.createBuffer();
             this.store();
-            this.pen.cancel();
         }
     }
 
@@ -117,7 +116,7 @@ class Clipboard {
     }
 
     paste(key) {
-        const index = key === 'p' ? 0 : parseInt(key);
+        const index = key.toLowerCase() === 'p' ? 0 : parseInt(key);
 
         if (this.pen.currentPoint) {
             const [ x, y ] = this.pen.currentPoint;
@@ -430,9 +429,9 @@ class Pen {
         }
     }
 
-    deleteSelection() {
+    deleteSelection(key, clipboard) {
         if (this.movingSelection) {
-            this.clipboard.store();
+            clipboard.register(key);
 
             this.selectionArtist.clear();
             this.selectionArtist.canvas.classList.add('hide');
@@ -449,12 +448,12 @@ class Pen {
         }
     }
 
-    yank() {
+    yank(clipboard) {
         if (this.enabled && !this.movingSelection && !this.selectionStart && !this.isDrawing) {
             this.copyMode = true;
             this.activateSelection();
         } else if (this.movingSelection) {
-            this.clipboard.store();
+            clipboard.store();
             this.cancel();
         }
     }

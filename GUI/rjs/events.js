@@ -10,6 +10,11 @@ function areEqual(setA, setB) {
 }
 
 
+function shiftOrEmpty(modifiers) {
+    return modifiers.size === 0 || areEqual(new Set(['Shift']), modifiers);
+}
+
+
 let currentOperator;
 const operatorLabels = { ' ': 'Space' }
 
@@ -28,7 +33,7 @@ document.addEventListener('keydown', e => {
 
     for (const bindingGroup in keymap) {
         if (bindingGroup[0] === '~') {
-            if (activeModifiers.size === 0 && e.key.toLowerCase() === bindingGroup[1].toLowerCase()) {
+            if (shiftOrEmpty(activeModifiers) && e.key === bindingGroup[1]) {
                 const isOperator = keymap[bindingGroup][0]();
 
                 if (isOperator) {

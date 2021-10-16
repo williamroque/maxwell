@@ -56,8 +56,8 @@ const keymap = {
     'Control+p': () => currentPen.toggle(),
     'e': () => currentPen.enabled ? currentPen.toggleEraser() : [],
     'c': () => currentPen.enabled ? currentPen.clear() : [],
-    'Shift+n': () => currentPen.enabled ? currentPen.nextColor() : [],
-    'Shift+p': () => currentPen.enabled ? currentPen.previousColor() : [],
+    '.': () => currentPen.enabled ? currentPen.nextColor() : [],
+    ',': () => currentPen.enabled ? currentPen.previousColor() : [],
     ']': () => currentPen.enabled ? currentPen.increaseBrushSize() : [],
     '[': () => currentPen.enabled ? currentPen.decreaseBrushSize() : [],
     'u Meta+z': () => currentPen.enabled ? currentPen.history.travel(-1) : [],
@@ -88,12 +88,18 @@ const keymap = {
             }
         }
     },
-    'y': () => currentPen.yank(),
-    'd Backspace': () => {
-        if (currentPen.enabled) {
-            currentPen.deleteSelection();
+    'y': () => currentPen.yank(currentPen.clipboard),
+    'Shift+y': () => currentPen.yank(globalClipboard),
+    '~P': [
+        () => currentPen.enabled,
+        key => globalClipboard.paste(key)
+    ],
+    '~d': [
+        () => currentPen.enabled && currentPen.movingSelection,
+        key => {
+            currentPen.deleteSelection(key, clipboardFor(key));
         }
-    },
+    ],
     'Escape Control+[': () => {
         snippetLibrary.isRecording = false;
 
@@ -124,8 +130,11 @@ const keymap = {
         key => clipboardFor(key).paste(key)
     ],
     '~w': [
-        () => currentPen.enabled,
-        key => clipboardFor(key).register(key)
+        () => currentPen.enabled && currentPen.movingSelection,
+        key => {
+            clipboardFor(key).register(key);
+            currentPen.cancel();
+        }
     ],
     '~\'': [
         () => currentPen.enabled,
