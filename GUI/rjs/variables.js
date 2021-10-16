@@ -22,6 +22,14 @@ let pens = {
 };
 let currentPen = pens['m'];
 
+const globalClipboard = new Clipboard(currentPen, selectionArtist);
+
+function clipboardFor(key) {
+    if (key === key.toUpperCase())
+        return globalClipboard;
+    return currentPen.clipboard;
+}
+
 const snippetPath = path.join(process.env.HOME, '.maxwell_snippets.json');
 const snippetLibrary = new SnippetLibrary(currentPen, snippetPath);
 
@@ -113,11 +121,11 @@ const keymap = {
     ],
     '~p': [
         () => currentPen.enabled,
-        key => currentPen.clipboard.paste(key)
+        key => clipboardFor(key).paste(key)
     ],
     '~w': [
         () => currentPen.enabled,
-        key => currentPen.clipboard.register(key)
+        key => clipboardFor(key).register(key)
     ],
     '~\'': [
         () => currentPen.enabled,
@@ -139,6 +147,8 @@ const keymap = {
                 currentPen.artist.clear();
                 currentPen.drawBrushPreview();
                 currentPen.history.travel(0);
+
+                globalClipboard.changePen(currentPen);
             }
         }
     ]

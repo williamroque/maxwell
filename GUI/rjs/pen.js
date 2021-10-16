@@ -68,6 +68,10 @@ class Clipboard {
         this.registry = {};
     }
 
+    changePen(pen) {
+        this.pen = pen;
+    }
+
     createBuffer() {
         const bufferCanvas = document.createElement('canvas');
         const bufferCtx = bufferCanvas.getContext('2d');

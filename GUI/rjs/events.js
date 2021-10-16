@@ -18,9 +18,11 @@ document.addEventListener('keydown', e => {
     const activeModifiers = new Set(potentialModifiers.filter(e.getModifierState.bind(e)));
 
     if (currentOperator !== undefined) {
-        currentOperator(e.key);
-        currentOperator = undefined;
-        keyPrompt.innerText = '';
+        if (!potentialModifiers.includes(e.key)) {
+            currentOperator(e.key);
+            currentOperator = undefined;
+            keyPrompt.innerText = '';
+        }
         return;
     }
 
