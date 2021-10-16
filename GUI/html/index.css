@@ -73,9 +73,20 @@ canvas {
 
 #key-prompt {
     position: absolute;
-    left: 21px;
-    bottom: 16px;
+    left: 34px;
+    bottom: 25px;
     color: #867373;
     font-family: 'Victor Mono';
     font-size: 12pt;
+    pointer-events: none;
+}
+
+#current-pen-label {
+    position: absolute;
+    right: 29px;
+    top: 26px;
+    color: #867373;
+    font-family: 'Victor Mono';
+    font-size: 12pt;
+    pointer-events: none;
 }

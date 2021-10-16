@@ -121,7 +121,7 @@ class Clipboard {
         if (this.pen.currentPoint) {
             const [ x, y ] = this.pen.currentPoint;
 
-            if (isNaN(key) && key in this.registry && key !== 'p') {
+            if (isNaN(key) && key in this.registry && key.toLowerCase() !== 'p') {
                 this.sendSelection(this.registry[key], x, y);
                 this.pen.history.takeSnapshot();
             } else if (index < this.items.length) {
@@ -134,8 +134,8 @@ class Clipboard {
 
 
 class Pen {
-    constructor(artist, previewArtist, selectionArtist, key) {
-        this.key = key
+    constructor(artist, previewArtist, selectionArtist, name) {
+        this.name = name;
 
         this.artist = artist;
         this.previewArtist = previewArtist;

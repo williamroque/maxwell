@@ -10,6 +10,7 @@ const penPreviewCanvas = document.querySelector('#pen-preview-canvas');
 const selectionCanvas = document.querySelector('#selection-canvas');
 
 const keyPrompt = document.querySelector('#key-prompt');
+const currentPenLabel = document.querySelector('#current-pen-label');
 
 const artist = new Artist(canvas);
 const backgroundArtist = new Artist(backgroundCanvas);
@@ -17,10 +18,12 @@ const penArtist = new Artist(penCanvas);
 const penPreviewArtist = new Artist(penPreviewCanvas);
 const selectionArtist = new Artist(selectionCanvas);
 
-let pens = {
-    'm': new Pen(penArtist, penPreviewArtist, selectionArtist, 'm')
-};
-let currentPen = pens['m'];
+const defaultPenKey = 'm';
+
+let pens = {};
+pens[defaultPenKey] = new Pen(penArtist, penPreviewArtist, selectionArtist, defaultPenKey);
+
+let currentPen = pens[defaultPenKey];
 
 const globalClipboard = new Clipboard(currentPen, selectionArtist);
 
@@ -53,7 +56,15 @@ const keymap = {
     'Control+c': () => sequence ? sequence.stop() : [],
     'Control+u': clearCanvas,
     'Control+b': toggleBackground,
-    'Control+p': () => currentPen.toggle(),
+    'Control+p': () => {
+        if (currentPen.enabled) {
+            currentPenLabel.innerText = '';
+        } else {
+            currentPenLabel.innerText = currentPen.name;
+        }
+
+        currentPen.toggle();
+    },
     'e': () => currentPen.enabled ? currentPen.toggleEraser() : [],
     'c': () => currentPen.enabled ? currentPen.clear() : [],
     '.': () => currentPen.enabled ? currentPen.nextColor() : [],
@@ -144,7 +155,7 @@ const keymap = {
     '~\'': [
         () => currentPen.enabled,
         key => {
-            if (key && key !== 'Escape') {
+            if (key && /^[A-Za-z0-9]$/.test(key)) {
                 if (!(key in pens)) {
                     pens[key] = new Pen(penArtist, penPreviewArtist, selectionArtist, key);
                     pens[key].history.currentSnapshot = -1;
@@ -155,6 +166,8 @@ const keymap = {
 
                 currentPen = pens[key];
                 snippetLibrary.changePen(currentPen);
+
+                currentPenLabel.innerText = key;
 
                 currentPen.enabled = true;
 
