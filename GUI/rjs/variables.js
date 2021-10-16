@@ -94,7 +94,12 @@ const keymap = {
         () => currentPen.enabled,
         key => globalClipboard.paste(key)
     ],
-    '~d': [
+    'd': () => {
+        if (currentPen.enabled && currentPen.movingSelection) {
+            currentPen.deleteSelection('d', currentPen.clipboard);
+        }
+    },
+    '~D': [
         () => currentPen.enabled && currentPen.movingSelection,
         key => {
             currentPen.deleteSelection(key, clipboardFor(key));
