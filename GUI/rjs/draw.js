@@ -7,13 +7,17 @@ class Artist {
     }
 
 
-    clear(x=0, y=0, width=this.canvas.width, height=this.canvas.height) {
+    clearLatex() {
         for (const element of this.DOMElements) {
             element.remove();
         }
 
         this.DOMElements = [];
+    }
 
+
+    clear(x=0, y=0, width=this.canvas.width, height=this.canvas.height) {
+        this.clearLatex();
         this.ctx.clearRect(x, y, width, height);
     }
 

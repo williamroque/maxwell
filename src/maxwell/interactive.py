@@ -52,6 +52,7 @@ try:
 ## client/system currying
 
     clear = partial(util.clear, client)
+    clear_latex = partial(util.clear_latex, client)
     await_event = partial(util.await_event, client)
     await_properties = partial(util.await_properties, client)
     await_space = partial(util.await_space, client)
@@ -75,8 +76,6 @@ try:
     Sequence = partial(Sequence, client)
     Camera = partial(Camera, client)
 
-    clear()
-
 ## Constants
     RED = '#DC5A5E'
     GREEN = '#A6B860'
@@ -84,7 +83,7 @@ try:
     WHITE = '#FDF4C1'
 
 ## Convenience functions
-    def screenshot(render=True, is_temporary=True, clears=True):
+    def screenshot(render=True, is_temporary=True, clears=False):
         image_directory = os.path.expanduser('~/Desktop')
         directory_files = os.listdir(image_directory)
         image_path = os.path.join(

@@ -17,6 +17,11 @@ def clear(client, background=True):
     message.send()
 
 
+def clear_latex(client):
+    message = Message(client, 'clearLatex')
+    message.send()
+
+
 def run_server():
     os.system('/Users/jetblack/maxwell/GUI/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron /Users/jetblack/maxwell/GUI/ &')
 

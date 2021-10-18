@@ -26,6 +26,7 @@ ipcRenderer.on('parse-message', (_, data) => {
     const functionAssociation = {
         draw: args => (args.background ? backgroundArtist : artist).draw(args),
         clear: args => clearCanvas(args.background),
+        clearLatex: args => backgroundArtist.clearLatex() || artist.clearLatex(),
         awaitEvent: awaitEvent,
         awaitProperties: awaitProperties,
         renderScene: args => { sequence = Sequence.runFromArgs(artist, backgroundArtist, args) },
