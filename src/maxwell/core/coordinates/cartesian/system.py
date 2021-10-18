@@ -196,6 +196,41 @@ class CartesianSystem(System):
         return curve
 
 
+    def parametric(self, x, y, start, end, color=None, point_num=400, endpoint=3, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+        if isinstance(x, (float, int)):
+            constant = x
+            x = lambda _: constant
+
+        if isinstance(y, (float, int)):
+            constant = y
+            y = lambda _: constant
+
+        if shape_config is None:
+            shape_config = ShapeConfig()
+
+        if curve_config is None:
+            curve_config = deepcopy(Curve.DEFAULT_CURVE_CONFIG)
+
+            if color is not None:
+                curve_config.color = color
+
+        shape_config.system = self
+
+        t_values = np.linspace(start, end, point_num, endpoint=bool(endpoint & 2))[int(not endpoint & 1):]
+        x_values = np.vectorize(x)(t_values).astype(float)
+        y_values = np.vectorize(y)(t_values).astype(float)
+
+        x_values[np.isnan(x_values)] = np.inf
+        y_values[np.isnan(y_values)] = np.inf
+
+        curve = Curve(zip(x_values, y_values), curve_config, shape_config)
+
+        if render:
+            curve.render()
+
+        return curve
+
+
     def get_grid(self, zoom_factor=None, translation=None, grid_config: CartesianGridConfig = None, render=True):
         if grid_config is None:
             grid_config = CartesianGridConfig()
