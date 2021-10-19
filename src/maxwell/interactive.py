@@ -1,6 +1,8 @@
 from time import sleep
 import os
 
+import functools
+
 import numpy as np
 from math import factorial as fact
 
@@ -106,9 +108,129 @@ try:
         return image
 
 
-    def neg(func):
-        return lambda x: -func(x)
+    class Composable:
+        def __init__(self, func):
+            self.func = func
+            functools.update_wrapper(self, func)
 
+        def __matmul__(self, other):
+            @Composable
+            def composition(*args, **kwargs):
+                return self.func(other.func(*args, **kwargs))
+
+            return composition
+
+        def __neg__(self):
+            @Composable
+            def negation(*args, **kwargs):
+                return -self.func(*args, **kwargs)
+
+            return negation
+
+        def __add__(self, other):
+            @Composable
+            def function(*args, **kwargs):
+                if isinstance(other, self.__class__):
+                    return self.func(*args, **kwargs) + other.func(*args, **kwargs)
+                return self.func(*args, **kwargs) + other
+
+            return function
+
+        def __radd__(self, other):
+            return self.__add__(other)
+
+        def __sub__(self, other):
+            @Composable
+            def function(*args, **kwargs):
+                if isinstance(other, self.__class__):
+                    return self.func(*args, **kwargs) - other.func(*args, **kwargs)
+                return self.func(*args, **kwargs) - other
+
+            return function
+
+        def __rsub__(self, other):
+            @Composable
+            def function(*args, **kwargs):
+                return other - self.func(*args, **kwargs)
+
+            return function
+
+        def __mul__(self, other):
+            @Composable
+            def function(*args, **kwargs):
+                if isinstance(other, self.__class__):
+                    return self.func(*args, **kwargs) * other.func(*args, **kwargs)
+                return self.func(*args, **kwargs) * other
+
+            return function
+
+        def __rmul__(self, other):
+            return self.__mul__(other)
+
+        def __truediv__(self, other):
+            @Composable
+            def function(*args, **kwargs):
+                if isinstance(other, self.__class__):
+                    return self.func(*args, **kwargs) / other.func(*args, **kwargs)
+                return self.func(*args, **kwargs) / other
+
+            return function
+
+        def __rtruediv__(self, other):
+            @Composable
+            def function(*args, **kwargs):
+                return other / self.func(*args, **kwargs)
+
+            return function
+
+        def __pow__(self, other):
+            @Composable
+            def function(*args, **kwargs):
+                if isinstance(other, self.__class__):
+                    return self.func(*args, **kwargs) ** other.func(*args, **kwargs)
+                return self.func(*args, **kwargs) ** other
+
+            return function
+
+        def __rpow__(self, other):
+            @Composable
+            def function(*args, **kwargs):
+                return other ** self.func(*args, **kwargs)
+
+            return function
+
+        __xor__ = __pow__
+        __rxor__ = __rpow__
+
+        def __call__(self, *args, **kwargs):
+            if len(args) == 1 and isinstance(args[0], self.__class__):
+                return self.__matmul__(args[0])
+            return self.func(*args, **kwargs)
+
+
+    @Composable
+    def variable(x):
+        return x
+
+    x = variable
+    y = variable
+    t = variable
+    θ = variable
+
+    sin = Composable(np.sin)
+    cos = Composable(np.cos)
+    tan = Composable(np.tan)
+    asin = arcsin = Composable(np.arcsin)
+    acos = arccos = Composable(np.arccos)
+    atan = arctan = Composable(np.arctan)
+    csc = 1/sin
+    sec = 1/cos
+    cot = 1/tan
+    asec = acos @ (1/t)
+    acsc = asin @ (1/t)
+    acot = atan @ (1/t)
+    sqrt = Composable(np.sqrt)
+    pi = π = np.pi
 
 ## For when the server might not be up
     def run(callback):

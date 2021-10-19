@@ -177,7 +177,7 @@ class Pen {
 
         this.bind();
 
-        this.history = new History(this.artist, 50);
+        this.history = new History(this.artist, 500);
 
         this.drawBrushPreview();
 
