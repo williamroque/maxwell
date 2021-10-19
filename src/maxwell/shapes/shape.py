@@ -19,6 +19,7 @@ class ShapeConfig:
     group: 'Group' = None
     shape_name: str = None
     render: bool = False
+    canvas: str = 'default'
 
 
 class Shape:
@@ -58,6 +59,8 @@ class Shape:
             self.group.add_shape(self)
 
         self.auto_render = shape_config.render
+
+        self.canvas = shape_config.canvas
 
         self.access_hooks = []
 
@@ -261,9 +264,12 @@ class Shape:
 
 
     def render(self, background=False):
-        self.properties.background = background
-
-        message = Message(self.client, 'draw', args=self.get_props())
+        message = Message(
+            self.client,
+            'draw',
+            args=self.get_props(),
+            canvas='background' if background else self.canvas
+        )
         message.send()
 
         return self

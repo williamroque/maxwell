@@ -23,8 +23,17 @@ function awaitProperties(args) {
 
 
 ipcRenderer.on('parse-message', (_, data) => {
+    const canvasAssociation = {
+        'default': [artist, () => {}],
+        'background': [backgroundArtist, () => {}],
+        'pen': [penArtist, () => currentPen.history.takeSnapshot()]
+    };
+
     const functionAssociation = {
-        draw: args => (args.background ? backgroundArtist : artist).draw(args),
+        draw: args => {
+            args['callback'] = canvasAssociation[args.canvas][1];
+            canvasAssociation[args.canvas][0].draw(args);
+        },
         clear: args => clearCanvas(args.background),
         clearLatex: args => backgroundArtist.clearLatex() || artist.clearLatex(),
         awaitEvent: awaitEvent,

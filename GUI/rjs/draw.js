@@ -150,7 +150,7 @@ class Artist {
 
 
     drawImage(args) {
-        let { src, point, width, height, isTemporary } = args;
+        let { src, point, width, height, isTemporary, callback } = args;
         const [x, y] = point;
 
         const image = new Image();
@@ -170,6 +170,8 @@ class Artist {
             if (isTemporary) {
                 spawn('rm', [src]);
             }
+
+            callback();
         };
     }
 

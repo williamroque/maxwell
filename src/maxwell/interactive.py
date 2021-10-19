@@ -85,7 +85,7 @@ try:
     WHITE = '#FDF4C1'
 
 ## Convenience functions
-    def screenshot(render=True, is_temporary=True, clears=False):
+    def screenshot(render=True, is_temporary=True, clears=False, canvas='pen'):
         image_directory = os.path.expanduser('~/Desktop')
         directory_files = os.listdir(image_directory)
         image_path = os.path.join(
@@ -94,13 +94,14 @@ try:
         )
 
         image_config = ImageConfig(is_temporary=is_temporary)
+        shape_config = ShapeConfig(canvas=canvas)
 
         point = system.from_normalized(await_click())
 
         if clears:
             clear()
 
-        image = Image(image_path, point, image_config=image_config)
+        image = Image(image_path, point, image_config=image_config, shape_config=shape_config)
 
         if render:
             image.render()

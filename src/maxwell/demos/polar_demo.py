@@ -1,4 +1,5 @@
 from maxwell import *
+clear()
 
 resize_window(930, 670)
 
