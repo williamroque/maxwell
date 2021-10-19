@@ -117,7 +117,12 @@ const keymap = {
             currentPen.deleteSelection('d', currentPen.clipboard);
         }
     },
-    '~D': [
+    'Shift+d': () => {
+        if (currentPen.enabled && currentPen.movingSelection) {
+            currentPen.deleteSelection('D', globalClipboard);
+        }
+    },
+    '~x': [
         () => currentPen.enabled && currentPen.movingSelection,
         key => {
             currentPen.deleteSelection(key, clipboardFor(key));
@@ -170,6 +175,8 @@ const keymap = {
                 }
 
                 currentPen.enabled = false;
+
+                pens[key].currentPoint = currentPen.currentPoint;
 
                 currentPen = pens[key];
                 snippetLibrary.changePen(currentPen);
