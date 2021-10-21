@@ -81,44 +81,57 @@ class Sequence {
     }
 
 
-    renderFrame(i = 0) {
-        if (i >= this.frames.length) {
+    computeFrames() {
+        let frames = [];
+
+        for (const frame of this.frames) {
+            const bufferCanvas = document.createElement('canvas');
+            const bufferArtist = new Artist(bufferCanvas);
+
+            bufferCanvas.width = this.artist.canvas.width;
+            bufferCanvas.height = this.artist.canvas.height;
+
+            for (const shape of frame) {
+                bufferArtist.draw(shape);
+            }
+
+            frames.push(bufferCanvas);
+        }
+
+        return frames;
+    }
+
+
+    renderFrame(frames) {
+        if (frames.length === 0) {
             if (this.awaitsCompletion) {
                 ipcRenderer.sendSync('send-results', ['completed']);
                 this.awaitsCompletion = false;
             }
 
-            if (this.camera) {
-                this.camera.stop();
-            }
-
             return;
         }
 
-        const frame = this.frames[i];
+        const frame = frames.shift();
 
         this.artist.clear();
 
-        if (frame.length === 0) this.renderFrame.call(this, i + 1);
+        if (frame.length === 0) {
+            this.renderFrame(frames);
+        } else {
+            if (Properties.rerenderBackground) {
+                for (const shape of this.background) {
+                    this.backgroundArtist.draw(shape);
+                }
 
-        if (Properties.rerenderBackground) {
-            for (const shape of this.background) {
-                this.backgroundArtist.draw(shape);
+                Properties.rerenderBackground = false;
             }
 
-            Properties.rerenderBackground = false;
-        }
+            this.artist.capture(frame);
 
-        for (const shape of frame) {
-            this.artist.draw(shape);
-        }
-
-        if (this.camera) {
-            this.camera.capture();
-        }
-
-        if (this.isPlaying) {
-            setTimeout(this.renderFrame.bind(this), this.frameDuration, i + 1);
+            if (this.isPlaying) {
+                setTimeout(this.renderFrame.bind(this), this.frameDuration, frames);
+            }
         }
     }
 
@@ -134,7 +147,9 @@ class Sequence {
             this.backgroundArtist.draw(shape);
         }
 
-        this.renderFrame();
+        const computedFrames = this.computeFrames();
+
+        this.renderFrame(computedFrames);
     }
 
     stop() {

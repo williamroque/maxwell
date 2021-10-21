@@ -34,6 +34,12 @@ ipcRenderer.on('parse-message', (_, data) => {
             args['callback'] = canvasAssociation[args.canvas][1];
             canvasAssociation[args.canvas][0].draw(args);
         },
+        drawGroup: args => {
+            args['callback'] = canvasAssociation[args.canvas][1];
+            for (const shape of args.shapes) {
+                canvasAssociation[args.canvas][0].draw(shape);
+            }
+        },
         clear: args => clearCanvas(args.background),
         clearLatex: args => backgroundArtist.clearLatex() || artist.clearLatex(),
         awaitEvent: awaitEvent,

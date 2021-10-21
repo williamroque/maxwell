@@ -118,6 +118,9 @@ def create_vector_field(f, x, y, arrow_scale=.3, cmap='cw', max_threshold=np.inf
     if curve_config is None:
         curve_config = CurveConfig()
 
+    if arc_config is None:
+        arc_config = ArcConfig()
+
     if shape_config is None:
         shape_config = ShapeConfig()
 

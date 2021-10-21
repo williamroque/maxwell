@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from maxwell.client.message import Message
 from maxwell.core.util import check_type_name
 from maxwell.core.animation import AnimationConfig
 
@@ -68,11 +69,13 @@ class Group:
         "Transform all shapes from one group to another."
 
         intersecting_keys = self.shapes.keys() & group.shapes.keys()
-        shapes = [(self.shapes[key], group.shapes[key]) for key in intersecting_keys]
 
         scenes = []
 
-        for shape, target_shape in shapes:
+        for key in intersecting_keys:
+            shape = self.shapes[key]
+            target_shape = group.shapes[key]
+
             if check_type_name(shape, 'Curve') and check_type_name(target_shape, 'Curve'):
                 transform_scene = shape.transform(
                     target_shape,
@@ -94,8 +97,23 @@ class Group:
         `exclude_shape`.
         """
 
+        shapes = []
+        client = None
+
         for shape in self.shapes.values():
+            if client is None:
+                client = shape.client
+
             if exclude_shape is None or shape != exclude_shape:
-                shape.render(background=self.background)
+                shapes.append(shape.get_props())
+
+        if shapes:
+            message = Message(
+                client,
+                'drawGroup',
+                shapes=shapes,
+                canvas='background' if self.background else 'default'
+            )
+            message.send()
 
         return self

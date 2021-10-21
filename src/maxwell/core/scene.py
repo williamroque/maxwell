@@ -83,7 +83,11 @@ class Scene():
     def link_scene(self, other_scene):
         self.shapes |= other_scene.shapes
 
-        other_scene.linked_scenes = []
+        while other_scene.linked_scenes:
+            self.link_scene(
+                other_scene.linked_scenes.pop()
+            )
+
         self.linked_scenes.append(other_scene)
 
 

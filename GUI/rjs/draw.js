@@ -22,7 +22,7 @@ class Artist {
     }
 
 
-    capture(canvas, sourceX, sourceY, targetX=0, targetY=0) {
+    capture(canvas, sourceX=0, sourceY=0, targetX=0, targetY=0) {
         const width = Math.min(canvas.width, this.canvas.width);
         const height = Math.min(canvas.height, this.canvas.height);
 

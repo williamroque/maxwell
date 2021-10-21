@@ -216,6 +216,7 @@ try:
     x = variable
     y = variable
     t = variable
+    n = variable
     θ = variable
 
     sin = Composable(np.sin)
@@ -231,6 +232,7 @@ try:
     acsc = asin @ (1/t)
     acot = atan @ (1/t)
     sqrt = Composable(np.sqrt)
+    log = ln = Composable(np.log)
     pi = π = np.pi
 
 ## For when the server might not be up
