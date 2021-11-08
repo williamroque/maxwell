@@ -56,8 +56,7 @@ class Snippet {
         } else if (this.type === 'svg') {
             this.pen.artist.drawSVG({
                 data: this.data[0],
-                x: x,
-                y: y,
+                point: [x, y],
                 transform: this.data.slice(1),
                 fillColor: this.pen.brushColor
             });

@@ -94,3 +94,32 @@ canvas {
     font-size: 12pt;
     pointer-events: none;
 }
+
+.katex-display>.katex {
+    text-align: inherit !important;
+}
+
+.katex-display {
+    text-align: inherit !important;
+}
+
+table {
+    border-collapse: collapse;
+    position: absolute;
+}
+
+th {
+    text-align: center;
+    border-bottom: solid 1px #fdf4c1;
+    height: 30px;
+    font-size: 10pt;
+    padding: 0;
+}
+
+td {
+    text-align: left;
+    min-width: 110px;
+    padding: 0px 21px;
+    font-size: 10pt;
+    box-sizing: border-box;
+}

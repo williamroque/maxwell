@@ -20,6 +20,8 @@ from maxwell.shapes.arc import Arc, ArcConfig
 from maxwell.shapes.latex import Latex, LatexConfig
 from maxwell.shapes.image import Image, ImageConfig
 from maxwell.shapes.rect import Rect, RectConfig
+from maxwell.shapes.svg import SVG
+from maxwell.shapes.table import Table
 
 from maxwell.core.animation import AnimationConfig, create_easing_function, animate
 
@@ -85,6 +87,29 @@ try:
     WHITE = '#FDF4C1'
 
 ## Convenience functions
+    def natural_labels(labels):
+        labels = list(labels)
+
+        def x_formatter(x):
+            x = float(x)
+
+            if x.is_integer() and 1 <= x <= len(labels):
+                return r'\text{{{}}}'.format(labels[int(x) - 1])
+            return ''
+
+        def y_formatter(y):
+            y = float(y)
+
+            if y.is_integer() and y >= 1:
+                return str(int(y))
+            return ''
+
+        return CartesianGridConfig(
+            x_label_format=x_formatter,
+            y_label_format=y_formatter
+        )
+
+
     def screenshot(render=True, is_temporary=True, clears=False, canvas='pen'):
         image_directory = os.path.expanduser('~/Desktop')
         directory_files = os.listdir(image_directory)

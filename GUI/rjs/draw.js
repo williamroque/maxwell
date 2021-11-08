@@ -45,7 +45,9 @@ class Artist {
             arc: this.drawArc,
             image: this.drawImage,
             text: (shape) => shape.markdown ? this.drawMarkdown(shape) : this.drawText(shape),
-            latex: this.drawLatex
+            latex: this.drawLatex,
+            svg: this.drawSVG,
+            table: this.drawTable
         };
 
         methodAssociation[shape.type].call(this, shape);
@@ -249,27 +251,28 @@ class Artist {
         }
     }
 
-    drawLatex(args) {
+    drawLatex(args, latexContainer) {
         const { source, point, fontSize, color, align } = args;
 
         if (point[0] >= this.canvas.width || point[1] >= this.canvas.height) return;
 
-        const latexContainer = document.createElement('div');
-        latexContainer.style.left = point[0] + 'px';
-        latexContainer.style.top = point[1] + 'px';
-        latexContainer.style.fontSize = fontSize + 'pt';
-        latexContainer.style.color = color;
-        latexContainer.classList.add('latex-container');
+        if (latexContainer === undefined) {
+            latexContainer = document.createElement('div');
+            latexContainer.style.left = point[0] + 'px';
+            latexContainer.style.top = point[1] + 'px';
+            latexContainer.style.fontSize = fontSize + 'pt';
+            latexContainer.style.color = color;
+            latexContainer.classList.add('latex-container');
 
-        if (align === 'center') {
-            latexContainer.classList.add('latex-align-center');
-        } else if (align === 'right') {
-            latexContainer.classList.add('latex-align-right');
+            if (align === 'center') {
+                latexContainer.classList.add('latex-align-center');
+            } else if (align === 'right') {
+                latexContainer.classList.add('latex-align-right');
+            }
+
+            this.DOMElements.push(latexContainer);
+            document.body.appendChild(latexContainer);
         }
-
-        document.body.appendChild(latexContainer);
-
-        this.DOMElements.push(latexContainer);
 
         katex.render(source, latexContainer, {
             throwOnError: false,
@@ -278,7 +281,8 @@ class Artist {
     }
 
     drawSVG(args) {
-        const { data, x, y, transform, fillColor } = args;
+        const { data, point, transform, fillColor } = args;
+        const [x, y] = point;
 
         this.ctx.fillStyle = fillColor;
 
@@ -295,5 +299,62 @@ class Artist {
         this.ctx.fill(path);
 
         this.ctx.setTransform();
+    }
+
+    drawTable(args) {
+        const { data, headers, point, color } = args;
+
+        const tableElement = document.createElement('table');
+
+        tableElement.style.color = color;
+
+        const headerRowElement = document.createElement('tr');
+        for (const header of headers) {
+            const headerElement = document.createElement('th');
+
+            this.drawLatex({
+                source: header,
+                point: [0, 0],
+                fontSize: undefined,
+                color: undefined,
+                align: undefined
+            }, headerElement);
+
+            headerRowElement.appendChild(headerElement);
+        }
+
+        tableElement.appendChild(headerRowElement);
+
+        for (const row of data) {
+            const rowElement = document.createElement('tr');
+
+            for (const col of row) {
+                const columnElement = document.createElement('td');
+
+                this.drawLatex({
+                    source: col,
+                    point: [0, 0],
+                    fontSize: undefined,
+                    color: undefined,
+                    align: undefined
+                }, columnElement);
+
+                if (!isNaN(col)) {
+                    columnElement.style.textAlign = 'right';
+                }
+
+                rowElement.appendChild(columnElement);
+            }
+
+            tableElement.appendChild(rowElement);
+        }
+
+        this.DOMElements.push(tableElement);
+
+
+        document.body.appendChild(tableElement);
+        
+        tableElement.style.left = point[0] - tableElement.offsetWidth / 2 + 'px';
+        tableElement.style.top = point[1] - tableElement.offsetHeight / 2 + 'px';
     }
 }
