@@ -43,12 +43,29 @@ class Sequence:
 
 
     def show(self, shape):
-        self.show_shapes.append(shape)
+        if isinstance(shape, Group):
+            for member in shape.shapes.values():
+                self.show(member)
+        else:
+            self.show_shapes.append(shape)
 
 
     def wait(self, duration):
+        frame_num = int(duration * self.fps)
+
         if len(self.scenes) > 0:
-            self.scenes[-1].extend(int(duration * self.fps))
+            self.scenes[-1].extend(frame_num)
+        else:
+            from maxwell.core.scene import Scene
+
+            scene = Scene(self.client, {}, self.camera)
+
+            for shape in self.show_shapes:
+                scene.add_shape(shape)
+
+            scene.repeat_frame(frame_num)
+
+            self.scenes.append(scene)
 
 
     def compile(self, save_path='none', initial_clear=True, clears=True, await_completion=False):

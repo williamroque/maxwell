@@ -353,7 +353,7 @@ class Artist {
 
 
         document.body.appendChild(tableElement);
-        
+
         tableElement.style.left = point[0] - tableElement.offsetWidth / 2 + 'px';
         tableElement.style.top = point[1] - tableElement.offsetHeight / 2 + 'px';
     }

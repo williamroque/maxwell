@@ -260,6 +260,8 @@ try:
     log = ln = Composable(np.log)
     pi = π = np.pi
 
+    I = lambda arg: lambda *_, **__: arg
+
 ## For when the server might not be up
     def run(callback):
         callback()

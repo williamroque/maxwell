@@ -32,6 +32,27 @@ class Group:
         self.background = background
 
 
+    @classmethod
+    def generate(cls, shape_constructor, interval, **args):
+        from maxwell.shapes.shape import ShapeConfig
+
+        group = cls()
+
+        for i, x_i in enumerate(np.linspace(*interval)):
+            constructor_args = {
+                param: callback(x_i) for param, callback in args.items()
+            }
+
+            shape = shape_constructor(
+                **constructor_args,
+                shape_config=ShapeConfig(shape_name=f'shape-{i}')
+            )
+
+            group.add_shape(shape)
+
+        return group
+
+
     def add_shape(self, obj, shape_name=None):
         "Add a shape to the group."
 
@@ -81,6 +102,10 @@ class Group:
                     target_shape,
                     animation_config = animation_config
                 )
+
+                scenes.append(transform_scene)
+            elif check_type_name(shape, 'Arc') and check_type_name(target_shape, 'Arc'):
+                transform_scene = shape.move_to(target_shape)
 
                 scenes.append(transform_scene)
 

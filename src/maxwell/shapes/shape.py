@@ -210,16 +210,16 @@ class Shape:
     def move_to_point_setup(frame, props):
         "Setup for move_to_point frames."
 
-        props.cx = props.final_x - frame.props(props.shape_name).x
-        props.cy = props.final_y - frame.props(props.shape_name).y
+        props.cx = props.final_x - frame.props(props.shape_name).point[0]
+        props.cy = props.final_y - frame.props(props.shape_name).point[1]
 
 
     @staticmethod
     def move_to_point_apply(frame, props):
         "Callback for move_to_point frames."
 
-        frame.props(props.shape_name).x += props.cx * props.easing_ratio
-        frame.props(props.shape_name).y += props.cy * props.easing_ratio
+        frame.props(props.shape_name).point[0] += props.cx * props.easing_ratio
+        frame.props(props.shape_name).point[1] += props.cy * props.easing_ratio
 
 
     def move_to_point(self, point, animation_config: AnimationConfig = None):
@@ -239,13 +239,8 @@ class Shape:
         return scene
 
 
-    def move_to(self, other_shape, n=None, dt=.01, f=None, shapes=[]):
-        ending_point = [
-            other_shape.properties.x,
-            other_shape.properties.y
-        ]
-
-        return self.move_to_point(ending_point, n, dt, f, shapes + [other_shape])
+    def move_to(self, other_shape, animation_config: AnimationConfig = None):
+        return self.move_to_point(other_shape.properties.point, animation_config)
 
 
     def follow(self, animation_config: AnimationConfig = None):

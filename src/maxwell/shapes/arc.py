@@ -24,18 +24,17 @@ class Arc(Shape):
     DEFAULT_ARC_CONFIG = ArcConfig()
 
     def __init__(self, point=None, arc_config: ArcConfig = None, shape_config: ShapeConfig = None):
+        super().__init__(shape_config)
 
         if point is None:
-            point = np.array((0, 0))
-
-        super().__init__(shape_config)
+            point = [0, 0]
 
         if arc_config is None:
             arc_config = self.get_default('arc_config')
 
         self.properties = Properties(
             type = 'arc',
-            point = point,
+            point = list(point),
             radius = arc_config.radius,
             theta_1 = -arc_config.theta_1,
             theta_2 = -arc_config.theta_2,

@@ -98,7 +98,7 @@ class CartesianSystem(System):
         return edges[0]
 
 
-    def plot(self, func, start=None, end=None, color=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, render=True, invert=False, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def plot(self, func, start=None, end=None, color=None, width=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, render=True, invert=False, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         if invert:
             if start is None:
                 start = self.get_edges('bottom')
@@ -124,6 +124,9 @@ class CartesianSystem(System):
 
             if color is not None:
                 curve_config.color = color
+
+            if width is not None:
+                curve_config.width = width
 
         shape_config.system = self
 
