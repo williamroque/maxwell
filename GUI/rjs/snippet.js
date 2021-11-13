@@ -58,7 +58,7 @@ class Snippet {
                 data: this.data[0],
                 point: [x, y],
                 transform: this.data.slice(1),
-                fillColor: this.pen.brushColor
+                fillColor: this.pen.brush.color
             });
         }
     }

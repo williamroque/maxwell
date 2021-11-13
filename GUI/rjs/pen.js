@@ -191,14 +191,14 @@ class Pen {
 
     parse(command, ...args) {
         const commandAssociation = {
-            'toggle-eraser': this.brush.toggleEraser,
-            'clear': this.clear,
-            'next-color': this.brush.nextColor,
-            'previous-color': this.brush.previousColor,
-            'increase-brush-size': this.brush.increaseSize,
-            'decrease-brush-size': this.brush.decreaseSize,
-            'increase-sensitivity': this.brush.increaseSensitivity,
-            'decrease-sensitivity': this.brush.decreaseSensitivity,
+            'toggle-eraser': () => this.brush.toggleEraser(),
+            'clear': () => this.clear(),
+            'next-color': () => this.brush.nextColor(),
+            'previous-color': () => this.brush.previousColor(),
+            'increase-brush-size': () => this.brush.increaseSize(),
+            'decrease-brush-size': () => this.brush.decreaseSize(),
+            'increase-sensitivity': () => this.brush.increaseSensitivity(),
+            'decrease-sensitivity': () => this.brush.decreaseSensitivity(),
             'undo': () => this.history.travel(-1),
             'redo': () => this.history.travel(1),
             'select': () => {
@@ -261,6 +261,7 @@ class Pen {
             'delete-with': () => {
                 if (this.selection && this.selection.completed) {
                     this.selection.delete(args[0], args[1]);
+                    this.history.takeSnapshot();
 
                     switch (this.mode) {
                     case penModes.SELECTION:
