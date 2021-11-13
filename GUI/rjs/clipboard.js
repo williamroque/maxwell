@@ -11,7 +11,7 @@ class Clipboard {
         this.pen = pen;
     }
 
-    createBuffer(selectionArtist) {
+    createBuffer() {
         const bufferCanvas = document.createElement('canvas');
         const bufferCtx = bufferCanvas.getContext('2d');
 
@@ -44,10 +44,22 @@ class Clipboard {
             const [ x, y ] = this.pen.currentPoint;
 
             if (isNaN(key) && key in this.registry && key.toLowerCase() !== 'p') {
-                this.sendSelection(this.registry[key], x, y);
+                const selection = new Selection(
+                    this.selectionArtist,
+                    this.pen.artist
+                );
+                selection.capture(this.registry[key], x, y);
+                this.pen.selection = selection;
+
                 this.pen.history.takeSnapshot();
             } else if (index < this.items.length) {
-                this.sendSelection(this.items[index], x, y);
+                const selection = new Selection(
+                    this.selectionArtist,
+                    this.pen.artist
+                );
+                selection.capture(this.items[index], x, y);
+                this.pen.selection = selection;
+
                 this.pen.history.takeSnapshot();
             }
         }

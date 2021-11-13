@@ -113,7 +113,7 @@ const keymap = {
         key => globalClipboard.paste(key)
     ],
     '~w': [
-        () => currentPen.enabled && currentPen.movingSelection,
+        () => currentPen.enabled && currentPen.selection.completed,
         key => {
             clipboardFor(key).register(key);
             currentPen.cancel();
@@ -122,7 +122,7 @@ const keymap = {
     'd': currentPen.parse('delete', 'd'),
     'Shift+d': currentPen.parse('delete-with', 'D', globalClipboard),
     '~x': [
-        () => currentPen.enabled && currentPen.selection.complete,
+        () => currentPen.enabled && currentPen.selection.completed,
         key => {
             currentPen.selection.delete(key, clipboardFor(key));
         }

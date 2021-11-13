@@ -52,8 +52,10 @@ class Pen {
     downBinding(e) {
         if (Properties.awaitingEvent || e.which > 1 || !this.enabled) return;
 
-        if (this.selection && !this.selection.complete) {
-            this.selection.start(e);
+        if (this.selection) {
+            if (!this.selection.completed) {
+                this.selection.start(e);
+            }
         } else {
             this.isDrawing = true;
         }
@@ -64,8 +66,8 @@ class Pen {
 
         if (Properties.awaitingEvent || e.which > 1 || !this.enabled) return;
 
-        if (this.selection) {
-            if (this.selection.complete) {
+        if (this.selection && this.selection.started) {
+            if (this.selection.completed) {
                 this.selection.move(e);
             } else {
                 this.selection.change(e);
@@ -79,8 +81,10 @@ class Pen {
         if (Properties.awaitingEvent || e.which > 1 || !this.enabled) return;
 
         if (this.selection) {
-            if (this.selection.complete) {
+            if (this.selection.completed) {
                 this.selection.apply(e);
+                this.selection = undefined;
+
                 this.history.takeSnapshot();
             } else {
                 this.selection.end(e);
@@ -116,15 +120,27 @@ class Pen {
                     this.artist
                 );
             },
-            'yank': this.clipboard.store,
+            'yank': () => {
+                if (!this.selection) {
+                    this.selection = new Selection(
+                        this.selectionArtist,
+                        this.artist
+                    )
+
+                    this.selection.copyMode = true;
+                } else if (this.selection.completed) {
+                    this.clipboard.store();
+                    currentPen.cancel();
+                }
+            },
             'yank-with': () => args[0].store(),
             'delete': () => {
-                if (this.selection.complete) {
+                if (this.selection.completed) {
                     this.selection.delete(args[0], this.clipboard);
                 }
             },
             'delete-with': () => {
-                if (this.selection.complete) {
+                if (this.selection.completed) {
                     this.selection.delete(args[0], args[1]);
                 }
             }

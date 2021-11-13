@@ -8,7 +8,8 @@ class Selection {
         this.startPos;
         this.endPos;
 
-        this.complete = false;
+        this.started = false;
+        this.completed = false;
     }
 
     capture(canvas, x, y) {
@@ -18,8 +19,11 @@ class Selection {
 
         this.artist.capture(canvas);
 
-        this.pen.startPos = [x + canvas.width, y + canvas.height];
-        this.pen.endPos = [x, y];
+        this.startPos = [x + canvas.width, y + canvas.height];
+        this.endPos = [x, y];
+
+        this.started = true;
+        this.completed = true;
     }
 
     start(e) {
@@ -28,6 +32,8 @@ class Selection {
         this.artist.moveCanvas(e.pageX|0, e.pageY|0);
         this.artist.resizeCanvas(0, 0);
         this.artist.showCanvas();
+
+        this.started = true;
     }
 
     change(e) {
@@ -63,7 +69,7 @@ class Selection {
 
         this.endPos = [e.pageX|0, e.pageY|0];
 
-        this.complete = true;
+        this.completed = true;
     }
 
     getSelectionHandle(e) {
