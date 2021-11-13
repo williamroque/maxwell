@@ -38,10 +38,6 @@ const snippetLibrary = new SnippetLibrary(currentPen, snippetPath);
 
 const defaultWidth = window.innerWidth;
 
-let isZoom = false;
-
-let awaitingEvent = false;
-
 let sequence;
 
 function clearCanvas(background=true) {
@@ -65,8 +61,8 @@ const keymap = {
 
         currentPen.toggle();
     },
-    'e': () => currentPen.enabled ? currentPen.toggleEraser() : [],
-    'c': () => currentPen.enabled ? currentPen.clear() : [],
+    'e': currentPen.parse('toggle-eraser'),
+    'c': currentPen.parse('clear'),
     'Shift+c': () => {
         clearCanvas();
         for (const penName in pens) {
@@ -74,60 +70,14 @@ const keymap = {
             pens[penName].history.takeSnapshot();
         }
     },
-    '.': () => currentPen.enabled ? currentPen.nextColor() : [],
-    ',': () => currentPen.enabled ? currentPen.previousColor() : [],
-    ']': () => currentPen.enabled ? currentPen.increaseBrushSize() : [],
-    '[': () => currentPen.enabled ? currentPen.decreaseBrushSize() : [],
-    'u Meta+z': () => currentPen.enabled ? currentPen.history.travel(-1) : [],
-    'Control+r Meta+Shift+z': () => currentPen.enabled ? currentPen.history.travel(1) : [],
-    'l': () => {
-        currentPen.activateLine();
-    },
-    'Shift+l': () => {
-        if (currentPen.enabled) {
-            if (currentPen.lineMode) {
-                currentPen.cancel();
-            } else {
-                currentPen.lineMode = true;
-                currentPen.activateLine();
-            }
-        }
-    },
-    's': () => {
-        currentPen.activateSelection();
-    },
-    'Shift+s': () => {
-        if (currentPen.enabled) {
-            if (currentPen.selectionMode) {
-                currentPen.cancel();
-            } else {
-                currentPen.selectionMode = true;
-                currentPen.activateSelection();
-            }
-        }
-    },
-    'y': () => currentPen.yank(currentPen.clipboard),
-    'Shift+y': () => currentPen.yank(globalClipboard),
-    '~P': [
-        () => currentPen.enabled,
-        key => globalClipboard.paste(key)
-    ],
-    'd': () => {
-        if (currentPen.enabled && currentPen.movingSelection) {
-            currentPen.deleteSelection('d', currentPen.clipboard);
-        }
-    },
-    'Shift+d': () => {
-        if (currentPen.enabled && currentPen.movingSelection) {
-            currentPen.deleteSelection('D', globalClipboard);
-        }
-    },
-    '~x': [
-        () => currentPen.enabled && currentPen.movingSelection,
-        key => {
-            currentPen.deleteSelection(key, clipboardFor(key));
-        }
-    ],
+    '.': currentPen.parse('next-color'),
+    ',': currentPen.parse('previous-color'),
+    ']': currentPen.parse('increase-brush-size'),
+    '[': currentPen.parse('decrease-brush-size'),
+    'Shift+>': () => currentPen.parse('increase-sensitivity'),
+    'Shift+<': () => currentPen.parse('decrease-sensitivity'),
+    'u Meta+z': currentPen.parse('undo'),
+    'Control+r Meta+Shift+z': currentPen.parse('redo'),
     'Escape Control+[': () => {
         snippetLibrary.isRecording = false;
 
@@ -135,8 +85,6 @@ const keymap = {
             currentPen.cancel();
         }
     },
-    'Shift+>': () => currentPen.enabled ? currentPen.increaseSensitivity() : [],
-    'Shift+<': () => currentPen.enabled ? currentPen.decreaseSensitivity() : [],
     'Meta+Enter': () => {
         const window = remote.getCurrentWindow();
         window.setFullScreen(!window.isFullScreen());
@@ -153,15 +101,30 @@ const keymap = {
         () => currentPen.enabled,
         key => snippetLibrary.play(key)
     ],
+    's': currentPen.parse('select'),
+    'y': currentPen.parse('yank'),
+    'Shift+y': () => currentPen.parse('yank-with', globalClipboard),
     '~p': [
         () => currentPen.enabled,
         key => clipboardFor(key).paste(key)
+    ],
+    '~P': [
+        () => currentPen.enabled,
+        key => globalClipboard.paste(key)
     ],
     '~w': [
         () => currentPen.enabled && currentPen.movingSelection,
         key => {
             clipboardFor(key).register(key);
             currentPen.cancel();
+        }
+    ],
+    'd': currentPen.parse('delete', 'd'),
+    'Shift+d': currentPen.parse('delete-with', 'D', globalClipboard),
+    '~x': [
+        () => currentPen.enabled && currentPen.selection.complete,
+        key => {
+            currentPen.selection.delete(key, clipboardFor(key));
         }
     ],
     '~\'': [
@@ -186,7 +149,7 @@ const keymap = {
                 currentPen.enabled = true;
 
                 currentPen.artist.clear();
-                currentPen.drawBrushPreview();
+                currentPen.brush.drawPreview();
                 currentPen.history.travel(0);
 
                 globalClipboard.changePen(currentPen);

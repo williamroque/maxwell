@@ -6,6 +6,28 @@ class Artist {
         this.DOMElements = [];
     }
 
+    moveCanvas(x, y) {
+        if (x !== null) {
+            this.canvas.style.left = x + 'px';
+        }
+
+        if (y !== null) {
+            this.canvas.style.top = y + 'px';
+        }
+    }
+
+    resizeCanvas(width, height) {
+        this.canvas.width = width;
+        this.canvas.height = height;
+    }
+
+    hideCanvas() {
+        this.canvas.classList.add('hide');
+    }
+
+    showCanvas() {
+        this.canvas.classList.remove('hide');
+    }
 
     clearLatex() {
         for (const element of this.DOMElements) {
@@ -15,12 +37,10 @@ class Artist {
         this.DOMElements = [];
     }
 
-
     clear(x=0, y=0, width=this.canvas.width, height=this.canvas.height) {
         this.clearLatex();
         this.ctx.clearRect(x, y, width, height);
     }
-
 
     capture(canvas, sourceX=0, sourceY=0, targetX=0, targetY=0) {
         const width = Math.min(canvas.width, this.canvas.width);
@@ -37,7 +57,6 @@ class Artist {
         );
     }
 
-
     draw(shape) {
         const methodAssociation = {
             rect: this.drawRect,
@@ -53,7 +72,6 @@ class Artist {
         methodAssociation[shape.type].call(this, shape);
     }
 
-
     drawRect(args) {
         const { point, width, height, fillColor, borderColor, borderWidth } = args;
         let [ x, y ] = point;
@@ -68,7 +86,6 @@ class Artist {
         this.ctx.fillRect(x, y, width, height);
         this.ctx.strokeRect(x, y, width, height);
     }
-
 
     drawArrowHead(points) {
         this.ctx.beginPath();
@@ -86,7 +103,6 @@ class Artist {
         this.ctx.stroke();
         this.ctx.fill();
     }
-
 
     drawCurve(args) {
         const { points, color, width, arrowHead, fillColor } = args;
@@ -131,7 +147,6 @@ class Artist {
         }
     }
 
-
     drawArc(args) {
         const { point, radius, theta_1, theta_2, fillColor, borderColor, borderWidth } = args;
 
@@ -149,7 +164,6 @@ class Artist {
             this.ctx.stroke();
         }
     }
-
 
     drawImage(args) {
         let { src, point, width, height, isTemporary, callback } = args;
@@ -177,7 +191,6 @@ class Artist {
         };
     }
 
-
     drawText(args) {
         const { text, x, y, fontSpec, color, stroked, markdown } = args;
 
@@ -193,7 +206,6 @@ class Artist {
             this.ctx.fillText(text, x, y);
         }
     }
-
 
     drawMarkdown(args) {
         const { text, x, y, fontSpec, color, stroked } = args;

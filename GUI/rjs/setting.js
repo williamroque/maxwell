@@ -1,11 +1,11 @@
 function zoom(factor, relative=true) {
-    isZoom = true;
+    Properties.isZoom = true;
 
     if (relative) {
         factor = factor + webFrame.getZoomFactor();
     }
 
-    currentPen.drawBrushPreview();
+    currentPen.brush.drawPreview();
 
     webFrame.setZoomFactor(Math.max(1, factor));
 }
@@ -17,8 +17,8 @@ function compensateViewport(length) {
 
 
 function resizeCanvas(_, rerender=true) {
-    if (isZoom) {
-        isZoom = false;
+    if (Properties.isZoom) {
+        Properties.isZoom = false;
         return;
     }
 

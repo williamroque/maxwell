@@ -6,12 +6,12 @@ function awaitEvent(args) {
 
         ipcRenderer.sendSync('send-results', dataKeys.map(k => e[k]));
 
-        awaitingEvent = false;
+        Properties.awaitingEvent = false;
     }
 
     document.addEventListener(type, temporaryEventListener);
 
-    awaitingEvent = true;
+    Properties.awaitingEvent = true;
 }
 
 

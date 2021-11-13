@@ -2,6 +2,8 @@ class Properties {
     static sendResizeResponse = false;
     static rerenderBackground = false;
     static isLightMode = false;
+    static awaitingEvent = false;
+    static isZoom = false;
 
     static get width() {
         return canvas.width;
