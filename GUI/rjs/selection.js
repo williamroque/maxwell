@@ -27,9 +27,12 @@ class Selection {
     }
 
     start(e) {
-        this.startPos = [e.pageX|0, e.pageY|0];
+        const x = e.pageX|0;
+        const y = e.pageY|0;
 
-        this.artist.moveCanvas(e.pageX|0, e.pageY|0);
+        this.startPos = [x, y];
+
+        this.artist.moveCanvas(x, y);
         this.artist.resizeCanvas(0, 0);
         this.artist.showCanvas();
 

@@ -1,3 +1,13 @@
+const penModes = {
+    NONE: 'none',
+    BRUSH: 'brush',
+    LINE: 'line',
+    SELECTION: 'selection',
+    CONTINUOUSLINE: 'continuous-line',
+    CONTINUOUSSELECTION: 'continuous-selection'
+};
+
+
 class Pen {
     constructor(artist, previewArtist, selectionArtist, name) {
         this.name = name;
@@ -16,6 +26,9 @@ class Pen {
         this.brush.drawPreview();
 
         this.selection;
+        this.line;
+
+        this.mode = penModes.NONE;
 
         this.history = new History(artist, 500);
 
@@ -40,24 +53,55 @@ class Pen {
     }
 
     cancel() {
-        if (this.selection) {
+        switch (this.mode) {
+        case penModes.CONTINUOUSSELECTION:
+        case penModes.SELECTION:
             this.selection.cancel();
             this.selection = undefined;
 
             this.history.takeSnapshot();
             this.history.travel(-1);
+
+            break;
+
+        case penModes.CONTINUOUSLINE:
+        case penModes.LINE:
+            this.line = undefined;
+
+            this.history.takeSnapshot();
+            this.history.travel(-1);
+
+            break;
+
+        case penModes.BRUSH:
+            this.brush.lift();
+            this.history.takeSnapshot();
+
+            break;
         }
+
+        this.mode = penModes.NONE;
     }
 
     downBinding(e) {
         if (Properties.awaitingEvent || e.which > 1 || !this.enabled) return;
 
-        if (this.selection) {
+        switch (this.mode) {
+        case penModes.CONTINUOUSSELECTION:
+        case penModes.SELECTION:
             if (!this.selection.completed) {
                 this.selection.start(e);
             }
-        } else {
-            this.isDrawing = true;
+            break;
+
+        case penModes.CONTINUOUSLINE:
+        case penModes.LINE:
+            this.line.start(e);
+            break;
+
+        case penModes.NONE:
+            this.mode = penModes.BRUSH;
+            break;
         }
     }
 
@@ -66,33 +110,76 @@ class Pen {
 
         if (Properties.awaitingEvent || e.which > 1 || !this.enabled) return;
 
-        if (this.selection && this.selection.started) {
-            if (this.selection.completed) {
-                this.selection.move(e);
-            } else {
-                this.selection.change(e);
+        switch (this.mode) {
+        case penModes.CONTINUOUSSELECTION:
+        case penModes.SELECTION:
+            if (this.selection.started) {
+                if (this.selection.completed) {
+                    this.selection.move(e);
+                } else {
+                    this.selection.change(e);
+                }
             }
-        } else if (this.isDrawing) {
+            break;
+
+        case penModes.CONTINUOUSLINE:
+        case penModes.LINE:
+            if (this.line.started) {
+                this.line.update(e);
+            }
+            break;
+
+        case penModes.BRUSH:
             this.brush.planStroke(e);
+            break;
         }
     }
 
     upBinding(e) {
         if (Properties.awaitingEvent || e.which > 1 || !this.enabled) return;
 
-        if (this.selection) {
+        switch (this.mode) {
+        case penModes.CONTINUOUSSELECTION:
+        case penModes.SELECTION:
             if (this.selection.completed) {
                 this.selection.apply(e);
                 this.selection = undefined;
+
+                if (this.mode === penModes.SELECTION) {
+                    this.mode = penModes.NONE;
+                } else {
+                    this.selection = new Selection(
+                        this.selectionArtist,
+                        this.artist
+                    );
+                }
 
                 this.history.takeSnapshot();
             } else {
                 this.selection.end(e);
             }
-        } else {
-            this.isDrawing = false;
+            break;
+
+        case penModes.LINE:
             this.history.takeSnapshot();
+
+            this.mode = penModes.NONE;
+            this.line = undefined;
+
+            break;
+
+        case penModes.CONTINUOUSLINE:
+            this.history.takeSnapshot();
+            this.line = new Line(this);
+            break;
+
+        case penModes.BRUSH:
+            this.history.takeSnapshot();
+
+            this.mode = penModes.NONE;
             this.brush.lift();
+
+            break;
         }
     }
 
@@ -119,29 +206,88 @@ class Pen {
                     this.selectionArtist,
                     this.artist
                 );
+                this.mode = penModes.SELECTION;
             },
-            'yank': () => {
-                if (!this.selection) {
+            'continuous-selection': () => {
+                if (this.mode === penModes.CONTINUOUSSELECTION) {
+                    this.cancel();
+                } else if (this.mode === penModes.NONE) {
                     this.selection = new Selection(
                         this.selectionArtist,
                         this.artist
-                    )
+                    );
+                    this.mode = penModes.CONTINUOUSSELECTION;
+                }
+            },
+            'yank': () => {
+                if (this.mode === penModes.NONE) {
+                    this.selection = new Selection(
+                        this.selectionArtist,
+                        this.artist
+                    );
+                    this.mode = penModes.SELECTION;
 
                     this.selection.copyMode = true;
-                } else if (this.selection.completed) {
+                } else if (this.mode === penModes.SELECTION && this.selection.completed) {
                     this.clipboard.store();
                     currentPen.cancel();
                 }
             },
-            'yank-with': () => args[0].store(),
+            'yank-with': () => {
+                if (this.mode === penModes.SELECTION && this.selection.completed) {
+                    args[0].store();
+                    currentPen.cancel();
+                }
+            },
             'delete': () => {
-                if (this.selection.completed) {
+                if (this.selection && this.selection.completed) {
                     this.selection.delete(args[0], this.clipboard);
+                    this.history.takeSnapshot();
+
+                    switch (this.mode) {
+                    case penModes.SELECTION:
+                        this.cancel();
+                        break;
+
+                    case penModes.CONTINUOUSSELECTION:
+                        this.selection = new Selection(
+                            this.selectionArtist,
+                            this.artist
+                        );
+                        break;
+                    }
                 }
             },
             'delete-with': () => {
-                if (this.selection.completed) {
+                if (this.selection && this.selection.completed) {
                     this.selection.delete(args[0], args[1]);
+
+                    switch (this.mode) {
+                    case penModes.SELECTION:
+                        this.cancel();
+                        break;
+
+                    case penModes.CONTINUOUSSELECTION:
+                        this.selection = new Selection(
+                            this.selectionArtist,
+                            this.artist
+                        );
+                        break;
+                    }
+                }
+            },
+            'draw-line': () => {
+                if (this.mode === penModes.NONE) {
+                    this.line = new Line(this);
+                    this.mode = penModes.LINE;
+                }
+            },
+            'continuous-draw-line': () => {
+                if (this.mode === penModes.CONTINUOUSLINE) {
+                    this.cancel();
+                } else if (this.mode === penModes.NONE) {
+                    this.line = new Line(this);
+                    this.mode = penModes.CONTINUOUSLINE;
                 }
             }
         };

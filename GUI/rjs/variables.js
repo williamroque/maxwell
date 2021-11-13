@@ -102,6 +102,7 @@ const keymap = {
         key => snippetLibrary.play(key)
     ],
     's': currentPen.parse('select'),
+    'Shift+s': currentPen.parse('continuous-selection'),
     'y': currentPen.parse('yank'),
     'Shift+y': () => currentPen.parse('yank-with', globalClipboard),
     '~p': [
@@ -113,7 +114,7 @@ const keymap = {
         key => globalClipboard.paste(key)
     ],
     '~w': [
-        () => currentPen.enabled && currentPen.selection.completed,
+        () => currentPen.enabled && currentPen.selection && currentPen.selection.completed,
         key => {
             clipboardFor(key).register(key);
             currentPen.cancel();
@@ -122,11 +123,13 @@ const keymap = {
     'd': currentPen.parse('delete', 'd'),
     'Shift+d': currentPen.parse('delete-with', 'D', globalClipboard),
     '~x': [
-        () => currentPen.enabled && currentPen.selection.completed,
+        () => currentPen.enabled && currentPen.selection && currentPen.selection.completed,
         key => {
             currentPen.selection.delete(key, clipboardFor(key));
         }
     ],
+    'l': currentPen.parse('draw-line'),
+    'Shift+l': currentPen.parse('continuous-draw-line'),
     '~\'': [
         () => currentPen.enabled,
         key => {

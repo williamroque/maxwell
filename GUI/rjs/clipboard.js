@@ -50,6 +50,7 @@ class Clipboard {
                 );
                 selection.capture(this.registry[key], x, y);
                 this.pen.selection = selection;
+                this.pen.mode = penModes.SELECTION;
 
                 this.pen.history.takeSnapshot();
             } else if (index < this.items.length) {
@@ -59,6 +60,7 @@ class Clipboard {
                 );
                 selection.capture(this.items[index], x, y);
                 this.pen.selection = selection;
+                this.pen.mode = penModes.SELECTION;
 
                 this.pen.history.takeSnapshot();
             }
