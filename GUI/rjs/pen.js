@@ -4,7 +4,8 @@ const penModes = {
     LINE: 'line',
     SELECTION: 'selection',
     CONTINUOUSLINE: 'continuous-line',
-    CONTINUOUSSELECTION: 'continuous-selection'
+    CONTINUOUSSELECTION: 'continuous-selection',
+    CAPTURE: 'capture'
 };
 
 
@@ -27,6 +28,8 @@ class Pen {
 
         this.selection;
         this.line;
+
+        this.captureCallback;
 
         this.mode = penModes.NONE;
 
@@ -83,10 +86,21 @@ class Pen {
         this.mode = penModes.NONE;
     }
 
+    capture(callback) {
+        this.mode = penModes.CAPTURE;
+        this.captureCallback = callback;
+        this.selection = new Selection(
+            this.selectionArtist,
+            this.artist
+        );
+        this.selection.copyMode = true;
+    }
+
     downBinding(e) {
         if (Properties.awaitingEvent || e.which > 1 || !this.enabled) return;
 
         switch (this.mode) {
+        case penModes.CAPTURE:
         case penModes.CONTINUOUSSELECTION:
         case penModes.SELECTION:
             if (!this.selection.completed) {
@@ -111,6 +125,7 @@ class Pen {
         if (Properties.awaitingEvent || e.which > 1 || !this.enabled) return;
 
         switch (this.mode) {
+        case penModes.CAPTURE:
         case penModes.CONTINUOUSSELECTION:
         case penModes.SELECTION:
             if (this.selection.started) {
@@ -139,6 +154,15 @@ class Pen {
         if (Properties.awaitingEvent || e.which > 1 || !this.enabled) return;
 
         switch (this.mode) {
+        case penModes.CAPTURE:
+            this.mode = penModes.NONE;
+
+            this.selection.end(e);
+            this.selection.cancel();
+            this.captureCallback(this.selection);
+
+            break;
+
         case penModes.CONTINUOUSSELECTION:
         case penModes.SELECTION:
             if (this.selection.completed) {

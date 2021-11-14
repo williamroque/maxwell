@@ -12,6 +12,25 @@ class Selection {
         this.completed = false;
     }
 
+    getBounds() {
+        if (!this.completed) return {};
+
+        const [sx, sy] = this.startPos;
+        const [ex, ey] = this.endPos;
+
+        let bounds = {
+            TL: [sx < ex ? sx : ex , sy < ey ? sy : ey],
+            BL: [sx < ex ? sx : ex , sy > ey ? sy : ey],
+            TR: [sx > ex ? sx : ex , sy < ey ? sy : ey],
+            BR: [sx > ex ? sx : ex , sy > ey ? sy : ey],
+        };
+
+        bounds.width = bounds.TR[0] - bounds.TL[0];
+        bounds.height = bounds.BL[1] - bounds.TL[1];
+
+        return bounds;
+    }
+
     capture(canvas, x, y) {
         this.artist.moveCanvas(x, y);
         this.artist.resizeCanvas(canvas.width, canvas.height);

@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 
-const canvas = document.querySelector('#python-canvas');
+const canvas = document.querySelector('#main-canvas');
 const backgroundCanvas = document.querySelector('#background-canvas');
 const penCanvas = document.querySelector('#pen-canvas');
 const penPreviewCanvas = document.querySelector('#pen-preview-canvas');
