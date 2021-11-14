@@ -6,6 +6,8 @@ import functools
 import numpy as np
 from math import factorial as fact
 
+from maxwell.client.message import Message
+
 import maxwell.core.util as util
 from maxwell.core.util import partial, series, taylor, rationalize
 
@@ -132,6 +134,18 @@ try:
             image.render()
 
         return image
+
+
+    def capture_area(path, background=False):
+        message = Message(
+            client,
+            'captureArea',
+            path = os.path.expanduser(path),
+            background = background
+        )
+        message.send()
+
+        return client.receive_message()
 
 
     class Composable:

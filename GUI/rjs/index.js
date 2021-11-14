@@ -22,7 +22,7 @@ function awaitProperties(args) {
 }
 
 
-function captureArea(path) {
+function captureArea(path, background) {
     const canvases = [backgroundCanvas, canvas, penCanvas];
 
     currentPen.capture(selection => {
@@ -34,8 +34,10 @@ function captureArea(path) {
 
         const bufferArtist = new Artist(bufferCanvas);
 
-        bufferArtist.ctx.fillStyle = window.getComputedStyle(document.body).backgroundColor;
-        bufferArtist.ctx.fillRect(0, 0, bounds.width, bounds.height);
+        if (background) {
+            bufferArtist.ctx.fillStyle = window.getComputedStyle(document.body).backgroundColor;
+            bufferArtist.ctx.fillRect(0, 0, bounds.width, bounds.height);
+        }
 
         for (const canvas of canvases) {
             bufferArtist.capture(canvas, ...bounds.TL);
@@ -49,6 +51,8 @@ function captureArea(path) {
                 console.error(err);
             }
         });
+
+        ipcRenderer.sendSync('send-results', 'done');
     });
 }
 
@@ -80,7 +84,7 @@ ipcRenderer.on('parse-message', (_, data) => {
         setLightMode: setLightMode,
         setDarkMode: setDarkMode,
         setBackground: args => setBackground(args.background),
-        captureArea: args => captureArea(args.path)
+        captureArea: args => captureArea(args.path, args.background)
     };
 
     functionAssociation[data.command](data.args);
