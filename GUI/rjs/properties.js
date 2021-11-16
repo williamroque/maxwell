@@ -5,6 +5,8 @@ class Properties {
     static awaitingEvent = false;
     static isZoom = false;
 
+    static capture;
+
     static get width() {
         return canvas.width;
     }

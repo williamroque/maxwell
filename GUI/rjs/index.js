@@ -84,7 +84,15 @@ ipcRenderer.on('parse-message', (_, data) => {
         setLightMode: setLightMode,
         setDarkMode: setDarkMode,
         setBackground: args => setBackground(args.background),
-        captureArea: args => captureArea(args.path, args.background)
+        captureArea: args => {
+            Properties.capture = [
+                args.path,
+                args.background
+            ];
+
+            const window = remote.getCurrentWindow();
+            window.show();
+        }
     };
 
     functionAssociation[data.command](data.args);

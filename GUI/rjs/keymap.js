@@ -51,6 +51,14 @@ const generalKeymap = {
         () => currentPen.enabled,
         key => snippetLibrary.play(key)
     ],
+    'Enter': () => {
+        if (Properties.capture) {
+            captureArea(...Properties.capture);
+
+            Properties.capturePath = undefined;
+        }
+    }
+
 };
 
 const penKeymap = {
