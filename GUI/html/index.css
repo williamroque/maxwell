@@ -71,6 +71,12 @@ canvas {
     background: #4a46460f;
 }
 
+#shape-canvas {
+    position: absolute;
+    pointer-events: none;
+    background: none;
+}
+
 ::-webkit-scrollbar {
     display: none;
 }

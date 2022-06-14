@@ -76,6 +76,10 @@ const penKeymap = {
             currentPen.cancel();
         }
     },
+    '~n': [
+        () => currentPen.enabled,
+        key => currentPen.createShape(key)
+    ],
     '~p': [
         () => currentPen.enabled,
         key => clipboardFor(key).paste(key)
@@ -102,7 +106,7 @@ const penKeymap = {
         key => {
             if (key && /^[A-Za-z0-9]$/.test(key)) {
                 if (!(key in pens)) {
-                    pens[key] = new Pen(penArtist, penPreviewArtist, selectionArtist, key);
+                    pens[key] = new Pen(penArtist, penPreviewArtist, selectionArtist, shapeArtist, key);
                     pens[key].history.currentSnapshot = -1;
                     pens[key].clear();
                 }

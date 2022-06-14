@@ -5,17 +5,19 @@ const penModes = {
     SELECTION: 'selection',
     CONTINUOUSLINE: 'continuous-line',
     CONTINUOUSSELECTION: 'continuous-selection',
-    CAPTURE: 'capture'
+    CAPTURE: 'capture',
+    SHAPE: 'shape'
 };
 
 
 class Pen {
-    constructor(artist, previewArtist, selectionArtist, name) {
+    constructor(artist, previewArtist, selectionArtist, shapeArtist, name) {
         this.name = name;
 
         this.artist = artist;
         this.previewArtist = previewArtist;
         this.selectionArtist = selectionArtist;
+        this.shapeArtist = shapeArtist;
 
         this.enabled = false;
 
@@ -28,6 +30,7 @@ class Pen {
 
         this.selection;
         this.line;
+        this.shape;
 
         this.captureCallback;
 
@@ -81,6 +84,12 @@ class Pen {
             this.history.takeSnapshot();
 
             break;
+
+        case penModes.SHAPE:
+            this.shape.cancel();
+            this.shape = undefined;
+
+            break;
         }
 
         this.mode = penModes.NONE;
@@ -113,6 +122,15 @@ class Pen {
             this.line.start(e);
             break;
 
+        case penModes.SHAPE:
+            const phase = this.shape.switchPhase();
+
+            if (phase === 0) {
+                this.mode = penModes.NONE;
+            }
+
+            break;
+
         case penModes.NONE:
             this.mode = penModes.BRUSH;
             break;
@@ -141,6 +159,14 @@ class Pen {
         case penModes.LINE:
             if (this.line.started) {
                 this.line.update(e);
+            }
+            break;
+
+        case penModes.SHAPE:
+            if (!this.shape.started) {
+                this.shape.start(e);
+            } else {
+                this.shape.update(e);
             }
             break;
 
@@ -204,6 +230,30 @@ class Pen {
             this.brush.lift();
 
             break;
+        }
+    }
+
+    createShape(key) {
+        switch (key) {
+        case 'r':
+            this.shape = new Rect(this, this.shapeArtist);
+            break;
+
+        case 'c':
+            this.shape = new Circle(this, this.shapeArtist);
+            break;
+
+        default:
+            return;
+        }
+
+        this.mode = penModes.SHAPE;
+
+        if (this.currentPoint) {
+            this.shape.start({
+                pageX: this.currentPoint[0],
+                pageY: this.currentPoint[1]
+            });
         }
     }
 

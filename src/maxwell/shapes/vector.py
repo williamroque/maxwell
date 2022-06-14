@@ -12,6 +12,8 @@ from maxwell.core.group import Group
 class Vector(Curve):
     "Vector shape."
 
+    __array_ufunc__ = None
+
     def __init__(self, components, origin=None, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         "This is a Curve wrapper for vectors."
 
@@ -34,6 +36,17 @@ class Vector(Curve):
         curve_config.arrow = True
 
         super().__init__(points, curve_config, shape_config)
+
+
+    def __rmatmul__(self, other):
+        points = self.properties.points
+
+        components = np.array(points[1]).reshape((-1, 1))
+        components = (other @ components).reshape((-1)).tolist()
+
+        vector = Vector(components)
+
+        return vector
 
 
     @property
