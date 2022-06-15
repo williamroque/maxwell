@@ -77,6 +77,12 @@ canvas {
     background: none;
 }
 
+#latex-canvas {
+    position: absolute;
+    pointer-events: none;
+    background: none;
+}
+
 ::-webkit-scrollbar {
     display: none;
 }
@@ -89,6 +95,27 @@ canvas {
     font-family: 'Victor Mono';
     font-size: 12pt;
     pointer-events: none;
+}
+
+#text-prompt-container {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    color: #fdf4c1;
+    font-family: 'Victor Mono';
+    font-size: 12pt;
+    pointer-events: none;
+}
+
+#text-prompt {
+    display: inline-block;
+    color: #fdf4c1;
+    font-family: 'Victor Mono';
+    font-size: 12pt;
+    height: 20px;
+    background: none;
+    outline: none;
+    border: none;
 }
 
 #current-pen-label {

@@ -29,7 +29,7 @@ class Artist {
         this.canvas.classList.remove('hide');
     }
 
-    clearLatex() {
+    clearDOMElements() {
         for (const element of this.DOMElements) {
             element.remove();
         }
@@ -38,7 +38,7 @@ class Artist {
     }
 
     clear(x=0, y=0, width=this.canvas.width, height=this.canvas.height) {
-        this.clearLatex();
+        this.clearDOMElements();
         this.ctx.clearRect(x, y, width, height);
     }
 
@@ -263,33 +263,54 @@ class Artist {
         }
     }
 
-    drawLatex(args, latexContainer) {
-        const { source, point, fontSize, color, align } = args;
-
-        if (point[0] >= this.canvas.width || point[1] >= this.canvas.height) return;
+    drawLatex(args, latexContainer, callback) {
+        let { source, point, fontSize, color, align } = args;
 
         if (latexContainer === undefined) {
             latexContainer = document.createElement('div');
-            latexContainer.style.left = point[0] + 'px';
-            latexContainer.style.top = point[1] + 'px';
             latexContainer.style.fontSize = fontSize + 'pt';
             latexContainer.style.color = color;
-            latexContainer.classList.add('latex-container');
+            latexContainer.style.top = '-1000px';
+            latexContainer.style.left = '-1000px';
+            latexContainer.style.width = 'fit-content';
+            latexContainer.style.height = 'fit-content';
+            document.body.appendChild(latexContainer);
 
             if (align === 'center') {
                 latexContainer.classList.add('latex-align-center');
             } else if (align === 'right') {
                 latexContainer.classList.add('latex-align-right');
             }
-
-            this.DOMElements.push(latexContainer);
-            document.body.appendChild(latexContainer);
         }
 
         katex.render(source, latexContainer, {
             throwOnError: false,
             displayMode: true
         });
+
+        const margin = 10;
+
+        const width = latexContainer.offsetWidth + 10;
+        const height = latexContainer.offsetHeight;
+
+        html2canvas(
+            latexContainer,
+            {backgroundColor: null}
+        ).then(canvas => {
+            if (point === undefined) {
+                point = [0, 0];
+            }
+
+            this.resizeCanvas(width, height);
+
+            this.capture(canvas, 0, 0, ...point);
+
+            if (callback !== undefined) {
+                callback();
+            }
+        });
+
+        latexContainer.remove();
     }
 
     drawSVG(args) {

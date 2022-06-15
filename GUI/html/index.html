@@ -13,10 +13,16 @@
         <canvas id="pen-preview-canvas" class="hide" width="100" height="100"></canvas>
         <canvas id="selection-canvas" class="hide"></canvas>
         <canvas id="shape-canvas" class="hide"></canvas>
+        <canvas id="latex-canvas" class="hide"></canvas>
 
         <div id="key-prompt"></div>
         <div id="current-pen-label"></div>
 
+        <div id="text-prompt-container" class="hide">
+            :<input id="text-prompt">
+        </div>
+
+        <script src="../rjs/html2canvas.min.js"></script>
         <script src="../rjs/draw.js"></script>
         <script src="../rjs/setting.js"></script>
         <script src="../rjs/properties.js"></script>

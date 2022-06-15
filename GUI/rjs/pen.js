@@ -6,18 +6,22 @@ const penModes = {
     CONTINUOUSLINE: 'continuous-line',
     CONTINUOUSSELECTION: 'continuous-selection',
     CAPTURE: 'capture',
-    SHAPE: 'shape'
+    SHAPE: 'shape',
+    LATEX: 'latex'
 };
 
 
 class Pen {
-    constructor(artist, previewArtist, selectionArtist, shapeArtist, name) {
+    constructor(artist, previewArtist, selectionArtist, shapeArtist, name, textPrompt, latexArtist) {
         this.name = name;
 
         this.artist = artist;
         this.previewArtist = previewArtist;
         this.selectionArtist = selectionArtist;
         this.shapeArtist = shapeArtist;
+        this.latexArtist = latexArtist;
+
+        this.textPrompt = textPrompt;
 
         this.enabled = false;
 
@@ -131,6 +135,21 @@ class Pen {
 
             break;
 
+        case penModes.LATEX:
+            this.mode = penModes.NONE;
+
+            const centerPoint = [
+                this.currentPoint[0] - latexArtist.canvas.width/2,
+                this.currentPoint[1] - latexArtist.canvas.height/2
+            ];
+
+            this.artist.capture(this.latexArtist.canvas, 0, 0, ...centerPoint);
+
+            this.latexArtist.hideCanvas();
+            this.latexArtist.clear();
+
+            break;
+
         case penModes.NONE:
             this.mode = penModes.BRUSH;
             break;
@@ -168,6 +187,15 @@ class Pen {
             } else {
                 this.shape.update(e);
             }
+            break;
+
+        case penModes.LATEX:
+            const centerPoint = [
+                this.currentPoint[0] - latexArtist.canvas.width/2,
+                this.currentPoint[1] - latexArtist.canvas.height/2
+            ];
+
+            this.latexArtist.moveCanvas(...centerPoint);
             break;
 
         case penModes.BRUSH:
@@ -233,6 +261,54 @@ class Pen {
         }
     }
 
+    createLatex() {
+        this.textPrompt.value = '';
+        this.textPrompt.parentNode.classList.remove('hide');
+
+        this.textPrompt.focus();
+    }
+
+    promptBinding(e) {
+        e.stopPropagation();
+
+        switch (e.key) {
+        case 'j':
+            if (!e.ctrlKey) break;
+        case 'Enter':
+            this.latexArtist.drawLatex({
+                source: this.textPrompt.value,
+                fontSize: 12,
+                color: '#fdf4c1',
+                align: 'center'
+            }, undefined, () => {
+                const centerPoint = [
+                    this.currentPoint[0] - latexArtist.canvas.width/2,
+                    this.currentPoint[1] - latexArtist.canvas.height/2
+                ];
+
+                this.latexArtist.moveCanvas(...centerPoint);
+                this.latexArtist.showCanvas();
+
+            });
+
+            this.mode = penModes.LATEX;
+
+            this.textPrompt.parentNode.classList.add('hide');
+
+            break;
+
+        case 'Escape':
+            this.mode = penModes.NONE;
+
+            this.latexArtist.hideCanvas();
+            this.latexArtist.clear();
+
+            this.textPrompt.parentNode.classList.add('hide');
+
+            break;
+        }
+    }
+
     createShape(key) {
         switch (key) {
         case 'r':
@@ -261,6 +337,10 @@ class Pen {
         window.addEventListener('pointermove', this.moveBinding.bind(this));
         window.addEventListener('mousedown', this.downBinding.bind(this));
         window.addEventListener('mouseup', this.upBinding.bind(this));
+        this.textPrompt.addEventListener('keydown', this.promptBinding.bind(this));
+        window.addEventListener('keydown', e => {
+            if (e.key === ';') e.preventDefault();
+        }, false);
     }
 
     parse(command, ...args) {

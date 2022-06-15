@@ -9,9 +9,12 @@ const penCanvas = document.querySelector('#pen-canvas');
 const penPreviewCanvas = document.querySelector('#pen-preview-canvas');
 const selectionCanvas = document.querySelector('#selection-canvas');
 const shapeCanvas = document.querySelector('#shape-canvas');
+const latexCanvas = document.querySelector('#latex-canvas');
 
 const keyPrompt = document.querySelector('#key-prompt');
 const currentPenLabel = document.querySelector('#current-pen-label');
+
+const textPrompt = document.querySelector('#text-prompt');
 
 const artist = new Artist(canvas);
 const backgroundArtist = new Artist(backgroundCanvas);
@@ -19,11 +22,12 @@ const penArtist = new Artist(penCanvas);
 const penPreviewArtist = new Artist(penPreviewCanvas);
 const selectionArtist = new Artist(selectionCanvas);
 const shapeArtist = new Artist(shapeCanvas);
+const latexArtist = new Artist(latexCanvas);
 
 const defaultPenKey = 'm';
 
 let pens = {};
-pens[defaultPenKey] = new Pen(penArtist, penPreviewArtist, selectionArtist, shapeArtist, defaultPenKey);
+pens[defaultPenKey] = new Pen(penArtist, penPreviewArtist, selectionArtist, shapeArtist, defaultPenKey, textPrompt, latexArtist);
 
 let currentPen = pens[defaultPenKey];
 
