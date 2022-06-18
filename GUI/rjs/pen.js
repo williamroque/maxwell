@@ -7,7 +7,8 @@ const penModes = {
     CONTINUOUSSELECTION: 'continuous-selection',
     CAPTURE: 'capture',
     SHAPE: 'shape',
-    LATEX: 'latex'
+    LATEX: 'latex',
+    ROTATION: 'rotation'
 };
 
 
@@ -25,7 +26,7 @@ class Pen {
 
         this.enabled = false;
 
-        this.currentPoint;
+        this.currentPoint = [0, 0];
 
         this.clipboard = new Clipboard(this, selectionArtist);
 
@@ -131,7 +132,23 @@ class Pen {
 
             if (phase === 0) {
                 this.mode = penModes.NONE;
+                this.shape = undefined;
             }
+
+            this.history.takeSnapshot();
+
+            break;
+
+        case penModes.ROTATION:
+            if (this.shape) {
+                this.mode = penModes.SHAPE;
+            } else if (this.selection) {
+                this.mode = penModes.SELECTION;
+            } else {
+                this.mode = penModes.NONE;
+            }
+
+            this.downBinding(e);
 
             break;
 
@@ -147,6 +164,8 @@ class Pen {
 
             this.latexArtist.hideCanvas();
             this.latexArtist.clear();
+
+            this.history.takeSnapshot();
 
             break;
 
@@ -191,8 +210,8 @@ class Pen {
 
         case penModes.LATEX:
             const centerPoint = [
-                this.currentPoint[0] - latexArtist.canvas.width/2,
-                this.currentPoint[1] - latexArtist.canvas.height/2
+                this.currentPoint[0] - this.latexArtist.canvas.width/2,
+                this.currentPoint[1] - this.latexArtist.canvas.height/2
             ];
 
             this.latexArtist.moveCanvas(...centerPoint);
@@ -200,6 +219,36 @@ class Pen {
 
         case penModes.BRUSH:
             this.brush.planStroke(e);
+            break;
+
+        case penModes.ROTATION:
+            if (this.shape) {
+                const theta = Math.atan2(
+                    this.shape.pointFromCenter[1] - this.currentPoint[1],
+                    this.currentPoint[0] - this.shape.pointFromCenter[0]
+                );
+
+                if (this.shape.alpha === undefined) {
+                    this.shape.alpha = -theta;
+                }
+
+                this.shape.theta = theta;
+                this.shape.render();
+            } else if (this.selection) {
+                const centerPoint = this.selection.centerPoint;
+
+                const theta = Math.atan2(
+                    this.currentPoint[1] - centerPoint[1],
+                    centerPoint[0] - this.currentPoint[0]
+                );
+
+                if (this.selection.alpha === undefined) {
+                    this.selection.alpha = -theta;
+                }
+                this.selection.theta = theta;
+
+                this.selection.artist.rotateCanvas(this.selection.angle);
+            }
             break;
         }
     }
@@ -288,8 +337,7 @@ class Pen {
 
                 this.latexArtist.moveCanvas(...centerPoint);
                 this.latexArtist.showCanvas();
-
-            });
+            }, true);
 
             this.mode = penModes.LATEX;
 
@@ -319,6 +367,10 @@ class Pen {
             this.shape = new Circle(this, this.shapeArtist);
             break;
 
+        case 't':
+            this.shape = new RTriangle(this, this.shapeArtist);
+            break;
+
         default:
             return;
         }
@@ -331,6 +383,10 @@ class Pen {
                 pageY: this.currentPoint[1]
             });
         }
+    }
+
+    rotate() {
+        this.mode = penModes.ROTATION;
     }
 
     bind() {

@@ -12,10 +12,17 @@ class Brush {
 
         this.colorIndex = 0;
         this.previousColorIndex = 0;
-        this.colorOptions = ['#fdf4c1', '#6CA17A', '#cc6666', '#81a2be'];
+
+        this.darkColorOptions = ['#fdf4c1', '#6CA17A', '#cc6666', '#81a2be'];
+        this.lightColorOptions = ['#121112', '#6CA17A', '#cc6666', '#81a2be'];
+
         this.previewArtist.canvas.style.borderColor = this.color;
 
         this.lastPos;
+    }
+
+    get colorOptions() {
+        return Properties.isLightMode ? this.lightColorOptions : this.darkColorOptions;
     }
 
     get color() {

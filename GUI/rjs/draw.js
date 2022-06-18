@@ -6,6 +6,13 @@ class Artist {
         this.DOMElements = [];
     }
 
+    getCoordinates() {
+        return [
+            parseInt(this.canvas.style.left),
+            parseInt(this.canvas.style.top)
+        ];
+    }
+
     moveCanvas(x, y) {
         if (x !== null) {
             this.canvas.style.left = x + 'px';
@@ -19,6 +26,52 @@ class Artist {
     resizeCanvas(width, height) {
         this.canvas.width = width;
         this.canvas.height = height;
+    }
+
+    rotateCanvas(theta) {
+        this.canvas.style.transform = 'rotate(' + -theta + 'rad)';
+    }
+
+    rotate(theta) {
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        this.ctx.translate(this.canvas.width/2, this.canvas.height/2);
+        this.ctx.rotate(-theta);
+        this.ctx.translate(-this.canvas.width/2, -this.canvas.height/2);
+    }
+
+    rotateRedraw(theta) {
+        const bufferCanvas = this.canvas.cloneNode();
+        const bufferCtx = bufferCanvas.getContext('2d');
+
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+
+        bufferCtx.drawImage(
+            this.canvas,
+            0, 0, width, height,
+            0, 0, width, height
+        )
+
+        const size = Math.sqrt(width**2 + height**2);
+        const coords = this.getCoordinates();
+
+        this.resizeCanvas(size, size);
+
+        this.moveCanvas(
+            coords[0] + width/2 - size/2,
+            coords[1] + height/2 - size/2
+        );
+
+        this.clear();
+        this.rotate(theta);
+        this.capture(
+            bufferCanvas,
+            0, 0,
+            size/2 - width/2,
+            size/2 - height/2
+        );
+        this.rotate(0);
     }
 
     hideCanvas() {
@@ -147,6 +200,20 @@ class Artist {
         }
     }
 
+    drawBezier(args) {
+        const { points, color, width } = args;
+
+        if (points.length !== 4) return;
+
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = width;
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(...points[0]);
+        this.ctx.bezierCurveTo(...points[1], ...points[2], ...points[3]);
+        this.ctx.stroke();
+    }
+
     drawArc(args) {
         const { point, radius, theta_1, theta_2, fillColor, borderColor, borderWidth } = args;
 
@@ -263,17 +330,24 @@ class Artist {
         }
     }
 
-    drawLatex(args, latexContainer, callback) {
+    drawLatex(args, latexContainer, callback, embed=false) {
         let { source, point, fontSize, color, align } = args;
 
         if (latexContainer === undefined) {
             latexContainer = document.createElement('div');
             latexContainer.style.fontSize = fontSize + 'pt';
             latexContainer.style.color = color;
-            latexContainer.style.top = '-1000px';
-            latexContainer.style.left = '-1000px';
-            latexContainer.style.width = 'fit-content';
-            latexContainer.style.height = 'fit-content';
+            latexContainer.classList.add('latex-container');
+
+            if (embed) {
+                latexContainer.style.top = '-1000px';
+                latexContainer.style.left = '-1000px';
+            } else {
+                latexContainer.style.top = point[1] + 'px';
+                latexContainer.style.left = point[0] + 'px';
+                this.DOMElements.push(latexContainer);
+            }
+
             document.body.appendChild(latexContainer);
 
             if (align === 'center') {
@@ -288,29 +362,30 @@ class Artist {
             displayMode: true
         });
 
-        const margin = 10;
+        if (embed) {
+            const margin = 10;
 
-        const width = latexContainer.offsetWidth + 10;
-        const height = latexContainer.offsetHeight;
+            const width = latexContainer.offsetWidth + margin;
+            const height = latexContainer.offsetHeight;
 
-        html2canvas(
-            latexContainer,
-            {backgroundColor: null}
-        ).then(canvas => {
-            if (point === undefined) {
-                point = [0, 0];
-            }
+            html2canvas(
+                latexContainer,
+                {backgroundColor: null}
+            ).then(canvas => {
+                if (point === undefined) {
+                    point = [0, 0];
+                }
 
-            this.resizeCanvas(width, height);
+                this.resizeCanvas(width, height);
+                this.capture(canvas, 0, 0, ...point);
 
-            this.capture(canvas, 0, 0, ...point);
+                if (callback !== undefined) {
+                    callback();
+                }
+            });
 
-            if (callback !== undefined) {
-                callback();
-            }
-        });
-
-        latexContainer.remove();
+            latexContainer.remove();
+        }
     }
 
     drawSVG(args) {

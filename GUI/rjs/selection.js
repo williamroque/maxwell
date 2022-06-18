@@ -10,6 +10,28 @@ class Selection {
 
         this.started = false;
         this.completed = false;
+
+        this.alpha;
+
+        this.theta = 0;
+        this.ctxTheta = 0;
+
+        this.currentPoint;
+    }
+
+    get angle() {
+        return this.theta + (this.alpha || 0);
+    }
+
+    get centerPoint() {
+        if (!this.currentPoint) return;
+
+        const [x, y] = this.currentPoint;
+
+        const width = Math.abs(this.endPos[0] - this.startPos[0]);
+        const height = Math.abs(this.endPos[1] - this.startPos[1]);
+
+        return [x + width/2, y + height/2];
     }
 
     getBounds() {
@@ -105,18 +127,21 @@ class Selection {
 
     move(e) {
         const [x, y] = this.getSelectionHandle(e);
+        this.currentPoint = [x, y];
 
         this.artist.moveCanvas(x, y);
     }
 
     apply(e) {
-        const [x, y] = this.getSelectionHandle(e);
+        this.artist.rotateRedraw(this.angle);
 
         this.penArtist.capture(
             this.artist.canvas,
             0, 0,
-            x, y
+            ...this.artist.getCoordinates()
         );
+
+        this.artist.rotateCanvas(0);
         this.artist.clear();
         this.artist.hideCanvas();
     }

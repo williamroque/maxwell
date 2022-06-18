@@ -53,6 +53,10 @@ const generalKeymap = {
     ],
     'Enter': () => {
         if (Properties.capture) {
+            if (!currentPen.enabled) {
+                currentPen.toggle();
+            }
+
             captureArea(...Properties.capture);
 
             Properties.capturePath = undefined;
@@ -79,6 +83,11 @@ const penKeymap = {
     ';': () => {
         if (currentPen.enabled) {
             currentPen.createLatex();
+        }
+    },
+    '/': () => {
+        if (currentPen.enabled && currentPen.mode === penModes.SELECTION) {
+            currentPen.rotate();
         }
     },
     '~n': [

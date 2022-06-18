@@ -53,7 +53,10 @@ function resizeCanvas(_, rerender=true) {
 
 function toggleBackground() {
     document.body.classList.toggle('light-body');
-    isLightMode = !isLightMode;
+    Properties.isLightMode = !Properties.isLightMode;
+
+    currentPen.brush.nextColor();
+    currentPen.brush.previousColor();
 }
 
 
@@ -64,11 +67,17 @@ function setBackground(background) {
 
 function setLightMode() {
     document.body.classList.add('light-body');
-    isLightMode = true;
+    Properties.isLightMode = true;
+
+    currentPen.brush.nextColor();
+    currentPen.brush.previousColor();
 }
 
 
 function setDarkMode() {
     document.body.classList.remove('light-body');
-    isLightMode = false;
+    Properties.isLightMode = false;
+
+    currentPen.brush.nextColor();
+    currentPen.brush.previousColor();
 }
