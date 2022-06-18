@@ -28,16 +28,24 @@ class Artist {
         this.canvas.height = height;
     }
 
-    rotateCanvas(theta) {
+    rotateCanvas(theta, about) {
+        if (about) {
+            this.canvas.style.transformOrigin = `${about[0]}px ${about[1]}px`;
+        }
+
         this.canvas.style.transform = 'rotate(' + -theta + 'rad)';
     }
 
-    rotate(theta) {
+    rotate(theta, about) {
+        if (!about) {
+            about = [this.canvas.width/2, this.canvas.height/2];
+        }
+
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-        this.ctx.translate(this.canvas.width/2, this.canvas.height/2);
+        this.ctx.translate(...about);
         this.ctx.rotate(-theta);
-        this.ctx.translate(-this.canvas.width/2, -this.canvas.height/2);
+        this.ctx.translate(-about[0], -about[1]);
     }
 
     rotateRedraw(theta) {

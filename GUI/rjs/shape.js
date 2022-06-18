@@ -11,6 +11,7 @@ class Shape {
 
         this.started = false;
         this.currentPoint;
+        this.adjustedPoint;
 
         this.alpha;
 
@@ -45,11 +46,12 @@ class Shape {
     }
 
     adjustCenter(oldBounds, newBounds) {
-        this.currentPoint = [
-            this.currentPoint[0] + oldBounds[0]/2 - newBounds[0]/2,
-            this.currentPoint[1] + oldBounds[1]/2 - newBounds[1]/2
+        this.adjustedPoint = [
+            this.adjustedPoint[0] + oldBounds[0]/2 - newBounds[0]/2,
+            this.adjustedPoint[1] + oldBounds[1]/2 - newBounds[1]/2
         ];
-        this.artist.moveCanvas(...this.currentPoint);
+
+        this.artist.moveCanvas(...this.adjustedPoint);
     }
 
     renderLine(origin, end, factor) {
@@ -78,6 +80,7 @@ class Shape {
     start(e) {
         const point = this.moveToCenter([e.pageX | 0, e.pageY | 0]);
         this.currentPoint = point;
+        this.adjustedPoint = point;
 
         this.artist.clear();
 
@@ -96,6 +99,7 @@ class Shape {
             point = this.moveToCenter(point);
 
             this.currentPoint = point;
+            this.adjustedPoint = point;
             this.artist.moveCanvas(...point);
         } else {
             this.render(point);
@@ -108,7 +112,7 @@ class Shape {
         if (this.phase === 0) {
             const oldBounds = this.shapeBounds();
             this.defaultSize = Math.sqrt(oldBounds[0]**2 + oldBounds[1]**2);
-            this.adjustCenter(oldBounds, [this.defaultSize, this.defaultSize]);
+            this.adjustCenter(oldBounds, this.shapeBounds());
 
             this.ctxTheta = this.angle;
 
@@ -117,10 +121,15 @@ class Shape {
             this.pen.artist.capture(
                 this.artist.canvas,
                 0, 0,
-                ...this.currentPoint
+                ...this.adjustedPoint
             );
             this.artist.hideCanvas();
         } else if (this.phase === 1) {
+            if (this.constructor.skipRotation) {
+                this.switchPhase();
+                return;
+            }
+
             this.render();
             this.pen.rotate();
         } else {
@@ -145,44 +154,42 @@ class Shape {
 
 class Rect extends Shape {
     static defaultLengths = [50, 50];
+    static skipRotation = false;
 
     shapeBounds() {
         if (this.defaultSize) {
             return [this.defaultSize, this.defaultSize];
         }
 
-        return this.allLengths.map(l => l + this.pen.brush.brushSize * 4);
+        return this.allLengths.map(l => Math.abs(l) + this.pen.brush.brushSize * 4);
     }
 
     render(point) {
-        const endpoints = [
-            [[0, 0],
-             [1, 0]],
-            [[0, 0],
-             [0, 1]]
-        ];
-
         if (point) {
-            const [origin, end] = endpoints[this.focusedLength];
-
-            point = [
-                Math.max(0, point[0] - parseInt(this.artist.canvas.style.left)),
-                Math.max(0, point[1] - parseInt(this.artist.canvas.style.top))
-            ];
-
-            this.lengths[this.focusedLength] = this.projectDistance(
-                origin, end,
-                point
-            );
+            if (this.focusedLength === 0) {
+                this.lengths[this.focusedLength] = point[0] - this.currentPoint[0];
+            } else {
+                this.lengths[this.focusedLength] = point[1] - this.currentPoint[1];
+            }
         }
 
         const lengths = this.allLengths;
+        const bounds = this.shapeBounds();
 
         this.artist.clear();
-        this.artist.resizeCanvas(...this.shapeBounds());
+        this.artist.resizeCanvas(...bounds);
 
         this.artist.rotateCanvas(this.angle);
         this.artist.rotate(this.ctxTheta);
+
+        if (point) {
+            this.adjustedPoint = [
+                lengths[0] < 0 && this.focusedLength === 0 ? point[0] : this.adjustedPoint[0],
+                lengths[1] < 0 && this.focusedLength === 1 ? point[1] : this.adjustedPoint[1]
+            ];
+
+            this.artist.moveCanvas(...this.adjustedPoint);
+        }
 
         const centerPoint = [
             this.artist.canvas.width / 2,
@@ -191,22 +198,21 @@ class Rect extends Shape {
 
         this.artist.drawRect({
             point: centerPoint,
-            width: lengths[0],
-            height: lengths[1],
+            width: Math.abs(lengths[0]),
+            height: Math.abs(lengths[1]),
             fillColor: 'transparent',
             borderColor: this.pen.brush.color,
             borderWidth: this.pen.brush.brushSize * 4
         });
 
         if (point) {
-            const [origin, end] = endpoints[this.focusedLength];
-            const projectedLength = this.lengths[this.focusedLength];
+            const length = this.lengths[this.focusedLength];
 
-            this.renderLine(
-                [origin[0] * projectedLength, origin[1] * projectedLength],
-                [end[0] * projectedLength, end[1] * projectedLength],
-                10
-            );
+            if (this.focusedLength === 0) {
+                this.renderLine([0, 0], [Math.abs(length), 0], 10);
+            } else {
+                this.renderLine([0, 0], [0, Math.abs(length)], 10);
+            }
         }
     }
 }
@@ -214,6 +220,7 @@ class Rect extends Shape {
 
 class Circle extends Shape {
     static defaultLengths = [25];
+    static skipRotation = true;
 
     shapeBounds() {
         if (this.defaultSize) {
@@ -230,7 +237,7 @@ class Circle extends Shape {
         const oldBounds = this.shapeBounds();
 
         if (point) {
-            const x = point[0] - (this.currentPoint[0] + oldBounds[0]/2);
+            const x = point[0] - (this.adjustedPoint[0] + oldBounds[0]/2);
 
             this.lengths[0] = Math.max(0, x);
         }
@@ -240,9 +247,6 @@ class Circle extends Shape {
 
         this.artist.clear();
         this.artist.resizeCanvas(...bounds);
-
-        this.artist.rotateCanvas(this.angle);
-        this.artist.rotate(this.ctxTheta);
 
         const centerPoint = [
             bounds[0] / 2,
@@ -276,13 +280,14 @@ class Circle extends Shape {
 
 class RTriangle extends Shape {
     static defaultLengths = [50, 50];
+    static skipRotation = false;
 
     shapeBounds() {
         if (this.defaultSize) {
-            return [this.defaultSize, this.defaultSize];
+            return [this.defaultSize*2, this.defaultSize*2];
         }
 
-        return this.allLengths.map(l => l + this.pen.brush.brushSize * 4);
+        return this.allLengths.map(l => Math.abs(l) + this.pen.brush.brushSize * 4);
     }
 
     moveToCenter(point) {
@@ -296,34 +301,19 @@ class RTriangle extends Shape {
     }
 
     render(point) {
-        const endpoints = [
-            [[0, 0],
-             [1, 0]],
-            [[0, 0],
-             [0, 1]]
-        ];
-
         if (point) {
-            const [origin, end] = endpoints[this.focusedLength];
-
-            point = [
-                Math.max(0, point[0] - parseInt(this.artist.canvas.style.left)),
-                Math.max(0, point[1] - parseInt(this.artist.canvas.style.top))
-            ];
-
-            this.lengths[this.focusedLength] = this.projectDistance(
-                origin, end,
-                point
-            );
+            if (this.focusedLength === 0) {
+                this.lengths[this.focusedLength] = point[0] - this.currentPoint[0];
+            } else {
+                this.lengths[this.focusedLength] = point[1] - this.currentPoint[1];
+            }
         }
 
         const lengths = this.allLengths;
+        const absLengths = lengths.map(Math.abs);
 
         this.artist.clear();
         this.artist.resizeCanvas(...this.shapeBounds());
-
-        this.artist.rotateCanvas(this.angle);
-        this.artist.rotate(this.ctxTheta);
 
         const centerPoint = [
             this.artist.canvas.width / 2,
@@ -336,6 +326,23 @@ class RTriangle extends Shape {
             [centerPoint[0] + lengths[0]/2, centerPoint[1] + lengths[1]/2],
             [centerPoint[0] - lengths[0]/2, centerPoint[1] - lengths[1]/2],
         ];
+
+        const midpoint = [
+            points.slice(1).reduce((a, b) => a + b[0], 0)/3,
+            points.slice(1).reduce((a, b) => a + b[1], 0)/3,
+        ];
+
+        this.artist.rotateCanvas(this.angle, midpoint);
+        this.artist.rotate(this.ctxTheta, midpoint);
+
+        if (point) {
+            this.adjustedPoint = [
+                lengths[0] < 0 && this.focusedLength === 0 ? point[0] : this.adjustedPoint[0],
+                lengths[1] < 0 && this.focusedLength === 1 ? point[1] : this.adjustedPoint[1]
+            ];
+
+            this.artist.moveCanvas(...this.adjustedPoint);
+        }
 
         this.artist.drawCurve({
             points: points,
