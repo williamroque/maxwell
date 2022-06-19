@@ -149,7 +149,30 @@ class Artist {
         this.ctx.strokeRect(x, y, width, height);
     }
 
+    calculateArrowHead(r, start, end, origin) {
+        const theta = Math.atan2(
+            end[1] - start[1],
+            end[0] - start[0]
+        );
+
+        const alpha = 2*Math.PI/3;
+
+        let points = [];
+
+        for (let i = 0; i < 3; i++) {
+            points.push([
+                r * (Math.cos(theta + i * alpha) - Math.cos(theta)) + origin[0],
+                r * (Math.sin(theta + i * alpha) - Math.sin(theta)) + origin[1]
+            ]);
+        }
+
+        return points;
+    }
+
     drawArrowHead(points) {
+        const dashes = this.ctx.getLineDash();
+        this.ctx.setLineDash([]);
+
         this.ctx.beginPath();
 
         let firstPoint = points.pop();
@@ -164,6 +187,8 @@ class Artist {
         this.ctx.closePath();
         this.ctx.stroke();
         this.ctx.fill();
+
+        this.ctx.setLineDash(dashes);
     }
 
     drawCurve(args) {

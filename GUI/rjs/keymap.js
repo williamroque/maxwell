@@ -93,6 +93,10 @@ const penKeymap = {
             currentPen.rotate();
         }
     },
+    '~g': [
+        () => currentPen.enabled,
+        key => currentPen.setStyle(key)
+    ],
     '~n': [
         () => currentPen.enabled,
         key => currentPen.createShape(key)

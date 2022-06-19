@@ -17,13 +17,31 @@ class Line {
 
         this.pen.history.travel(0);
 
+        const points = [this.startPos, [x, y]];
+
+        if (this.pen.styles.has('dashed')) {
+            this.pen.artist.ctx.setLineDash([5, 10]);
+        }
+
+        let arrowHead = [];
+
+        if (this.pen.styles.has('arrow')) {
+            arrowHead = this.pen.artist.calculateArrowHead(
+                this.pen.brush.brushSize * 8,
+                ...points,
+                points[1]
+            );
+        }
+
         this.pen.artist.drawCurve({
-            points: [this.startPos, [x, y]],
+            points: points,
             color: this.pen.brush.color,
             width: this.pen.brush.brushSize * 4,
             arrow: false,
-            arrowHead: [],
+            arrowHead: arrowHead,
             fillColor: 'transparent'
         });
+
+        this.pen.artist.ctx.setLineDash([]);
     }
 }

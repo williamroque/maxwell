@@ -39,6 +39,8 @@ class Pen {
         this.line;
         this.shape;
 
+        this.styles = new Set();
+
         this.captureCallback;
 
         this.mode = penModes.NONE;
@@ -402,6 +404,25 @@ class Pen {
             this.textPrompt.parentNode.classList.add('hide');
 
             break;
+        }
+    }
+
+    toggleStyle(style) {
+        if (this.styles.has(style)) {
+            this.styles.delete(style);
+        } else {
+            this.styles.add(style);
+        }
+    }
+
+    setStyle(key) {
+        const styleMap = {
+            a: 'arrow',
+            d: 'dashed'
+        };
+
+        if (key in styleMap) {
+            this.toggleStyle(styleMap[key]);
         }
     }
 
