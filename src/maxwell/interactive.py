@@ -87,6 +87,7 @@ try:
     GREEN = '#A6B860'
     BLUE = '#7AA1C0'
     WHITE = '#FDF4C1'
+    BLACK = '#121112'
 
 ## Convenience functions
     def natural_labels(labels):

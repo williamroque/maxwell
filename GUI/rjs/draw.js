@@ -3,6 +3,8 @@ class Artist {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d');
 
+        this.ctx.imageSmoothingEnabled = false;
+
         this.DOMElements = [];
     }
 
@@ -26,11 +28,15 @@ class Artist {
     resizeCanvas(width, height) {
         this.canvas.width = width;
         this.canvas.height = height;
+
+        this.ctx.imageSmoothingEnabled = false;
     }
 
     rotateCanvas(theta, about) {
         if (about) {
             this.canvas.style.transformOrigin = `${about[0]}px ${about[1]}px`;
+        } else {
+            this.canvas.style.transformOrigin = null;
         }
 
         this.canvas.style.transform = 'rotate(' + -theta + 'rad)';
@@ -104,17 +110,12 @@ class Artist {
     }
 
     capture(canvas, sourceX=0, sourceY=0, targetX=0, targetY=0) {
-        const width = Math.min(canvas.width, this.canvas.width);
-        const height = Math.min(canvas.height, this.canvas.height);
+        const { width, height } = canvas;
 
         this.ctx.drawImage(
             canvas,
-            sourceX, sourceY,
-            width,
-            height,
-            targetX, targetY,
-            width,
-            height
+            sourceX, sourceY, width, height,
+            targetX, targetY, width, height
         );
     }
 
@@ -338,8 +339,8 @@ class Artist {
         }
     }
 
-    drawLatex(args, latexContainer, callback, embed=false) {
-        let { source, point, fontSize, color, align } = args;
+    drawLatex(args, latexContainer, callback) {
+        let { source, point, fontSize, color, align, embed } = args;
 
         if (latexContainer === undefined) {
             latexContainer = document.createElement('div');
@@ -371,9 +372,9 @@ class Artist {
         });
 
         if (embed) {
-            const margin = 10;
+            const margin = 1.2;
 
-            const width = latexContainer.offsetWidth + margin;
+            const width = latexContainer.offsetWidth * margin;
             const height = latexContainer.offsetHeight;
 
             html2canvas(
@@ -433,7 +434,8 @@ class Artist {
                 point: [0, 0],
                 fontSize: undefined,
                 color: undefined,
-                align: undefined
+                align: undefined,
+                embed: false
             }, headerElement);
 
             headerRowElement.appendChild(headerElement);
@@ -452,7 +454,8 @@ class Artist {
                     point: [0, 0],
                     fontSize: undefined,
                     color: undefined,
-                    align: undefined
+                    align: undefined,
+                    embed: false
                 }, columnElement);
 
                 if (!isNaN(col)) {

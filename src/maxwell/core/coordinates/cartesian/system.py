@@ -34,7 +34,6 @@ def default_formatter(x):
     return '{:.2f}'.format(x)
 
 
-
 class CartesianSystem(System):
     "The cartesian coordinate system"
 

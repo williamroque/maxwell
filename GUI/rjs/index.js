@@ -57,6 +57,11 @@ function captureArea(path, background) {
 }
 
 
+function getLatexPrompt() {
+    return ipcRenderer.invoke('get-latex-prompt');
+}
+
+
 ipcRenderer.on('parse-message', (_, data) => {
     const canvasAssociation = {
         'default': [artist, () => {}],

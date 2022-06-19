@@ -26,6 +26,9 @@ const generalKeymap = {
     'Control+c': () => sequence ? sequence.stop() : [],
     'Control+u': clearCanvas,
     'Control+b': toggleBackground,
+    'Control+l': () => {
+        Properties.externalPrompt = !Properties.externalPrompt;
+    },
     'Control+p': () => {
         if (currentPen.enabled) {
             currentPenLabel.innerText = '';

@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+import re
+
 from maxwell.shapes.shape import Shape, ShapeConfig
 from maxwell.core.properties import Properties
 
@@ -12,6 +14,7 @@ class LatexConfig:
     color: str = '#789'
     break_lines: bool = True
     align: str = 'center'
+    embed: bool = False
 
 
 class Latex(Shape):
@@ -33,13 +36,16 @@ class Latex(Shape):
         if latex_config.break_lines:
             source = source.replace('\n', r'\\')
 
+        source = re.sub(r'\\\(|\\\)', '', source)
+
         self.properties = Properties(
             type = 'latex',
             source = source,
             point = point,
             fontSize = latex_config.font_size,
             color = latex_config.color,
-            align = latex_config.align
+            align = latex_config.align,
+            embed = latex_config.embed
         )
         self.properties.set_normalized('point')
 

@@ -113,6 +113,8 @@ class Selection {
 
         this.endPos = [e.pageX|0, e.pageY|0];
 
+        this.currentPoint = this.getSelectionHandle(e);
+
         this.completed = true;
     }
 

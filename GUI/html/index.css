@@ -118,6 +118,14 @@ canvas {
     border: none;
 }
 
+.light-body #text-prompt-container {
+    color: #121112;
+}
+
+.light-body #text-prompt {
+    color: #121112;
+}
+
 #current-pen-label {
     position: absolute;
     right: 29px;

@@ -33,6 +33,8 @@ class Pen {
         this.brush = new Brush(artist, previewArtist);
         this.brush.drawPreview();
 
+        this.defaultFontSize = 12;
+
         this.selection;
         this.line;
         this.shape;
@@ -61,6 +63,12 @@ class Pen {
         this.previewArtist.canvas.classList.toggle('hide');
         document.body.classList.toggle('draggable');
         zoom(1, false);
+    }
+
+    setPrompt(message) {
+        if (!keyPrompt.innerText) {
+            keyPrompt.innerText = message;
+        }
     }
 
     cancel() {
@@ -93,6 +101,19 @@ class Pen {
         case penModes.SHAPE:
             this.shape.cancel();
             this.shape = undefined;
+
+            break;
+
+        case penModes.ROTATION:
+            keyPrompt.innerText = '';
+
+            if (this.shape) {
+                this.mode = penModes.SHAPE;
+                this.cancel();
+            } else if (this.selection) {
+                this.mode = penModes.SELECTION;
+                this.cancel();
+            }
 
             break;
         }
@@ -140,6 +161,8 @@ class Pen {
             break;
 
         case penModes.ROTATION:
+            keyPrompt.innerText = '';
+
             if (this.shape) {
                 this.mode = penModes.SHAPE;
             } else if (this.selection) {
@@ -249,6 +272,7 @@ class Pen {
 
                 this.selection.artist.rotateCanvas(this.selection.angle);
             }
+
             break;
         }
     }
@@ -310,11 +334,48 @@ class Pen {
         }
     }
 
-    createLatex() {
-        this.textPrompt.value = '';
-        this.textPrompt.parentNode.classList.remove('hide');
+    renderLatex(value) {
+        value = value.split(';');
 
-        this.textPrompt.focus();
+        this.defaultFontSize = value.length > 1
+            ? (parseInt(value[1]) || this.defaultFontSize)
+            : this.defaultFontSize;
+
+        this.latexArtist.drawLatex({
+            source: value[0].replace(/\\\((.*)\\\)/, '$1').trim(),
+            fontSize: this.defaultFontSize,
+            color: this.brush.color,
+            align: 'center',
+            embed: true
+        }, undefined, () => {
+            const centerPoint = [
+                this.currentPoint[0] - latexArtist.canvas.width/2,
+                this.currentPoint[1] - latexArtist.canvas.height/2
+            ];
+
+            this.latexArtist.moveCanvas(...centerPoint);
+            this.latexArtist.showCanvas();
+        });
+
+        this.mode = penModes.LATEX;
+    }
+
+    createLatex() {
+        if (Properties.externalPrompt) {
+            getLatexPrompt().then(value => {
+                if (value) {
+                    this.renderLatex(value);
+                } else {
+                    Properties.externalPrompt = false;
+                    this.createLatex();
+                }
+            });
+        } else {
+            this.textPrompt.value = '';
+            this.textPrompt.parentNode.classList.remove('hide');
+
+            this.textPrompt.focus();
+        }
     }
 
     promptBinding(e) {
@@ -324,26 +385,13 @@ class Pen {
         case 'j':
             if (!e.ctrlKey) break;
         case 'Enter':
-            this.latexArtist.drawLatex({
-                source: this.textPrompt.value,
-                fontSize: 12,
-                color: '#fdf4c1',
-                align: 'center'
-            }, undefined, () => {
-                const centerPoint = [
-                    this.currentPoint[0] - latexArtist.canvas.width/2,
-                    this.currentPoint[1] - latexArtist.canvas.height/2
-                ];
-
-                this.latexArtist.moveCanvas(...centerPoint);
-                this.latexArtist.showCanvas();
-            }, true);
-
-            this.mode = penModes.LATEX;
-
+            this.renderLatex(this.textPrompt.value);
             this.textPrompt.parentNode.classList.add('hide');
 
             break;
+
+        case 'g':
+            if (!e.ctrlKey) break;
 
         case 'Escape':
             this.mode = penModes.NONE;
@@ -367,6 +415,10 @@ class Pen {
             this.shape = new Circle(this, this.shapeArtist);
             break;
 
+        case 'a':
+            this.shape = new Arc(this, this.shapeArtist);
+            break;
+
         case 't':
             this.shape = new RTriangle(this, this.shapeArtist);
             break;
@@ -386,6 +438,7 @@ class Pen {
     }
 
     rotate() {
+        this.setPrompt('ROTATING');
         this.mode = penModes.ROTATION;
     }
 

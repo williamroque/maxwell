@@ -1,5 +1,14 @@
 const { app, ipcMain } = require('electron');
+
+const util = require('util')
+const exec = util.promisify(require('child_process').exec);
+
 const net = require('net');
+
+const path = require('path');
+const os = require('os');
+
+const fs = require('fs');
 
 const Window = require('./window');
 
@@ -102,3 +111,25 @@ try {
 } catch(e) {
     console.log(e, message);
 }
+
+
+function waitForFile(filePath) {
+    return new Promise(resolve => {
+        while (!fs.existsSync(filePath));
+        resolve(fs.readFileSync(filePath).toString());
+        fs.unlinkSync(filePath);
+    });
+}
+
+
+ipcMain.handle('get-latex-prompt', async event => {
+    try {
+        await exec('/usr/local/bin/emacsclient -e "(maxwell-get-latex-prompt)"');
+
+        const filePath = path.join(os.homedir(), 'temp.org');
+
+        return waitForFile(filePath);
+    } catch {
+        return new Promise(resolve => resolve(''));
+    }
+});

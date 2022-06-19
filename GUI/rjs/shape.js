@@ -42,7 +42,7 @@ class Shape {
     }
 
     get pointFromCenter() {
-        return this.moveFromCenter(this.currentPoint);
+        return this.moveFromCenter(this.adjustedPoint);
     }
 
     adjustCenter(oldBounds, newBounds) {
@@ -124,6 +124,8 @@ class Shape {
                 ...this.adjustedPoint
             );
             this.artist.hideCanvas();
+            this.artist.rotateCanvas(null, null);
+            this.artist.rotate(0);
         } else if (this.phase === 1) {
             if (this.constructor.skipRotation) {
                 this.switchPhase();
@@ -236,10 +238,13 @@ class Circle extends Shape {
     render(point) {
         const oldBounds = this.shapeBounds();
 
-        if (point) {
-            const x = point[0] - (this.adjustedPoint[0] + oldBounds[0]/2);
+        let x, y;
 
-            this.lengths[0] = Math.max(0, x);
+        if (point) {
+            x = point[0] - (this.adjustedPoint[0] + oldBounds[0]/2);
+            y = point[1] - (this.adjustedPoint[1] + oldBounds[1]/2);
+
+            this.lengths[0] = Math.sqrt(x**2 + y**2);
         }
 
         const radius = this.allLengths[0];
@@ -266,13 +271,96 @@ class Circle extends Shape {
         this.adjustCenter(oldBounds, bounds);
 
         if (point) {
-            const projectedLength = this.allLengths[0];
-
             this.renderLine(
-                [bounds[0]/2, bounds[1]/2],
-                [bounds[0], bounds[1]/2],
+                centerPoint,
+                [centerPoint[0] + x, centerPoint[1] + y],
                 6
             );
+        }
+    }
+}
+
+
+class Arc extends Shape {
+    static defaultLengths = [25, 0, 2*Math.PI];
+    static skipRotation = true;
+
+    shapeBounds() {
+        if (this.defaultSize) {
+            return [this.defaultSize, this.defaultSize];
+        }
+
+        const radius = this.allLengths[0];
+        const size = radius*2 + this.pen.brush.brushSize*4;
+
+        return [size, size];
+    }
+
+    render(point) {
+        const oldBounds = this.shapeBounds();
+
+        let x, y;
+
+        if (point) {
+            if (this.focusedLength === 0) {
+                x = point[0] - (this.adjustedPoint[0] + oldBounds[0]/2);
+                y = point[1] - (this.adjustedPoint[1] + oldBounds[1]/2);
+
+                this.lengths[0] = Math.sqrt(x**2 + y**2);
+            } else {
+                const theta = Math.atan2(
+                    this.pointFromCenter[1] - point[1],
+                    point[0] - this.pointFromCenter[0]
+                );
+
+                this.lengths[this.focusedLength] = -theta;
+            }
+        }
+
+        const lengths = this.allLengths;
+        const radius = lengths[0];
+
+        const bounds = this.shapeBounds();
+
+        this.artist.clear();
+        this.artist.resizeCanvas(...bounds);
+
+        const centerPoint = [
+            bounds[0] / 2,
+            bounds[1] / 2
+        ];
+
+        this.artist.drawArc({
+            point: centerPoint,
+            radius: radius,
+            theta_1: lengths[1],
+            theta_2: lengths[2],
+            fillColor: 'transparent',
+            borderColor: this.pen.brush.color,
+            borderWidth: this.pen.brush.brushSize * 4
+        });
+
+        this.adjustCenter(oldBounds, bounds);
+
+        if (point) {
+            if (this.focusedLength === 0) {
+                this.renderLine(
+                    centerPoint,
+                    [centerPoint[0] + x, centerPoint[1] + y],
+                    6
+                );
+            } else {
+                const theta = lengths[this.focusedLength];
+
+                this.renderLine(
+                    centerPoint,
+                    [
+                        centerPoint[0] + radius*Math.cos(theta),
+                        centerPoint[1] + radius*Math.sin(theta)
+                    ],
+                    6
+                );
+            }
         }
     }
 }

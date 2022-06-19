@@ -5,6 +5,8 @@ class Properties {
     static awaitingEvent = false;
     static isZoom = false;
 
+    static externalPrompt = true;
+
     static capture;
 
     static get width() {
