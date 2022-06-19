@@ -19,13 +19,13 @@ class Line {
 
         const points = [this.startPos, [x, y]];
 
-        if (this.pen.styles.has('dashed')) {
+        if (this.pen.hasStyle('dashed')) {
             this.pen.artist.ctx.setLineDash([5, 10]);
         }
 
         let arrowHead = [];
 
-        if (this.pen.styles.has('arrow')) {
+        if (this.pen.hasStyle('arrow')) {
             arrowHead = this.pen.artist.calculateArrowHead(
                 this.pen.brush.brushSize * 8,
                 ...points,

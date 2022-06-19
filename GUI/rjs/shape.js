@@ -45,6 +45,12 @@ class Shape {
         return this.moveFromCenter(this.adjustedPoint);
     }
 
+    get fillColor() {
+        return this.pen.hasStyle('shape-fill')
+            ? this.pen.brush.color
+            : 'transparent';
+    }
+
     adjustCenter(oldBounds, newBounds) {
         this.adjustedPoint = [
             this.adjustedPoint[0] + oldBounds[0]/2 - newBounds[0]/2,
@@ -202,7 +208,7 @@ class Rect extends Shape {
             point: centerPoint,
             width: Math.abs(lengths[0]),
             height: Math.abs(lengths[1]),
-            fillColor: 'transparent',
+            fillColor: this.fillColor,
             borderColor: this.pen.brush.color,
             borderWidth: this.pen.brush.brushSize * 4
         });
@@ -263,7 +269,7 @@ class Circle extends Shape {
             radius: radius,
             theta_1: 0,
             theta_2: 2*Math.PI,
-            fillColor: 'transparent',
+            fillColor: this.fillColor,
             borderColor: this.pen.brush.color,
             borderWidth: this.pen.brush.brushSize * 4
         });
@@ -335,7 +341,7 @@ class Arc extends Shape {
             radius: radius,
             theta_1: lengths[1],
             theta_2: lengths[2],
-            fillColor: 'transparent',
+            fillColor: this.fillColor,
             borderColor: this.pen.brush.color,
             borderWidth: this.pen.brush.brushSize * 4
         });
@@ -437,7 +443,7 @@ class RTriangle extends Shape {
             color: this.pen.brush.color,
             width: this.pen.brush.brushSize * 4,
             arrowHead: [],
-            fillColor: 'transparent',
+            fillColor: this.fillColor,
         });
 
         if (point) {

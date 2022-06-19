@@ -415,10 +415,15 @@ class Pen {
         }
     }
 
+    hasStyle(style) {
+        return this.styles.has(style);
+    }
+
     setStyle(key) {
         const styleMap = {
             a: 'arrow',
-            d: 'dashed'
+            d: 'dashed',
+            f: 'shape-fill'
         };
 
         if (key in styleMap) {
