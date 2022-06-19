@@ -1,12 +1,13 @@
 "A cartesian coordinate system."
 
 from dataclasses import dataclass
+from copy import deepcopy
 
 import numpy as np
 
 from maxwell.core.coordinates.system import System
 from maxwell.core.group import Group
-from maxwell.core.util import pi_format
+from maxwell.core.util import pi_format, is_light_mode
 from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.shape import ShapeConfig
 from maxwell.shapes.latex import Latex, LatexConfig
@@ -24,8 +25,8 @@ class PolarGridConfig:
     ring_label_offset: tuple = (10, 17)
     line_label_offset: tuple = (0, 0)
     ring_label_config: LatexConfig = LatexConfig(color='#444', font_size=8)
-    primary_label_config: LatexConfig = LatexConfig(color='#7685947d', font_size=11)
-    secondary_label_config: LatexConfig = LatexConfig(color='#414346', font_size=8)
+    primary_label_config: LatexConfig = LatexConfig(color='#444', font_size=11)
+    secondary_label_config: LatexConfig = LatexConfig(color='#555', font_size=8)
 
 
 def near_multiple(a, b):
@@ -53,9 +54,19 @@ class PolarSystem(System):
         return r, theta
 
 
-    def plot(self, func, start, end, point_num=400, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def plot(self, func, start, end, color=None, point_num=400, render=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         if shape_config is None:
             shape_config = ShapeConfig()
+
+
+        if curve_config is None:
+            curve_config = deepcopy(Curve.DEFAULT_CURVE_CONFIG)
+            
+            if color is None:
+                if is_light_mode(self.client):
+                    curve_config.color = '#121112'
+            else:
+                curve_config.color = color
 
         shape_config.system = self
 
