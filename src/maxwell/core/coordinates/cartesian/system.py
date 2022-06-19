@@ -9,7 +9,7 @@ import numpy as np
 
 from maxwell.core.coordinates.system import System
 from maxwell.core.group import Group
-from maxwell.core.util import pi_format, fraction_format
+from maxwell.core.util import pi_format, fraction_format, is_light_mode
 from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.shape import ShapeConfig
 from maxwell.shapes.latex import Latex, LatexConfig
@@ -121,7 +121,10 @@ class CartesianSystem(System):
         if curve_config is None:
             curve_config = deepcopy(Curve.DEFAULT_CURVE_CONFIG)
 
-            if color is not None:
+            if color is None:
+                if is_light_mode(self.client):
+                    curve_config.color = '#121112'
+            else:
                 curve_config.color = color
 
             if width is not None:

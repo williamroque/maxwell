@@ -115,6 +115,10 @@ def set_dark_mode(client):
     client.send_message(message)
 
 
+def is_light_mode(client):
+    return await_properties(client, ['isLightMode'])[0]
+
+
 def resize_window(client, width=600, height=500, rerender=True, system=None):
     message = {
         'command': 'resizeWindow',
