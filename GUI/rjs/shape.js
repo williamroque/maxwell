@@ -134,8 +134,7 @@ class Shape {
             this.artist.rotate(0);
         } else if (this.phase === 1) {
             if (this.constructor.skipRotation) {
-                this.switchPhase();
-                return;
+                return this.switchPhase();
             }
 
             this.render();
