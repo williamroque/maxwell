@@ -3,6 +3,8 @@ import colorsys
 
 import numpy as np
 
+from dataclasses import replace
+
 from maxwell.shapes.shape import ShapeConfig
 from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.arc import Arc, ArcConfig
@@ -14,7 +16,7 @@ class Vector(Curve):
 
     __array_ufunc__ = None
 
-    def __init__(self, components, origin=None, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def __init__(self, components, origin=None, color=None, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         "This is a Curve wrapper for vectors."
 
         if origin is None:
@@ -32,6 +34,9 @@ class Vector(Curve):
 
         if curve_config is None:
             curve_config = self.get_default('curve_config')
+
+        if color is not None:
+            curve_config = replace(curve_config, color=color)
 
         curve_config.arrow = True
 
