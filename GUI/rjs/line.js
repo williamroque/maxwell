@@ -27,7 +27,7 @@ class Line {
 
         if (this.pen.hasStyle('arrow')) {
             arrowHead = this.pen.artist.calculateArrowHead(
-                this.pen.brush.brushSize * 8,
+                this.pen.brush.brushSize * 4,
                 ...points,
                 points[1]
             );
@@ -36,7 +36,7 @@ class Line {
         this.pen.artist.drawCurve({
             points: points,
             color: this.pen.brush.color,
-            width: this.pen.brush.brushSize * 4,
+            width: this.pen.brush.brushSize * 2,
             arrow: false,
             arrowHead: arrowHead,
             fillColor: 'transparent'

@@ -192,9 +192,17 @@ class Artist {
     }
 
     drawCurve(args) {
-        const { points, color, width, arrowHead, fillColor } = args;
+        const { points, smooth, color, width, arrowHead, fillColor } = args;
 
         if (points.length < 1) return;
+
+        if (smooth) {
+            this.ctx.lineCap = 'round';
+            this.ctx.lineJoin = 'round';
+        } else {
+            this.ctx.lineCap = 'butt';
+            this.ctx.lineJoin = 'butt';
+        }
 
         this.ctx.strokeStyle = color;
         this.ctx.fillStyle = fillColor;

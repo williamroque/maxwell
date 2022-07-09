@@ -30,7 +30,7 @@ class Pen {
 
         this.clipboard = new Clipboard(this, selectionArtist);
 
-        this.brush = new Brush(artist, previewArtist);
+        this.brush = new Brush(this, artist, previewArtist);
         this.brush.drawPreview();
 
         this.defaultFontSize = 12;
@@ -243,7 +243,7 @@ class Pen {
             break;
 
         case penModes.BRUSH:
-            this.brush.planStroke(e);
+            this.brush.drawBrush(e);
             break;
 
         case penModes.ROTATION:

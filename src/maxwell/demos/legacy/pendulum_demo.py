@@ -1,4 +1,4 @@
-from maxwell.int import *
+from maxwell import *
 
 
 clear()

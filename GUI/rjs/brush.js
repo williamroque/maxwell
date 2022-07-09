@@ -1,5 +1,6 @@
 class Brush {
-    constructor(artist, previewArtist) {
+    constructor(pen, artist, previewArtist) {
+        this.pen = pen;
         this.artist = artist;
         this.previewArtist = previewArtist;
 
@@ -18,7 +19,7 @@ class Brush {
 
         this.previewArtist.canvas.style.borderColor = this.color;
 
-        this.lastPos;
+        this.points = [];
     }
 
     get colorOptions() {
@@ -29,7 +30,15 @@ class Brush {
         return this.colorOptions[this.colorIndex];
     }
 
-    drawBrush(x, y, adjustedBrushSize) {
+    drawBrush(e) {
+        const brushSize = this.isEraser ? this.eraserSize : this.brushSize;
+        const adjustedBrushSize = brushSize + Math.pow(brushSize * e.pressure, 1 + this.sensitivity);
+
+        const x = e.pageX | 0;
+        const y = e.pageY | 0;
+
+        this.points.push([x, y]);
+
         if (this.isEraser) {
             this.artist.clear(
                 x - adjustedBrushSize/2,
@@ -38,18 +47,31 @@ class Brush {
                 adjustedBrushSize
             );
         } else {
-            const properties = {
-                point: [x, y],
-                radius: adjustedBrushSize,
-                theta_1: 0,
-                theta_2: 2*Math.PI,
-                fillColor: this.color,
-                borderColor: this.color,
-                borderWidth: 0
-            };
+            if (this.points.length > 1) {
+                this.pen.history.travel(0);
 
-            this.artist.drawArc(properties);
+                this.artist.drawCurve({
+                    points: this.points,
+                    color: this.color,
+                    smooth: true,
+                    width: adjustedBrushSize * 2,
+                    arrowHead: [],
+                    fillColor: 'transparent'
+                });
+            } else {
+                this.artist.drawArc({
+                    point: [x, y],
+                    radius: adjustedBrushSize,
+                    theta_1: 0,
+                    theta_2: 2*Math.PI,
+                    fillColor: this.color,
+                    borderColor: this.color,
+                    borderWidth: 0
+                });
+            }
         }
+
+        this.lastPos = [e.pageX, e.pageY];
     }
 
     drawPreview() {
@@ -77,40 +99,8 @@ class Brush {
         this.previewArtist.drawRect(properties);
     }
 
-    planStroke(e) {
-        const brushSize = this.isEraser ? this.eraserSize : this.brushSize;
-
-        if (this.lastPos) {
-            const dx = Math.abs(e.pageX - this.lastPos[0]);
-            const dy = Math.abs(e.pageY - this.lastPos[1]);
-
-            const gPosDiff = dx > dy ? 0 : 1;
-
-            const direction = [
-                Math.min(e.pageX - this.lastPos[0], 0) ? -1 : 1,
-                Math.min(e.pageY - this.lastPos[1], 0) ? -1 : 1,
-            ];
-
-            for (let i = 0; i < [dx, dy][gPosDiff]; i++) {
-                this.drawBrush(
-                    ((gPosDiff ? dx / dy * i : i) || 0) * direction[0] + this.lastPos[0],
-                    ((gPosDiff ? i : dy / dx * i) || 0) * direction[1] + this.lastPos[1],
-                    brushSize + this.sensitivity * (1/(1 + Math.exp(-3*e.pressure)) - 1/2)
-                );
-            }
-        } else {
-            this.drawBrush(
-                e.pageX,
-                e.pageY,
-                brushSize + Math.pow(brushSize * e.pressure, 1 + this.sensitivity)
-            );
-        }
-
-        this.lastPos = [e.pageX, e.pageY];
-    }
-
     lift() {
-        this.lastPos = undefined;
+        this.points = [];
     }
 
     increaseSize() {

@@ -1,5 +1,7 @@
 from maxwell import *
 
+clear()
+
 
 sequence = Sequence()
 
