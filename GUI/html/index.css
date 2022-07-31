@@ -128,11 +128,11 @@ canvas {
 
 #current-pen-label {
     position: absolute;
-    right: 29px;
-    top: 26px;
+    right: 5vw;
+    top: 4vw;
     color: #867373;
     font-family: 'Victor Mono';
-    font-size: 12pt;
+    font-size: 2.6vw;
     pointer-events: none;
 }
 
