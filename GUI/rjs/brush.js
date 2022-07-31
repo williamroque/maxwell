@@ -7,7 +7,7 @@ class Brush {
         this.enabled = false;
 
         this.isEraser = false;
-        this.brushSize = 1/2;
+        this.brushSize = 1;
         this.eraserSize = 8;
         this.sensitivity = 1;
 
@@ -37,30 +37,46 @@ class Brush {
         const x = e.pageX | 0;
         const y = e.pageY | 0;
 
-        this.points.push([x, y]);
+        const point = [x, y];
+
+        this.points.push(point);
 
         if (this.isEraser) {
-            this.artist.clear(
-                x - adjustedBrushSize/2,
-                y - adjustedBrushSize/2,
-                adjustedBrushSize,
+            this.artist.clearCircle(
+                x, y,
                 adjustedBrushSize
             );
         } else {
             if (this.points.length > 1) {
                 this.pen.history.travel(0);
 
-                this.artist.drawCurve({
-                    points: this.points,
-                    color: this.color,
-                    smooth: true,
-                    width: adjustedBrushSize * 2,
-                    arrowHead: [],
-                    fillColor: 'transparent'
-                });
+                let curve = [];
+
+                for (const point of this.points) {
+                    curve.push(point);
+
+                    if (curve.length === 4) {
+                        this.artist.drawBezier({
+                            points: curve,
+                            color: this.color,
+                            width: adjustedBrushSize * 2
+                        });
+                        curve = [point];
+                    }
+                }
+                if (curve.length > 1) {
+                    this.artist.drawCurve({
+                        points: curve,
+                        color: this.color,
+                        smooth: true,
+                        width: adjustedBrushSize * 2,
+                        arrowHead: [],
+                        fillColor: 'transparent'
+                    });
+                }
             } else {
                 this.artist.drawArc({
-                    point: [x, y],
+                    point: point,
                     radius: adjustedBrushSize,
                     theta_1: 0,
                     theta_2: 2*Math.PI,
@@ -70,8 +86,6 @@ class Brush {
                 });
             }
         }
-
-        this.lastPos = [e.pageX, e.pageY];
     }
 
     drawPreview() {

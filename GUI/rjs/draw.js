@@ -109,6 +109,15 @@ class Artist {
         this.ctx.clearRect(x, y, width, height);
     }
 
+    clearCircle(x, y, radius) {
+        this.ctx.save();
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, 2*Math.PI, false);
+        this.ctx.clip();
+        this.ctx.clearRect(x - radius - 1, y - radius - 1, radius * 2 + 2, radius * 2 + 2);
+        this.ctx.restore();
+    }
+
     capture(canvas, sourceX=0, sourceY=0, targetX=0, targetY=0) {
         const { width, height } = canvas;
 

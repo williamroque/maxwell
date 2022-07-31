@@ -86,7 +86,7 @@ class Shape:
     def set_config(cls, config_id, **kwargs):
         "Convenient way to set default config."
 
-        expanded_attribute = 'DEFAULT_{}'.format(config_id.upper())
+        expanded_attribute = 'DEFAULT_{}_CONFIG'.format(config_id.upper())
 
         config = getattr(cls, expanded_attribute)
         setattr(cls, expanded_attribute, replace(config, **kwargs))

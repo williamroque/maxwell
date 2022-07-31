@@ -280,5 +280,6 @@ sqrt = Composable(np.sqrt)
 log = ln = Composable(np.log)
 pi = π = np.pi
 
-I = lambda arg: lambda *_, **__: arg
+arr = lambda *args: np.array(args)
 
+I = lambda arg: lambda *_, **__: arg
