@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -23,7 +23,7 @@ class ArcConfig:
 class Arc(Shape):
     DEFAULT_ARC_CONFIG = ArcConfig()
 
-    def __init__(self, point=None, arc_config: ArcConfig = None, shape_config: ShapeConfig = None):
+    def __init__(self, point=None, color=None, arc_config: ArcConfig = None, shape_config: ShapeConfig = None):
         super().__init__(shape_config)
 
         if point is None:
@@ -31,6 +31,9 @@ class Arc(Shape):
 
         if arc_config is None:
             arc_config = self.get_default('arc_config')
+
+        if color is not None:
+            arc_config = replace(arc_config, color=color)
 
         self.properties = Properties(
             type = 'arc',

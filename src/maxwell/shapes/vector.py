@@ -43,6 +43,69 @@ class Vector(Curve):
         super().__init__(points, curve_config, shape_config)
 
 
+    def __neg__(self):
+        components = self.properties.points[1]
+
+        vector = Vector((0, 0))
+        vector.properties = self.properties
+
+        vector.components = (
+            -components[0],
+            -components[1]
+        )
+
+        return vector
+
+
+    def __add__(self, other):
+        components = self.properties.points[1]
+        other_components = other.properties.points[1]
+
+        vector = Vector((0, 0))
+        vector.properties = self.properties
+
+        vector.components = (
+            other_components[0] + components[0],
+            other_components[1] + components[1]
+        )
+
+        return vector
+
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+
+    def __sub__(self, other):
+        components = self.properties.points[1]
+        other_components = other.properties.points[1]
+
+        vector = Vector((0, 0))
+        vector.properties = self.properties
+
+        vector.components = (
+            components[0] - other_components[0],
+            components[1] - other_components[1]
+        )
+
+        return vector
+
+
+    def __rsub__(self, other):
+        components = self.properties.points[1]
+        other_components = other.properties.points[1]
+
+        vector = Vector((0, 0))
+        vector.properties = self.properties
+
+        vector.components = (
+            other_components[0] - components[0],
+            other_components[1] - components[1]
+        )
+
+        return vector
+
+
     def __rmatmul__(self, other):
         points = self.properties.points
 
@@ -50,8 +113,27 @@ class Vector(Curve):
         components = (other @ components).reshape((-1)).tolist()
 
         vector = Vector(components)
+        vector.properties = self.properties
 
         return vector
+
+
+    def __mul__(self, other):
+        components = self.properties.points[1]
+
+        vector = Vector((0, 0))
+        vector.properties = self.properties
+
+        vector.components = (
+            other*components[0],
+            other*components[1]
+        )
+
+        return vector
+
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
 
 
     @property
@@ -62,6 +144,12 @@ class Vector(Curve):
     @property
     def origin(self):
         return self.properties.points[0]
+
+
+    def recompute_arrow(self):
+        self.properties.arrowHead = self.compute_arrow_head(
+            *self.properties.points
+        )
 
 
     @components.setter
@@ -75,10 +163,14 @@ class Vector(Curve):
 
         self.properties.points[1] = endpoint
 
+        self.recompute_arrow()
+
 
     @origin.setter
     def origin(self, origin):
         self.properties.points[0] = list(origin)
+
+        self.recompute_arrow()
 
 
     def normalize(self):
