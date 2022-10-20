@@ -268,7 +268,12 @@ class CartesianSystem(System):
         if animation_config is None:
             animation_config = AnimationConfig()
 
-        if easing is not None:
+        if easing is None:
+            animation_config = replace(
+                animation_config,
+                easing_function=(lambda x: np.ones(x.shape), 0, 1)
+            )
+        else:
             animation_config = replace(animation_config, easing_function=easing)
 
         if duration is not None:
