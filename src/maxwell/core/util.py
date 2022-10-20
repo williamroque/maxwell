@@ -313,3 +313,6 @@ def rationalize(x, max_den=None):
 
     return str(Fraction(x).limit_denominator(max_den))
 
+
+def complex_split(func):
+    return (lambda t: func(t).real, lambda t: func(t).imag)

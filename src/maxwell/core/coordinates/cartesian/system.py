@@ -1,6 +1,6 @@
 "A cartesian coordinate system."
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from copy import deepcopy
 
 from typing import Callable
@@ -13,6 +13,8 @@ from maxwell.core.util import pi_format, fraction_format, is_light_mode
 from maxwell.shapes.curve import Curve, CurveConfig
 from maxwell.shapes.shape import ShapeConfig
 from maxwell.shapes.latex import Latex, LatexConfig
+from maxwell.core.animation import AnimationConfig, create_easing_function
+from maxwell.core.scene import Scene
 
 
 @dataclass
@@ -97,7 +99,7 @@ class CartesianSystem(System):
         return edges[0]
 
 
-    def plot(self, func, start=None, end=None, color=None, width=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, render=True, invert=False, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def compute_plot(self, func, start, end, point_num, clip_factor, endpoint, invert):
         if invert:
             if start is None:
                 start = self.get_edges('bottom')
@@ -111,6 +113,21 @@ class CartesianSystem(System):
             if end is None:
                 end = self.get_edges('right')
 
+        x_values = np.linspace(start, end, point_num, endpoint=bool(endpoint & 2))[int(not endpoint & 1):]
+        y_values = np.vectorize(func)(x_values).astype(float)
+
+        if invert:
+            x_values, y_values = y_values, x_values
+
+        frame_height = abs(self.from_normalized(self.client.get_shape())[1])
+
+        y_values[np.isnan(y_values)] = np.inf
+        y_values[np.abs(y_values) > frame_height * clip_factor] = np.inf
+
+        return x_values, y_values, start, end
+
+
+    def plot(self, func, start=None, end=None, color=None, width=None, point_num=400, clip_factor=np.inf, endpoint=3, shade=None, render=True, invert=False, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         if isinstance(func, (float, int)):
             constant = func
             func = lambda x: constant
@@ -132,16 +149,7 @@ class CartesianSystem(System):
 
         shape_config.system = self
 
-        x_values = np.linspace(start, end, point_num, endpoint=bool(endpoint & 2))[int(not endpoint & 1):]
-        y_values = np.vectorize(func)(x_values).astype(float)
-
-        if invert:
-            x_values, y_values = y_values, x_values
-
-        frame_height = abs(self.from_normalized(self.client.get_shape())[1])
-
-        y_values[np.isnan(y_values)] = np.inf
-        y_values[np.abs(y_values) > frame_height * clip_factor] = np.inf
+        x_values, y_values, start, end = self.compute_plot(func, start, end, point_num, clip_factor, endpoint, invert)
 
         curve = Curve(zip(x_values, y_values), curve_config, shape_config)
 
@@ -234,6 +242,87 @@ class CartesianSystem(System):
             curve.render()
 
         return curve
+
+
+    @staticmethod
+    def animate_param_apply(frame, props):
+        "Callback for transformation frames."
+
+        ratio = props.easing_ratio
+
+        props.t += props.ct * ratio
+
+        shape = frame.scene.shapes['graph']
+
+        x_values, y_values, *_ = props.compute(props.t)
+
+        shape.set_points(zip(x_values, y_values))
+
+
+    def animate_param(self, func, t_start, t_end, duration=None, easing=None, x_start=None, x_end=None, color=None, point_num=400, clip_factor=np.inf, endpoint=3, invert=False, curve_config: CurveConfig=None, shape_config: ShapeConfig=None, animation_config: AnimationConfig=None):
+        "Create a scene animating a parameter."
+
+        if shape_config is None:
+            shape_config = ShapeConfig()
+
+        if animation_config is None:
+            animation_config = AnimationConfig()
+
+        if easing is not None:
+            animation_config = replace(animation_config, easing_function=easing)
+
+        if duration is not None:
+            animation_config = replace(animation_config, duration=duration)
+
+        if curve_config is None:
+            curve_config = deepcopy(Curve.DEFAULT_CURVE_CONFIG)
+
+            if color is not None:
+                curve_config.color = color
+
+        shape_config.system = self
+
+        frame_num = int(animation_config.duration * animation_config.fps)
+
+        easing_function = create_easing_function(
+            frame_num,
+            *animation_config.easing_function
+        )
+
+        scene_properties = {
+            't': t_start,
+            'ct': t_end - t_start,
+            'compute': lambda t: self.compute_plot(
+                lambda x: func(x, t),
+                x_start, x_end,
+                point_num,
+                clip_factor,
+                endpoint,
+                invert
+            ),
+            'easing_function': easing_function
+        }
+
+        scene = Scene(self.client, scene_properties)
+
+        graph = self.plot(
+            lambda x: func(x, t_start),
+            x_start, x_end,
+            color=color,
+            point_num=point_num,
+            curve_config=curve_config,
+            shape_config=replace(shape_config, shape_name='graph'),
+            render=False
+        )
+
+        scene.add_shape(graph)
+
+        scene.repeat_frame(
+            frame_num,
+            CartesianSystem.animate_param_apply
+        )
+
+        return scene
 
 
     def get_grid(self, zoom_factor=None, translation=None, grid_config: CartesianGridConfig = None, render=True):

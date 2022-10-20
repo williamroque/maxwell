@@ -53,6 +53,11 @@ class Group:
         return group
 
 
+    def transform_property(self, transformation, property_name):
+        for shape in self.shapes.values():
+            shape.properties[property_name] = transformation(shape.properties[property_name])
+
+
     def add_shape(self, obj, shape_name=None):
         "Add a shape to the group."
 

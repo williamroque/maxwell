@@ -9,7 +9,7 @@ from math import factorial as fact
 from maxwell.client.message import Message
 
 import maxwell.core.util as util
-from maxwell.core.util import partial, series, taylor, rationalize
+from maxwell.core.util import partial, series, taylor, rationalize, complex_split
 
 from dataclasses import replace
 
