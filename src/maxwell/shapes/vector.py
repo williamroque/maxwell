@@ -112,8 +112,10 @@ class Vector(Curve):
         components = np.array(points[1]).reshape((-1, 1))
         components = (other @ components).reshape((-1)).tolist()
 
-        vector = Vector(components)
+        vector = Vector((0, 0))
         vector.properties = self.properties
+
+        vector.components = components
 
         return vector
 

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -23,13 +23,16 @@ class Text(Shape):
 
     DEFAULT_TEXT_CONFIG = TextConfig()
 
-    def __init__(self, text, text_config: TextConfig = None, shape_config: ShapeConfig = None):
+    def __init__(self, text, point = None, text_config: TextConfig = None, shape_config: ShapeConfig = None):
         "A class for normal text."
 
         super().__init__(shape_config)
 
         if text_config is None:
             text_config = self.get_default('text_config')
+
+        if point is not None:
+            text_config = replace(text_config, x=point[0], y=point[1])
 
         font_spec = ''
 

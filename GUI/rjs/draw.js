@@ -414,21 +414,30 @@ class Artist {
         });
 
         if (embed) {
-            const margin = 1.2;
-
-            const width = latexContainer.offsetWidth * margin;
-            const height = latexContainer.offsetHeight;
+            const adjustedHeight = latexContainer.offsetHeight;
 
             html2canvas(
                 latexContainer,
-                {backgroundColor: null}
+                {
+                    backgroundColor: null,
+                    scale: 2
+                }
             ).then(canvas => {
                 if (point === undefined) {
                     point = [0, 0];
                 }
 
-                this.resizeCanvas(width, height);
-                this.capture(canvas, 0, 0, ...point);
+                const adjustedWidth = canvas.width * adjustedHeight/canvas.height;
+
+                this.ctx.imageSmoothingEnabled = true;
+                this.ctx.imageSmoothingQuality = 'high';
+                this.ctx.drawImage(
+                    canvas,
+                    0, 0, canvas.width, canvas.height,
+                    point[0] - adjustedWidth/2, point[1] - adjustedHeight/2,
+                    adjustedWidth, adjustedHeight
+                );
+                this.ctx.imageSmoothingEnabled = false;
 
                 if (callback !== undefined) {
                     callback();
