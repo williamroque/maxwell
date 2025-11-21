@@ -1,0 +1,84 @@
+[15:54:11.584] Global cache location '/Users/jetblack/Library/Caches/typescript/4.9', safe file path '/users/jetblack/.npm-global/lib/node_modules/typescript/lib/typingsafelist.json', types map path /users/jetblack/.npm-global/lib/node_modules/typescript/lib/typesmap.json
+[15:54:11.585] Processing cache location '/Users/jetblack/Library/Caches/typescript/4.9'
+[15:54:11.585] Trying to find '/Users/jetblack/Library/Caches/typescript/4.9/package.json'...
+[15:54:11.586] Loaded content of '/Users/jetblack/Library/Caches/typescript/4.9/package.json': {"private":true,"dependencies":{"types-registry":"^0.1.746"},"devDependencies":{"@types/bootstrap":"^5.2.10","@types/brace-expansion":"^1.1.2","@types/cookie-parser":"^1.4.7","@types/d":"^1.0.4","@types/express":"^5.0.0","@types/invariant":"^2.2.37","@types/less":"^3.0.7","@types/object-assign":"^4.0.33","@types/prop-types":"^15.7.13","@types/react":"^18.3.12","@types/react-dom":"^18.3.1","@types/react-is":"^18.3.0","@types/react-lifecycles-compat":"^3.0.4","@types/react-transition-group":"^4.4.11","@types/scheduler":"^0.23.0","@types/set-cookie-parser":"^2.4.10","@types/stylus":"^0.48.43","@types/warning":"^3.0.3"}}
+[15:54:11.586] Loaded content of '/Users/jetblack/Library/Caches/typescript/4.9/package-lock.json'
+[15:54:11.611] Adding entry into typings cache: 'bootstrap' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/bootstrap/index.d.ts'
+[15:54:11.624] Adding entry into typings cache: 'brace-expansion' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/brace-expansion/index.d.ts'
+[15:54:11.632] Adding entry into typings cache: 'cookie-parser' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/cookie-parser/index.d.ts'
+[15:54:11.642] Adding entry into typings cache: 'd' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/d/index.d.ts'
+[15:54:11.650] Adding entry into typings cache: 'express' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/express/index.d.ts'
+[15:54:11.659] Adding entry into typings cache: 'invariant' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/invariant/index.d.ts'
+[15:54:11.666] Adding entry into typings cache: 'less' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/less/index.d.ts'
+[15:54:11.676] Adding entry into typings cache: 'object-assign' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/object-assign/index.d.ts'
+[15:54:11.679] Adding entry into typings cache: 'prop-types' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/prop-types/index.d.ts'
+[15:54:11.685] Adding entry into typings cache: 'react' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/react/ts5.0/index.d.ts'
+[15:54:11.688] Adding entry into typings cache: 'react-dom' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/react-dom/index.d.ts'
+[15:54:11.690] Adding entry into typings cache: 'react-is' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/react-is/index.d.ts'
+[15:54:11.693] Adding entry into typings cache: 'react-lifecycles-compat' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/react-lifecycles-compat/index.d.ts'
+[15:54:11.697] Adding entry into typings cache: 'react-transition-group' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/react-transition-group/index.d.ts'
+[15:54:11.700] Adding entry into typings cache: 'scheduler' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/scheduler/index.d.ts'
+[15:54:11.701] Adding entry into typings cache: 'set-cookie-parser' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/set-cookie-parser/index.d.ts'
+[15:54:11.705] Adding entry into typings cache: 'stylus' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/stylus/index.d.ts'
+[15:54:11.706] Adding entry into typings cache: 'warning' => '/Users/jetblack/Library/Caches/typescript/4.9/node_modules/@types/warning/index.d.ts'
+[15:54:11.706] Finished processing cache location '/Users/jetblack/Library/Caches/typescript/4.9'
+[15:54:11.707] Process id: 87426
+[15:54:11.707] NPM location: /usr/local/bin/npm (explicit '--npmLocation' not  provided)
+[15:54:11.707] validateDefaultNpmLocation: false
+[15:54:11.707] Npm config file: /Users/jetblack/Library/Caches/typescript/4.9/package.json
+[15:54:11.707] Updating types-registry npm package...
+[15:54:11.708] Exec: /usr/local/bin/npm install --ignore-scripts types-registry@latest
+[15:54:12.392]     Succeeded. stdout:
+    
+    up to date in 451ms
+
+1 package is looking for funding
+  run `npm fund` for details
+
+[15:54:12.393] Updated types-registry npm package
+[15:54:14.086] Got install request {"projectName":"/dev/null/inferredProject1*","fileNames":["/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es5.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2016.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.dom.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.dom.iterable.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.webworker.importscripts.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.scripthost.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.core.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.collection.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.generator.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.iterable.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.promise.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.proxy.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.reflect.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.symbol.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2016.array.include.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2016.full.d.ts","/Users/jetblack/maxwell/GUI/rjs/pen.js"],"compilerOptions":{"module":1,"target":3,"jsx":1,"allowJs":true,"allowSyntheticDefaultImports":true,"allowNonTsExtensions":true,"noEmitForJsFiles":true,"maxNodeModuleJsDepth":2},"typeAcquisition":{"enable":true,"include":[],"exclude":[]},"unresolvedImports":[],"projectRootPath":"/Users/jetblack/maxwell/GUI/rjs","kind":"discover"}
+[15:54:14.100] Loaded safelist from types map file '/users/jetblack/.npm-global/lib/node_modules/typescript/lib/typesmap.json'
+[15:54:14.101] Explicitly included types: []
+[15:54:14.102] Inferred typings from unresolved imports: []
+[15:54:14.102] Result: {"cachedTypingPaths":[],"newTypingNames":[],"filesToWatch":["/Users/jetblack/maxwell/GUI/rjs/bower_components","/Users/jetblack/maxwell/GUI/rjs/node_modules"]}
+[15:54:14.102] Finished typings discovery: {"cachedTypingPaths":[],"newTypingNames":[],"filesToWatch":["/Users/jetblack/maxwell/GUI/rjs/bower_components","/Users/jetblack/maxwell/GUI/rjs/node_modules"]}
+[15:54:14.102] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/bower_components
+[15:54:14.103] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/bower_components 1 undefined Project: /dev/null/inferredProject1* watcher already invoked: false
+[15:54:14.103] Elapsed:: 0.6313328742980957ms DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/bower_components 1 undefined Project: /dev/null/inferredProject1* watcher already invoked: false
+[15:54:14.103] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/node_modules
+[15:54:14.104] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/node_modules 1 undefined Project: /dev/null/inferredProject1* watcher already invoked: false
+[15:54:14.104] Elapsed:: 0.05137491226196289ms DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/node_modules 1 undefined Project: /dev/null/inferredProject1* watcher already invoked: false
+[15:54:14.104] Sending response:
+    {"projectName":"/dev/null/inferredProject1*","typeAcquisition":{"enable":true,"include":[],"exclude":[]},"compilerOptions":{"module":1,"target":3,"jsx":1,"allowJs":true,"allowSyntheticDefaultImports":true,"allowNonTsExtensions":true,"noEmitForJsFiles":true,"maxNodeModuleJsDepth":2},"typings":[],"unresolvedImports":[],"kind":"action::set"}
+[15:54:14.104] Response has been sent.
+[15:54:14.104] No new typings were requested as a result of typings discovery
+[15:54:15.705] Got install request {"projectName":"/dev/null/inferredProject2*","fileNames":["/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es5.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2016.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.dom.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.dom.iterable.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.webworker.importscripts.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.scripthost.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.core.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.collection.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.generator.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.iterable.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.promise.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.proxy.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.reflect.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.symbol.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2016.array.include.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2016.full.d.ts","/Users/jetblack/maxwell/GUI/rjs/index.js"],"compilerOptions":{"module":1,"target":3,"jsx":1,"allowJs":true,"allowSyntheticDefaultImports":true,"allowNonTsExtensions":true,"noEmitForJsFiles":true,"maxNodeModuleJsDepth":2},"typeAcquisition":{"enable":true,"include":[],"exclude":[]},"unresolvedImports":[],"projectRootPath":"/Users/jetblack/maxwell/GUI/rjs","kind":"discover"}
+[15:54:15.705] Explicitly included types: []
+[15:54:15.705] Inferred typings from unresolved imports: []
+[15:54:15.705] Result: {"cachedTypingPaths":[],"newTypingNames":[],"filesToWatch":["/Users/jetblack/maxwell/GUI/rjs/bower_components","/Users/jetblack/maxwell/GUI/rjs/node_modules"]}
+[15:54:15.705] Finished typings discovery: {"cachedTypingPaths":[],"newTypingNames":[],"filesToWatch":["/Users/jetblack/maxwell/GUI/rjs/bower_components","/Users/jetblack/maxwell/GUI/rjs/node_modules"]}
+[15:54:15.705] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/bower_components
+[15:54:15.706] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/bower_components 1 undefined Project: /dev/null/inferredProject2* watcher already invoked: false
+[15:54:15.706] Elapsed:: 0.011750221252441406ms DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/bower_components 1 undefined Project: /dev/null/inferredProject2* watcher already invoked: false
+[15:54:15.706] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/node_modules
+[15:54:15.706] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/node_modules 1 undefined Project: /dev/null/inferredProject2* watcher already invoked: false
+[15:54:15.706] Elapsed:: 0.0051250457763671875ms DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/node_modules 1 undefined Project: /dev/null/inferredProject2* watcher already invoked: false
+[15:54:15.706] Sending response:
+    {"projectName":"/dev/null/inferredProject2*","typeAcquisition":{"enable":true,"include":[],"exclude":[]},"compilerOptions":{"module":1,"target":3,"jsx":1,"allowJs":true,"allowSyntheticDefaultImports":true,"allowNonTsExtensions":true,"noEmitForJsFiles":true,"maxNodeModuleJsDepth":2},"typings":[],"unresolvedImports":[],"kind":"action::set"}
+[15:54:15.706] Response has been sent.
+[15:54:15.706] No new typings were requested as a result of typings discovery
+[15:54:32.793] Got install request {"projectName":"/dev/null/inferredProject3*","fileNames":["/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es5.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2016.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.dom.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.dom.iterable.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.webworker.importscripts.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.scripthost.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.core.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.collection.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.generator.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.iterable.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.promise.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.proxy.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.reflect.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.symbol.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2016.array.include.d.ts","/Users/jetblack/.npm-global/lib/node_modules/typescript/lib/lib.es2016.full.d.ts","/Users/jetblack/maxwell/GUI/rjs/setting.js"],"compilerOptions":{"module":1,"target":3,"jsx":1,"allowJs":true,"allowSyntheticDefaultImports":true,"allowNonTsExtensions":true,"noEmitForJsFiles":true,"maxNodeModuleJsDepth":2},"typeAcquisition":{"enable":true,"include":[],"exclude":[]},"unresolvedImports":[],"projectRootPath":"/Users/jetblack/maxwell/GUI/rjs","kind":"discover"}
+[15:54:32.794] Explicitly included types: []
+[15:54:32.795] Inferred typings from unresolved imports: []
+[15:54:32.795] Result: {"cachedTypingPaths":[],"newTypingNames":[],"filesToWatch":["/Users/jetblack/maxwell/GUI/rjs/bower_components","/Users/jetblack/maxwell/GUI/rjs/node_modules"]}
+[15:54:32.795] Finished typings discovery: {"cachedTypingPaths":[],"newTypingNames":[],"filesToWatch":["/Users/jetblack/maxwell/GUI/rjs/bower_components","/Users/jetblack/maxwell/GUI/rjs/node_modules"]}
+[15:54:32.795] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/bower_components
+[15:54:32.795] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/bower_components 1 undefined Project: /dev/null/inferredProject3* watcher already invoked: false
+[15:54:32.796] Elapsed:: 0.022375106811523438ms DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/bower_components 1 undefined Project: /dev/null/inferredProject3* watcher already invoked: false
+[15:54:32.796] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/node_modules
+[15:54:32.796] DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/node_modules 1 undefined Project: /dev/null/inferredProject3* watcher already invoked: false
+[15:54:32.796] Elapsed:: 0.01183319091796875ms DirectoryWatcher:: Added:: WatchInfo: /Users/jetblack/maxwell/GUI/rjs/node_modules 1 undefined Project: /dev/null/inferredProject3* watcher already invoked: false
+[15:54:32.796] Sending response:
+    {"projectName":"/dev/null/inferredProject3*","typeAcquisition":{"enable":true,"include":[],"exclude":[]},"compilerOptions":{"module":1,"target":3,"jsx":1,"allowJs":true,"allowSyntheticDefaultImports":true,"allowNonTsExtensions":true,"noEmitForJsFiles":true,"maxNodeModuleJsDepth":2},"typings":[],"unresolvedImports":[],"kind":"action::set"}
+[15:54:32.796] Response has been sent.
+[15:54:32.796] No new typings were requested as a result of typings discovery

@@ -25,6 +25,8 @@ from maxwell.shapes.rect import Rect, RectConfig
 from maxwell.shapes.svg import SVG
 from maxwell.shapes.table import Table
 
+from maxwell.html.html_element import HTMLElement
+
 from maxwell.core.animation import AnimationConfig, create_easing_function, animate
 
 from maxwell.client.client import Client
@@ -77,6 +79,9 @@ try:
     Shape.DEFAULT_CLIENT = client
     Shape.DEFAULT_SYSTEM = system
 
+    HTMLElement.DEFAULT_CLIENT = client
+    HTMLElement.DEFAULT_SYSTEM = system
+
     Scene.DEFAULT_CLIENT = client
 
     Sequence = partial(Sequence, client)
@@ -88,6 +93,7 @@ try:
     BLUE = '#7AA1C0'
     WHITE = '#FDF4C1'
     BLACK = '#121112'
+    GRAY = '#767676'
 
 ## Convenience functions
     def natural_labels(labels):

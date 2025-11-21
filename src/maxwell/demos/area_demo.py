@@ -1,6 +1,8 @@
 from maxwell import *
 from scipy.optimize import root
 
+clear()
+
 
 f = lambda x: 1/2*x**2
 g = np.sin

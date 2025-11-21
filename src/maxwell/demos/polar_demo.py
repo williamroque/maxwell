@@ -1,7 +1,7 @@
 from maxwell import *
 clear()
 
-resize_window(800, 400)
+resize_window(800, 600)
 
 polar_system.set_origin()
 

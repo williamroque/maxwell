@@ -201,7 +201,7 @@ class Artist {
     }
 
     drawCurve(args) {
-        const { points, smooth, color, width, arrowHead, fillColor } = args;
+        const { points, smooth, color, width, arrowHead, fillColor, dashed } = args;
 
         if (points.length < 1) return;
 
@@ -211,6 +211,10 @@ class Artist {
         } else {
             this.ctx.lineCap = 'butt';
             this.ctx.lineJoin = 'butt';
+        }
+
+        if (dashed) {
+            this.ctx.setLineDash([5, 10]);
         }
 
         this.ctx.strokeStyle = color;
@@ -249,6 +253,8 @@ class Artist {
             this.ctx.fillStyle = color;
             this.drawArrowHead(arrowHead);
         }
+
+        this.ctx.setLineDash([]);
     }
 
     drawBezier(args) {

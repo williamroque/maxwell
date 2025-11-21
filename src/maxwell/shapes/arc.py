@@ -15,7 +15,7 @@ class ArcConfig:
     radius: int = 7
     theta_1: float = 0
     theta_2: float = 2*np.pi
-    color: str = '#fff'
+    color: str = '#fdf4c1'
     border_color: str = 'transparent'
     border_width: int = 1
 

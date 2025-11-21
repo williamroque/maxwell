@@ -22,12 +22,15 @@ class CartesianGridConfig:
     step_x: float = 1
     step_y: float = 1
     show_numbers: bool = True
+    show_axes: bool = True
     x_label_config: LatexConfig = LatexConfig(color='#555', font_size=9)
     y_label_config: LatexConfig = LatexConfig(color='#555', font_size=9, align='right')
     x_label_format: Callable = None
     y_label_format: Callable = None
     x_label_offset: tuple = (0, -20)
     y_label_offset: tuple = (-15, 15)
+    primary_color: str = '#4447'
+    secondary_color: str = '#6664'
 
 
 def default_formatter(x):
@@ -367,22 +370,22 @@ class CartesianSystem(System):
 
         grid_group = Group(background=True)
 
+        primary_config = CurveConfig(width=2, color=grid_config.primary_color)
+        secondary_config = CurveConfig(width=1, color=grid_config.secondary_color)
+
         x_axis = Curve(
             [(left, 0), (right, 0)],
-            curve_config=axis_config,
+            curve_config=axis_config if grid_config.show_axes else primary_config,
             shape_config=shape_config
         )
         grid_group.add_shape(x_axis, 'x-axis')
 
         y_axis = Curve(
             [(0, top), (0, bottom)],
-            curve_config=axis_config,
+            curve_config=axis_config if grid_config.show_axes else primary_config,
             shape_config=shape_config
         )
         grid_group.add_shape(y_axis, 'y-axis')
-
-        primary_config = CurveConfig(width=2, color='#4447')
-        secondary_config = CurveConfig(width=1, color='#6664')
 
         primary_grid = Group()
         secondary_grid = Group()

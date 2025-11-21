@@ -8,8 +8,8 @@ from maxwell.core.properties import Properties
 class RectConfig:
     width: float = 1/2
     height: float = 1/2
-    fill_color: str = '#FFF'
-    border_color: str = '#FFF'
+    fill_color: str = '#fdf4c1'
+    border_color: str = '#fdf4c1'
     border_width: int = 0
 
 

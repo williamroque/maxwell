@@ -11,6 +11,8 @@ const selectionCanvas = document.querySelector('#selection-canvas');
 const shapeCanvas = document.querySelector('#shape-canvas');
 const latexCanvas = document.querySelector('#latex-canvas');
 
+const htmlTree = new HTMLTree();
+
 const keyPrompt = document.querySelector('#key-prompt');
 const currentPenLabel = document.querySelector('#current-pen-label');
 

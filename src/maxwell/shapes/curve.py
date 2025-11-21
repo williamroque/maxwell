@@ -20,6 +20,7 @@ class CurveConfig:
     arrow_size: float = .07
     clip: np.typing.ArrayLike = (-1, -1)
     fill_color: str = 'transparent'
+    dashed: bool = False
 
 
 class Curve(Shape):
@@ -58,7 +59,8 @@ class Curve(Shape):
             width = curve_config.width,
             arrowHead = arrow_head,
             clip = curve_config.clip,
-            fillColor = curve_config.fill_color
+            fillColor = curve_config.fill_color,
+            dashed = curve_config.dashed
         )
         self.properties.set_normalized('points', 'arrowHead', 'clip')
 
@@ -67,8 +69,10 @@ class Curve(Shape):
 
 
     def compute_arrow_head(self, penultimate, ultimate):
-        penultimate = np.array(penultimate)
-        ultimate = np.array(ultimate)
+        penultimate = self.system.normalize(penultimate)
+        ultimate = self.system.normalize(ultimate)
+
+        arrow_size = self.arrow_size * self.system.scale
 
         alpha = 2*np.pi/3
         difference = ultimate - penultimate
@@ -84,9 +88,9 @@ class Curve(Shape):
                 np.sin(theta + i*alpha) - np.sin(theta)
             ])
 
-            points.append((self.arrow_size*point + ultimate).tolist())
+            points.append((arrow_size*point + ultimate).tolist())
 
-        return points
+        return self.system.from_normalized(points)
 
 
     def set_points(self, points):

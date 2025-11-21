@@ -16,7 +16,7 @@ class Vector(Curve):
 
     __array_ufunc__ = None
 
-    def __init__(self, components, origin=None, color=None, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
+    def __init__(self, components, origin=None, color=None, polar=False, arrow=True, curve_config: CurveConfig = None, shape_config: ShapeConfig = None):
         "This is a Curve wrapper for vectors."
 
         if origin is None:
@@ -24,6 +24,12 @@ class Vector(Curve):
 
         origin = list(origin)
         components = list(components)
+
+        if polar:
+            r, theta = components
+            x, y = r*np.cos(theta), r*np.sin(theta)
+
+            components = [x, y]
 
         endpoint = [
             origin[0] + components[0],
@@ -38,7 +44,10 @@ class Vector(Curve):
         if color is not None:
             curve_config = replace(curve_config, color=color)
 
-        curve_config.arrow = True
+        if arrow:
+            curve_config.arrow = True
+        else:
+            curve_config.arrow = False
 
         super().__init__(points, curve_config, shape_config)
 
