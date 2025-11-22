@@ -1,4 +1,4 @@
-const { BrowserWindow } = require('electron');
+const { BrowserWindow, app } = require('electron');
 
 const url = require('url');
 const path = require('path');
@@ -33,6 +33,23 @@ class Window {
         }
 
         this.addListener('closed', e => this.window = null);
+
+        // Ensure the window is shown and focused when it's ready. Also attempt
+        // to focus the app as a fallback so the window receives input on launch.
+        this.window.once('ready-to-show', () => {
+            try {
+                this.window.show();
+                this.window.focus();
+            } catch (e) {
+                // ignore
+            }
+
+            try {
+                app.focus();
+            } catch (e) {
+                // ignore
+            }
+        });
 
         this.addWebListener('dom-ready', () => {
             if (typeof this.dispatchOnReady !== 'undefined') {

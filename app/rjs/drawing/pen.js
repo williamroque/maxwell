@@ -196,6 +196,10 @@ class Pen {
 
         case penModes.NONE:
             this.mode = penModes.BRUSH;
+            // record initial sample immediately so quick taps/dots are captured
+            if (this.brush && typeof this.brush.drawBrush === 'function') {
+                this.brush.drawBrush(e);
+            }
             break;
         }
     }
@@ -327,10 +331,10 @@ class Pen {
             break;
 
         case penModes.BRUSH:
-            this.history.takeSnapshot();
-
+            // finalize the stroke first, then record snapshot that includes the final stroke
             this.mode = penModes.NONE;
             this.brush.lift();
+            this.history.takeSnapshot();
 
             break;
         }
