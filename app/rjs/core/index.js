@@ -57,6 +57,14 @@ function captureArea(path, background) {
 }
 
 
+function saveSVG() {
+    const svgData = backgroundArtist.getSVGData() + artist.getSVGData() + penArtist.getSVGData();
+    const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">${svgData}</svg>`;
+
+    ipcRenderer.sendSync('save-svg', svgContent);
+}
+
+
 function getLatexPrompt() {
     return ipcRenderer.invoke('get-latex-prompt');
 }

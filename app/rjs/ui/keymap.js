@@ -64,8 +64,10 @@ const generalKeymap = {
 
             Properties.capturePath = undefined;
         }
+    },
+    'Shift+Enter': () => {
+        saveSVG();
     }
-
 };
 
 const penKeymap = {

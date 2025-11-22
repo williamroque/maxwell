@@ -1,9 +1,17 @@
+const C2S = require('canvas-to-svg');
+
 class Artist {
     constructor(canvas) {
         this.canvas = canvas;
-        this.ctx = this.canvas.getContext('2d');
 
-        this.ctx.imageSmoothingEnabled = false;
+        // real canvas context
+        this._realCtx = this.canvas.getContext('2d');
+
+        // virtual SVG context for canvas-to-svg
+        this._svgCtx = new C2S(this.canvas.width || 800, this.canvas.height || 600);
+
+        // unified context used throughout the file
+        this.ctx = createDualContext(this._realCtx, this._svgCtx);
 
         this.DOMElements = [];
     }
@@ -29,7 +37,49 @@ class Artist {
         this.canvas.width = width;
         this.canvas.height = height;
 
-        this.ctx.imageSmoothingEnabled = false;
+        // re-create underlying contexts to keep svg context sized to canvas
+        // preserve current svg drawing by creating a new svg context of new size
+        const oldSvg = this._svgCtx;
+        let oldSerialized = null;
+        try {
+            if (oldSvg && typeof oldSvg.getSerializedSvg === 'function') {
+                oldSerialized = oldSvg.getSerializedSvg();
+            }
+        } catch (e) {
+            console.warn('Could not serialize old SVG context:', e);
+        }
+
+        this._svgCtx = new C2S(width, height);
+
+        // re-bind proxy to new svg context
+        this._realCtx = this.canvas.getContext('2d');
+        this.ctx = createDualContext(this._realCtx, this._svgCtx);
+
+        // If we have the old SVG XML, draw it into the new svg context as an image.
+        // This preserves the visual contents across resize. We encode the SVG and
+        // load it into an Image, then draw it onto the virtual svg context.
+        if (oldSerialized) {
+            try {
+                const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(oldSerialized);
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        // draw into the virtual svg context; drawImage will create an <image> element in the output
+                        this._svgCtx.drawImage(img, 0, 0, img.width || width, img.height || height);
+                    } catch (err) {
+                        console.warn('Failed to transfer SVG contents to new svg context:', err);
+                    }
+                };
+                img.onerror = (err) => {
+                    console.warn('Failed to load SVG data URL for transfer:', err);
+                };
+                img.src = svgDataUrl;
+            } catch (e) {
+                console.warn('Error while transferring previous SVG contents:', e);
+            }
+        }
+
+        this._realCtx.imageSmoothingEnabled = false;
     }
 
     rotateCanvas(theta, about) {
@@ -532,5 +582,9 @@ class Artist {
 
         tableElement.style.left = point[0] - tableElement.offsetWidth / 2 + 'px';
         tableElement.style.top = point[1] - tableElement.offsetHeight / 2 + 'px';
+    }
+
+    getSVGData() {
+        return this._svgCtx.getSerializedSvg();
     }
 }

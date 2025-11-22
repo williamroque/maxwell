@@ -1,4 +1,4 @@
-const { app, ipcMain } = require('electron');
+const { app, ipcMain, dialog } = require('electron');
 
 const util = require('util')
 const exec = util.promisify(require('child_process').exec);
@@ -132,4 +132,27 @@ ipcMain.handle('get-latex-prompt', async event => {
     } catch {
         return new Promise(resolve => resolve(''));
     }
+});
+
+
+ipcMain.on('save-svg', (event, svgContent) => {
+    const filePath = dialog.showSaveDialogSync(mainWindow.window, {
+        title: 'Save SVG',
+        defaultPath: path.join(os.homedir(), 'drawing.svg'),
+        filters: [
+            { name: 'SVG Files', extensions: ['svg'] },
+        ]
+    });
+
+    if (!filePath) {
+        return;
+    }
+
+    fs.writeFile(filePath, svgContent, err => {
+        if (err) {
+            console.error(err);
+        }
+    });
+
+    event.returnValue = '';
 });

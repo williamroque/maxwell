@@ -24,6 +24,7 @@
         "electron-builder": "^22.8.1"
     },
     "dependencies": {
+        "canvas-to-svg": "^1.0.3",
         "electron": "^11.1.1",
         "fix-path": "^2.1.0"
     }
