@@ -52,8 +52,10 @@ class CartesianSystem(System):
 
 
     def normalize(self, obj):
-        if obj == []:
-            return np.array(obj)
+        # handle empty sequences safely (avoid elementwise comparison with numpy arrays)
+        if isinstance(obj, (list, tuple, np.ndarray)) and len(obj) == 0:
+            # return an empty array shaped as (0, 2) to keep broadcasting consistent
+            return np.empty((0, 2))
 
         if isinstance(obj, (np.ndarray, list, tuple)):
             obj = np.array(obj)
@@ -67,8 +69,10 @@ class CartesianSystem(System):
 
 
     def from_normalized(self, obj):
-        if obj == []:
-            return np.array(obj)
+        # handle empty sequences safely (avoid elementwise comparison with numpy arrays)
+        if isinstance(obj, (list, tuple, np.ndarray)) and len(obj) == 0:
+            # return an empty array shaped as (0, 2) to keep broadcasting consistent
+            return np.empty((0, 2))
 
         if isinstance(obj, (np.ndarray, list, tuple)):
             obj = np.array(obj)
@@ -78,7 +82,7 @@ class CartesianSystem(System):
         elif isinstance(obj, (int, float)):
             return obj / (self.scale.sum()/2)
 
-        raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(points)}.')
+        raise TypeError(f'Argument should be ndarray, list, tuple, or scalar. Type used: {type(obj)}.')
 
 
     def get_edges(self, edges):
