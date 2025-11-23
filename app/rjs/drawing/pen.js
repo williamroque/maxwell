@@ -181,14 +181,35 @@ class Pen {
             this.mode = penModes.NONE;
 
             const centerPoint = [
-                this.currentPoint[0] - latexArtist.canvas.width/2,
-                this.currentPoint[1] - latexArtist.canvas.height/2
+                this.currentPoint[0] - (this.latexArtist && this.latexArtist.canvas ? this.latexArtist.canvas.width/2 : 0),
+                this.currentPoint[1] - (this.latexArtist && this.latexArtist.canvas ? this.latexArtist.canvas.height/2 : 0)
             ];
 
-            this.artist.capture(this.latexArtist.canvas, 0, 0, ...centerPoint);
+            // Commit any SVG fragments produced by the latex artist directly
+            // into the main artist as vector elements to avoid rasterization.
+            try {
+                const fragments = (this.latexArtist && Array.isArray(this.latexArtist._svgFragments)) ? this.latexArtist._svgFragments : [];
+                console.debug('[Pen] committing latex fragments count', fragments.length, 'global', (typeof window !== 'undefined' && Array.isArray(window.__maxwell_svg_fragments)) ? window.__maxwell_svg_fragments.length : 0);
 
-            this.latexArtist.hideCanvas();
-            this.latexArtist.clear();
+                if (fragments.length > 0) {
+                    for (const frag of fragments) {
+                        try {
+                            this.artist.commitSVGFragment(frag, { pageX: this.currentPoint[0], pageY: this.currentPoint[1], latexArtist: this.latexArtist });
+                        } catch (e) { console.warn('[Pen] commitSVGFragment error', e); }
+                    }
+                } else {
+                    // Fallback: if no vector fragments are available, rasterize the latex canvas into the main canvas
+                    try {
+                        this.artist.capture(this.latexArtist.canvas, 0, 0, ...centerPoint);
+                        console.debug('[Pen] fallback raster capture used for latex commit');
+                    } catch (e) { console.warn('[Pen] fallback capture failed:', e); }
+                }
+            } catch (e) { console.warn('[Pen] failed to commit latex fragments as vector:', e); }
+
+            // Hide and clear the latex artist's temporary content
+            try { this.latexArtist.hideCanvas(); } catch (e) {}
+            try { this.latexArtist.clear(); } catch (e) {}
+            try { this.latexArtist._svgFragments = []; } catch (e) {}
 
             this.history.takeSnapshot();
 
@@ -351,6 +372,7 @@ class Pen {
             source: value[0].replace(/\\\((.*)\\\)/, '$1').trim(),
             fontSize: this.defaultFontSize,
             color: this.brush.color,
+            point: this.currentPoint,
             align: 'center',
             embed: true
         }, undefined, () => {

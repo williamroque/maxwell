@@ -27,6 +27,7 @@
         "canvas-to-svg": "^1.0.3",
         "electron": "^11.1.1",
         "fix-path": "^2.1.0",
+        "mathjax-full": "^3.2.2",
         "perfect-freehand": "^1.2.2"
     }
 }

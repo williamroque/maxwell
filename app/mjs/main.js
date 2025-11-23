@@ -145,6 +145,7 @@ ipcMain.on('save-svg', (event, svgContent) => {
     });
 
     if (!filePath) {
+        event.returnValue = '';
         return;
     }
 
