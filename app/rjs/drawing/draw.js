@@ -25,7 +25,7 @@ class Artist {
             if (typeof window !== 'undefined') {
                 window.__maxwell_svg_fragments = window.__maxwell_svg_fragments || [];
             }
-        } catch (e) {}
+        } catch (e) { }
 
         this._realCtx.imageSmoothingEnabled = false;
     }
@@ -104,7 +104,7 @@ class Artist {
             console.warn('[moveCanvas] failed to move canvas:', e);
         }
         // Also move overlays so previews track the canvas
-        try { this.moveCanvasOverlay(x, y); } catch (e) {}
+        try { this.moveCanvasOverlay(x, y); } catch (e) { }
         // Move the global SVG overlay (committed vector elements) as well
         try {
             if (typeof window !== 'undefined' && window.__maxwell_svg_overlay) {
@@ -112,7 +112,7 @@ class Artist {
                 overlay.style.left = (x || 0) + 'px';
                 overlay.style.top = (y || 0) + 'px';
             }
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // Also move any overlay DOM elements (SVG previews) so they track the canvas
@@ -125,7 +125,7 @@ class Artist {
                         el.style.left = (x || 0) + 'px';
                         el.style.top = (y || 0) + 'px';
                     }
-                } catch (e) {}
+                } catch (e) { }
             }
         } catch (e) {
             // ignore
@@ -575,52 +575,54 @@ class Artist {
                         svgEl.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
                         svgEl.innerHTML = svgString;
                     }
-                        svgEl.setAttribute('width', Math.max(1, Math.round(w)));
-                        svgEl.setAttribute('height', Math.max(1, Math.round(h)));
-                        svgEl.style.position = 'absolute';
-                        const canvasLeftPage = Math.round(px - w / 2);
-                        const canvasTopPage = Math.round(py - h / 2);
-                        svgEl.style.left = canvasLeftPage + 'px';
-                        svgEl.style.top = canvasTopPage + 'px';
+                    svgEl.setAttribute('width', Math.max(1, Math.round(w)));
+                    svgEl.setAttribute('height', Math.max(1, Math.round(h)));
+                    svgEl.style.position = 'absolute';
+                    const canvasLeftPage = Math.round(px - w / 2);
+                    const canvasTopPage = Math.round(py - h / 2);
+                    svgEl.style.left = canvasLeftPage + 'px';
+                    svgEl.style.top = canvasTopPage + 'px';
                     svgEl.style.pointerEvents = 'none';
                     svgEl.style.zIndex = 9999;
                     const previewColor = (color !== undefined && color !== null) ? color : 'black';
                     svgEl.style.color = previewColor;
                     svgEl.style.fill = previewColor;
                     svgEl.style.stroke = previewColor;
-                        // Also size/position the latex canvas so pen calculations
-                        // that rely on `latexArtist.canvas.width/height` still work.
-                        try {
+                    // Also size/position the latex canvas so pen calculations
+                    // that rely on `latexArtist.canvas.width/height` still work.
+                    try {
+                        if (this.canvas && this.canvas.id === 'latex-canvas') {
                             this.canvas.style.left = canvasLeftPage + 'px';
                             this.canvas.style.top = canvasTopPage + 'px';
                             this.canvas.width = Math.max(1, Math.round(w));
                             this.canvas.height = Math.max(1, Math.round(h));
-                        } catch (e) {}
+                        }
+                    } catch (e) { }
 
-                        svgEl.dataset.preview = 'latex';
-                        document.body.appendChild(svgEl);
-                        this.DOMElements.push(svgEl);
+                    svgEl.dataset.preview = 'latex';
+                    document.body.appendChild(svgEl);
+                    this.DOMElements.push(svgEl);
 
-                        // Also rasterize the SVG into the latex artist's real canvas
-                        // (hidden) so committing the latex (capture) copies a proper
-                        // raster preview into the main canvas while keeping on-screen
-                        // preview as vector.
-                        try {
-                            const img = new Image();
-                            const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
-                            img.onload = () => {
-                                try {
-                                    this._realCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                                    this._realCtx.drawImage(
-                                        img,
-                                        0, 0, img.naturalWidth || img.width || this.canvas.width, img.naturalHeight || img.height || this.canvas.height,
-                                        0, 0, this.canvas.width, this.canvas.height
-                                    );
-                                } catch (e) { console.warn('[drawLatex] failed to draw raster preview to latex canvas:', e); }
-                            };
-                            img.onerror = () => {};
-                            img.src = svgDataUrl;
-                        } catch (e) { }
+                    // Also rasterize the SVG into the latex artist's real canvas
+                    // (hidden) so committing the latex (capture) copies a proper
+                    // raster preview into the main canvas while keeping on-screen
+                    // preview as vector.
+                    try {
+                        const img = new Image();
+                        const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+                        img.onload = () => {
+                            try {
+                                this._realCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                                this._realCtx.drawImage(
+                                    img,
+                                    0, 0, img.naturalWidth || img.width || this.canvas.width, img.naturalHeight || img.height || this.canvas.height,
+                                    0, 0, this.canvas.width, this.canvas.height
+                                );
+                            } catch (e) { console.warn('[drawLatex] failed to draw raster preview to latex canvas:', e); }
+                        };
+                        img.onerror = () => { };
+                        img.src = svgDataUrl;
+                    } catch (e) { }
                 } catch (err) {
                     console.warn('[drawLatex][MathJax] failed to create SVG overlay preview:', err);
                 }
@@ -713,10 +715,12 @@ class Artist {
             const canvasLeftPage = Math.round(point[0] - adjustedWidth / 2);
             const canvasTopPage = Math.round(point[1] - adjustedHeight / 2);
             try {
-                this.canvas.style.left = canvasLeftPage + 'px';
-                this.canvas.style.top = canvasTopPage + 'px';
-                this.canvas.width = Math.max(1, adjustedWidth);
-                this.canvas.height = Math.max(1, adjustedHeight);
+                if (this.canvas && this.canvas.id === 'latex-canvas') {
+                    this.canvas.style.left = canvasLeftPage + 'px';
+                    this.canvas.style.top = canvasTopPage + 'px';
+                    this.canvas.width = Math.max(1, adjustedWidth);
+                    this.canvas.height = Math.max(1, adjustedHeight);
+                }
             } catch (e) {
                 console.warn('[drawLatex][KaTeX] failed to resize latex canvas:', e);
             }
@@ -750,11 +754,13 @@ class Artist {
                 // continues to function. We keep the canvas sized (but hidden)
                 // while the visible preview is the SVG overlay.
                 try {
-                    this.canvas.style.left = canvasLeftPage + 'px';
-                    this.canvas.style.top = canvasTopPage + 'px';
-                    this.canvas.width = Math.max(1, adjustedWidth);
-                    this.canvas.height = Math.max(1, adjustedHeight);
-                } catch (e) {}
+                    if (this.canvas && this.canvas.id === 'latex-canvas') {
+                        this.canvas.style.left = canvasLeftPage + 'px';
+                        this.canvas.style.top = canvasTopPage + 'px';
+                        this.canvas.width = Math.max(1, adjustedWidth);
+                        this.canvas.height = Math.max(1, adjustedHeight);
+                    }
+                } catch (e) { }
 
                 svgEl.dataset.preview = 'latex';
                 document.body.appendChild(svgEl);
@@ -773,9 +779,9 @@ class Artist {
                             );
                         } catch (e) { console.warn('[drawLatex][KaTeX] failed to draw raster to latex canvas:', e); }
                     };
-                    img.onerror = () => {};
+                    img.onerror = () => { };
                     img.src = svgDataUrl;
-                } catch (e) {}
+                } catch (e) { }
 
                 if (callback !== undefined) callback();
             } catch (err) {
@@ -1089,7 +1095,7 @@ class Artist {
                                         minY = parts[1] || 0;
                                     }
                                 }
-                            } catch (e) {}
+                            } catch (e) { }
 
                             const wrapper = outDoc.createElementNS(NS, 'g');
                             if (minX !== 0 || minY !== 0) {
@@ -1120,7 +1126,7 @@ class Artist {
                                             ty = parseFloat(m[2]) || 0;
                                         }
                                     }
-                                } catch (e) {}
+                                } catch (e) { }
 
                                 // get inner svg viewBox offset
                                 let minX = 0, minY = 0;
@@ -1133,7 +1139,7 @@ class Artist {
                                             minY = parts[1] || 0;
                                         }
                                     }
-                                } catch (e) {}
+                                } catch (e) { }
 
                                 // Compute adjusted translation so that inner svg content
                                 // is located correctly in the root coordinate space.
@@ -1254,8 +1260,8 @@ class Artist {
 
             if (!tmpRoot) {
                 svgRoot.appendChild(document.createTextNode(fragmentString));
-                try { this._svgFragments.push(fragmentString); } catch (e) {}
-                try { window.__maxwell_svg_fragments = window.__maxwell_svg_fragments || []; window.__maxwell_svg_fragments.push(fragmentString); } catch (e) {}
+                try { this._svgFragments.push(fragmentString); } catch (e) { }
+                try { window.__maxwell_svg_fragments = window.__maxwell_svg_fragments || []; window.__maxwell_svg_fragments.push(fragmentString); } catch (e) { }
                 return;
             }
 
@@ -1345,6 +1351,12 @@ class Artist {
             // Create wrapper in real overlay and set computed translation
             const wrapper = document.createElementNS(NS, 'g');
             wrapper.setAttribute('transform', `translate(${dx}, ${dy})`);
+            // Mark wrapper as originating from LaTeX if caller provided latexArtist
+            try {
+                if (opts && opts.latexArtist) {
+                    wrapper.setAttribute('data-latex-fragment', 'true');
+                }
+            } catch (e) { }
             svgRoot.appendChild(wrapper);
 
             // Import actual fragment nodes into wrapper (unwrap nested svg)
@@ -1366,8 +1378,8 @@ class Artist {
             try { tempContainer.remove(); } catch (e) { /* ignore */ }
 
             // Record fragment for export
-            try { this._svgFragments.push(fragmentString); } catch (e) {}
-            try { window.__maxwell_svg_fragments = window.__maxwell_svg_fragments || []; window.__maxwell_svg_fragments.push(fragmentString); } catch (e) {}
+            try { this._svgFragments.push(fragmentString); } catch (e) { }
+            try { window.__maxwell_svg_fragments = window.__maxwell_svg_fragments || []; window.__maxwell_svg_fragments.push(fragmentString); } catch (e) { }
         } catch (e) {
             console.warn('[commitSVGFragment] failed to commit fragment:', e);
         }
