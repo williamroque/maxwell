@@ -53,6 +53,26 @@ class Pen {
     clear() {
         this.artist.clear();
 
+        // Also clear any LaTeX-specific state/overlays owned by the latex artist
+        try {
+            if (this.latexArtist) {
+                try { this.latexArtist.clear(); } catch (e) {}
+
+                // Remove any committed overlay fragments that were marked as LaTeX
+                try {
+                    if (typeof window !== 'undefined' && window.__maxwell_svg_overlay) {
+                        const svg = window.__maxwell_svg_overlay.querySelector('svg');
+                        if (svg) {
+                            const nodes = Array.from(svg.querySelectorAll('[data-latex-fragment]'));
+                            for (const n of nodes) {
+                                n.remove();
+                            }
+                        }
+                    }
+                } catch (e) {}
+            }
+        } catch (e) {}
+
         if (this.enabled) {
             this.history.takeSnapshot();
         }
